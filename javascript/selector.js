@@ -3,11 +3,11 @@ class Selector {
 	* Creates a selector object
 	*
 	*/ 
-	constructor(map, chart){
+	constructor(myMap, chart){
 		this.startDate = new Date();
 		this.endDate = new Date();
 		this.selectedDate = new Date();
-		this.map = map;
+		this.dataMap = myMap;
 		this.timeChart = chart;
 		this.fullData = null;
 		this.sensorList = ["S-A-085","S-A-144","S-A-069"]
@@ -32,6 +32,9 @@ class Selector {
 	        that.getRange()
 	        let sensorData = that.grabSensorData("S-A-085");
 	        console.log('final!', that.grabAllSensorData(that.selectedDate));
+	        that.modelData = that.grabAllModelData(that.selectedDate,10,10);
+	        
+	        
 	       });
 		});
 
@@ -52,7 +55,6 @@ class Selector {
 
 		console.log("grabbed")
 		let myData = await req;
-		console.log(myData);
 			
 	}
 
@@ -72,10 +74,72 @@ class Selector {
 		}
 	}
 
-	updateViews() {
-		this.map.update(this.sensorMapData, this.sensorModelData);
-		
+	async grabAllModelData(time, xReadings, yReadings){
+
+		let closestStartDate = new Date(time);
+		closestStartDate.setMinutes(time.getMinutes() + 5);
+
+		let latArr = linSpace(40.598850,40.810476,xReadings);
+		let longArr = linSpace(-111.818403,-112.001349,yReadings); //Note the second long value had to be increased otherwise, it gave an error.
+		console.log(latArr);
+		console.log("long array is",longArr)
+		let promises = [];
+		this.modelVals = []; // Generates xReadings by yReadings matrix to fill
+		let that = this;
+		let start = time.toISOString().slice(0,-5)+"Z";
+		let stop = closestStartDate.toISOString().slice(0,-5)+"Z";
+		let sitesArray = [];
+		let i = 0;
+		for (let [longIndex, long] of longArr.entries()){
+			for (let [latIndex, lat] of latArr.entries()){
+				let url = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+lat+"&location_lng="+long+"&start="+start + "&end=" + stop;
+				promises[i] = fetch(url).then(function(response){ 
+				         return response.text();
+				}).catch((err)=>{
+					console.log(err);
+				});
+
+				//let req = this.getDataFromDB(url)
+				//req.then((modelData)=> {
+				//	that.modelVals.push(modelData[0].pm25);
+				//})
+				//promises.push(req);
+				i++;
+			}
+		}
+
+		Promise.all(promises.map(p => p.catch(() => undefined)))
+
+		Promise.all(promises).then(values =>{
+			let parsedVals = [];
+			for(let i = 0; i< values.length; i++){
+				console.log(JSON.parse(values[i]))
+				parsedVals.push(JSON.parse(values[i])[0].pm25) 
+			}
+		    that.modelData = values;
+		    console.log(parsedVals);
+		    this.modelData = parsedVals;
+		    this.updateViews();
+		    return values;
+		});
+		console.log("We got here!")
+
+
+		// Mine: https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat=40.645877999999996&location_lng=-111.93736100000001&start=2018-12-13T16:00:00.000Z&end=2018-12-13T16:10:00.000Z
+		// Mine: https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat=40.645877999999996&location_lng=-111.93736100000001&start=2018-12-12T16:00:00Z&end=2018-12-13T16:10:00Z
+		// AQaU: https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat=40.78756024557722&location_lng=-111.84837341308594&start=2018-07-08T15:26:05Z&end=2018-07-09T15:26:05Z
+
+
+		//  bottomLeftCorner = {'lat': 40.598850, 'lng': -112.001349}
+    	// topRightCorner = {'lat': 40.810476, 'lng': -111.713403}
+
 	}
+
+	updateViews() {
+		this.dataMap.update(this.sensorMapData, this.modelData);
+
+	}
+
 	getDataFromDB(anURL) { 
 	  return new Promise((resolve, reject) => {
 	    const method = 'GET';
@@ -97,10 +161,19 @@ class Selector {
 	        reject(e);
 	      };
 	    };
-
 	    request.send();
 	  });
 	}
 
 
+}
+
+function linSpace(startValue, stopValue, cardinality) {
+  var arr = [];
+  var currValue = startValue;
+  var step = (stopValue - startValue) / (cardinality - 1);
+  for (var i = 0; i < cardinality; i++) {
+    arr.push(currValue + (step * i));
+  }
+  return arr;
 }
