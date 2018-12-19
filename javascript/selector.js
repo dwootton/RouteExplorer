@@ -10,7 +10,10 @@ class Selector {
 		this.dataMap = myMap;
 		this.timeChart = chart;
 		this.fullData = null;
-		this.sensorList = ["S-A-085","S-A-144","S-A-069"]
+
+		this.getSensorInformation();
+
+
 		let that = this;
 
 		$(function() {
@@ -34,11 +37,35 @@ class Selector {
 	        console.log('final!', that.grabAllSensorData(that.selectedDate));
 	        that.modelData = that.grabAllModelData(that.selectedDate,10,10);
 	        
-	        
 	       });
 		});
-
 	}
+
+	async getSensorInformation(){
+		let url = "http://air.eng.utah.edu/dbapi/api/liveSensors/airU";
+		let req = fetch(url)
+		let that = this;
+		req.then((response) => {
+			return response.text();
+		})
+		.then((myJSON) => {
+			myJSON = JSON.parse(myJSON);
+			let sensors = [];
+			console.log(myJSON[0]);
+			for(let i = 0; i < myJSON.length; i++){
+				let val = {
+					id:myJSON[i].ID,
+					lat:myJSON[i].Latitude,
+					long:myJSON[i].Longitude
+
+				};
+				sensors.push(val)
+
+			}
+			that.sensorList = sensors;
+
+		});
+	}	
 
 	getRange(){
 		console.log([this.startDate,this.endDate]);
@@ -63,16 +90,72 @@ class Selector {
 		closestStartDate.setMinutes(time.getMinutes() + 10);
 
 		let that = this;
-		this.sensorMapData = {};
+		//let sensorMapData = Array.from(this.sensorList);
+		this.sensorMapData =[];
+		console.log(this.sensorList);
+
 		// grab the most recent values for each sensor
+		let promises = [];
 		for(let i = 0; i < this.sensorList.length; i++){
-			let sensorID = this.sensorList[i];
+			let sensorID = this.sensorList[i].id;
+			let sensorLat = this.sensorList[i].lat;
+			let sensorLong = this.sensorList[i].long;
+			let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+sensorID+"&sensorSource=airu&start=" + time.toISOString() + "&end=" + closestStartDate.toISOString()+ "&show=pm25"
+				promises[i] = fetch(url).then(function(response){ 
+				         return response.text();
+				}).catch((err)=>{
+					console.log(err);
+				});
+
+			/*
 			let req = this.getDataFromDB("https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+sensorID+"&sensorSource=airu&start=" + time.toISOString() + "&end=" + closestStartDate.toISOString()+ "&show=pm25")
 			req.then((sensorData)=> {
-				that.sensorMapData[sensorID] = sensorData.data[0];
-			})
-		}
+				console.log(sensorData);
+				
+				that.sensorMapData.push({
+					id:sensorID,
+					lat:sensorLat,
+					long:sensorLong,
+					pm25:sensorData[0]
+				})
+				*/
+			}
+			Promise.all(promises.map(p => p.catch(() => undefined)))
+
+		Promise.all(promises).then(values =>{
+			let parsedVals = [];
+			for(let i = 0; i< values.length; i++){
+				let sensorID = this.sensorList[i].id;
+				let sensorLat = this.sensorList[i].lat;
+				let sensorLong = this.sensorList[i].long;
+				let readings = JSON.parse(values[i]).data
+				if(readings[0]){
+					let obj = {
+						id:sensorID,
+						lat:sensorLat,
+						long:sensorLong,
+						pm25:readings[0].pm25
+					};
+					parsedVals.push(obj) 
+				} else {
+					let obj = {
+						id:sensorID,
+						lat:sensorLat,
+						long:sensorLong,
+						pm25:-1
+					};
+					parsedVals.push(obj) 
+				}
+				
+			}
+		    console.log(parsedVals);
+		    this.modelData = parsedVals;
+		    this.updateViews();
+		    return values;
+		});
 	}
+		
+
 
 	async grabAllModelData(time, xReadings, yReadings){
 
@@ -122,7 +205,6 @@ class Selector {
 		    this.updateViews();
 		    return values;
 		});
-		console.log("We got here!")
 
 
 		// Mine: https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat=40.645877999999996&location_lng=-111.93736100000001&start=2018-12-13T16:00:00.000Z&end=2018-12-13T16:10:00.000Z

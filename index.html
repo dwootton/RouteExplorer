@@ -23,6 +23,18 @@
 	<script src="https://d3js.org/d3-hsv.v0.1.min.js"></script>
 	<script src="https://d3js.org/d3-contour.v1.min.js"></script>
 	
+
+	<!--- Leaflet ---> 
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+	  integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+	  crossorigin=""/>
+	<script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+	  integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+	  crossorigin=""></script>
+
+	  <!---Google Maps ---> 
+		  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCPkb5f5z6o5utgVRe3EQpA-PbDScQgVsU&callback=initMap"></script>
+
 	<title>
 	
 	</title>
@@ -33,7 +45,8 @@
 	<div style="overflow:hidden;">
     <input type="text" name="datetimes" value="01/01/2018 - 01/15/2018" />
 	</div>
-	  <svg width="600" height="600" id="map" stroke="#fff" stroke-width="0.5"></svg>
+	  <svg width="600" height="600" id="svgmap" stroke="#fff" stroke-width="0.5"></svg>
+	  <div width='500' height ='500' id="map"> </div>
 
 
 
@@ -44,4 +57,12 @@
 
 
 <script src="/javascript/main.js"> </script>
+<style> 
+
+#map
+{
+	height: 1000px;
+
+}
+</style>
 </html>
