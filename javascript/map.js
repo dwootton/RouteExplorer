@@ -128,7 +128,7 @@ class AQMap {
 		        })
 		        .on("click", function(d) {		
 		            console.log(d.id);
-		            selector.grabSensorData(d.id);
+		            selector.grabSensorData(d);
 
 		        });
 

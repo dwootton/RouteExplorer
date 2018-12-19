@@ -30,6 +30,11 @@ class timeChart {
 		    .x((d)=>{ return this.xScale(d.time); })
 		    .y0(this.height)
 		    .y1((d)=>{ return this.yScale(d.pm25); });
+		
+		this.line = d3.line()
+			.curve(d3.curveMonotoneX)
+			.x((d)=>{ return this.xScale(d.time); })
+		    .y((d)=>{ return this.yScale(d.pm25); });
 
 		this.area2 = d3.area()
 		    .curve(d3.curveMonotoneX)
@@ -63,7 +68,7 @@ class timeChart {
 
 	}
 
-	update(data){
+	update(data,modelData){
 		this.refreshChart();
 		let self = this;
 		function type(d) {
@@ -74,17 +79,18 @@ class timeChart {
 		}
 		this.currentData = data.data;
 		data = data.data;
+		console.log(modelData);
 
-		console.log(data);
-		data = data.map(type); 
-		console.log(data);
+		data = data.map(type);
+		modelData = modelData.map(type); 
+		console.log(modelData);
 
 		function brushed() {
 		  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
 		  var s = d3.event.selection || self.x2Scale.range();
-		  console.log("Brushed", self.currentData);
 		  self.xScale.domain(s.map(self.x2Scale.invert, self.x2Scale));
 		  self.focus.select(".area").attr("d", self.area);
+		  self.focus.select(".line").attr("d", self.line);
 		  self.focus.select(".axis--x").call(self.xAxis);
 		  self.svg.select(".zoom").call(self.zoom.transform, d3.zoomIdentity
 		      .scale(self.width / (s[1] - s[0]))
@@ -96,19 +102,40 @@ class timeChart {
 		  var t = d3.event.transform;
 		  self.xScale.domain(t.rescaleX(self.x2Scale).domain());
 		  self.focus.select(".area").attr("d", self.area);
+		  self.focus.select(".line").attr("d", self.line);
 		  self.focus.select(".axis--x").call(self.xAxis);
 		  self.context.select(".brush").call(self.brush.move, self.xScale.range().map(t.invertX, t));
 		}
 
-		
-
+		/*
+	this.svg.append("linearGradient")				
+	    .attr("id", "area-gradient")			
+	    .attr("gradientUnits", "userSpaceOnUse")	
+	    .attr("x1", 0).attr("y1", this.yScale(0))			
+	    .attr("x2", 0).attr("y2", this.yScale(1000))		
+	  .selectAll("stop")						
+	    .data([								
+	      {offset: "0%", color: "red"},		
+	      {offset: "30%", color: "red"},	
+	      {offset: "45%", color: "black"},		
+	      {offset: "55%", color: "black"},		
+	      {offset: "60%", color: "lawngreen"},	
+	      {offset: "100%", color: "lawngreen"}	
+	    ])					
+	  .enter().append("stop")			
+	    .attr("offset", function(d) { return d.offset; })	
+	    .attr("stop-color", function(d) { return d.color; });
+	    */
     // Start of update
     let timeBounds = [data[0].time, data[data.length-1].time];
 
     console.log(timeBounds);
 	  this.xScale.domain(timeBounds);
-
-	  this.yScale.domain([0, d3.max(data, function(d) { return d.pm25; })]);
+	  modelData
+	  let maxSensorReading = d3.max(data, function(d) { return d.pm25; });
+	  let maxModelEstimate = d3.max(modelData, function(d) { return d.pm25; });
+	  console.log(maxModelEstimate);
+	  this.yScale.domain([0, d3.max([maxSensorReading,maxModelEstimate]) ]);
 	  this.x2Scale.domain(this.xScale.domain());
 	  this.y2Scale.domain(this.yScale.domain());
 
@@ -126,6 +153,11 @@ class timeChart {
 	      .datum(data)
 	      .attr("class", "area")
 	      .attr("d", this.area);
+
+	  this.focus.append("path")
+	  	  .datum(modelData)
+	  	  .attr("class","line")
+	  	  .attr("d", this.line);
 
 	  this.focus.append("g")
 	      .attr("class", "axis axis--x")
