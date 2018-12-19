@@ -95,12 +95,10 @@ class AQMap {
 		      let projection = this.getProjection(),
 		          padding = 8.5;
 
-		      console.log(sensorData);
 		      let marker = layer.selectAll("svg")
 		          .data(sensorData)
 		          .each(transform)
 		          .attr("fill", (d)=>{
-		          	console.log(that.colorMap(d.pm25));
 		          	if(d.pm25< 0){
 		          		return "black";
 		          	}
@@ -127,6 +125,11 @@ class AQMap {
 		            that.toolTip.transition()		
 		                .duration(500)		
 		                .style("opacity", 0);	
+		        })
+		        .on("click", function(d) {		
+		            console.log(d.id);
+		            selector.grabSensorData(d.id);
+
 		        });
 
 		      let newMarkers = marker
@@ -142,7 +145,6 @@ class AQMap {
 		          .attr("cx", padding)
 		          .attr("cy", padding)
 		          .attr("fill", (d)=>{
-		          	console.log(that.colorMap(d.pm25));
 		          	if(d.pm25< 0){
 		          		return "black";
 		          	}
@@ -199,7 +201,7 @@ class AQMap {
 		      function transform(d) {
 		        d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
 		        d = projection.fromLatLngToDivPixel(d);
-		        console.log(d3.select(this));
+		        //console.log(d3.select(this));
 
 		        return d3.select(this)
 		            .style("left", (d.x - padding) + "px")

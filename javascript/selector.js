@@ -72,12 +72,15 @@ class Selector {
 
 	async grabSensorData(id){
 		//let id = "S-A-085";// Ex id: S-A-085
+		console.log("Sensor id is ", id);
 		let fullData = {}
 		
 		let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+id+"&sensorSource=airu&start=" + this.startDate.toISOString() + "&end=" + this.endDate.toISOString()+ "&show=pm25";
 		let req = this.getDataFromDB("https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+id+"&sensorSource=airu&start=" + this.startDate.toISOString() + "&end=" + this.endDate.toISOString()+ "&show=pm25")
 
 		let myData = await req;
+		console.log("GOt here!", myData);
+		this.timeChart.update(myData)
 			
 	}
 

@@ -46,6 +46,7 @@
     <input type="text" name="datetimes" value="01/01/2018 - 01/15/2018" />
 	</div>
 	  <div width='500' height ='500' id="map"> </div>
+	  <svg width = "960" height= "500" id="timeChart" > </svg>
 
 
 
@@ -96,6 +97,17 @@ div.tooltip {
     border-radius: 8px;			
     pointer-events: none;	
     z-index:1000;		
+}
+
+.area {
+  fill: steelblue;
+  clip-path: url(#clip);
+}
+
+.zoom {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
 }
 
 </style>
