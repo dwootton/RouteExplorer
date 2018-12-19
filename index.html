@@ -45,7 +45,6 @@
 	<div style="overflow:hidden;">
     <input type="text" name="datetimes" value="01/01/2018 - 01/15/2018" />
 	</div>
-	  <svg width="600" height="600" id="svgmap" stroke="#fff" stroke-width="0.5"></svg>
 	  <div width='500' height ='500' id="map"> </div>
 
 
@@ -64,5 +63,40 @@
 	height: 1000px;
 
 }
+
+.sensors, .sensors svg {
+  position: absolute;
+}
+
+.sensors svg {
+  width: 20px;
+  height: 20px;
+  font: 10px sans-serif;
+}
+
+.marker {
+	z-index:5;
+}
+
+.hiddenMarker{
+	fill-opacity: 0;
+	stroke-width:1px;
+	stroke:white;
+}
+
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 60px;					
+    height: 65px;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;	
+    z-index:1000;		
+}
+
 </style>
 </html>

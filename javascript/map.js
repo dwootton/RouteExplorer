@@ -2,13 +2,13 @@ class AQMap {
 
 	constructor(){
 		console.log("map created!")
-		this.svg = d3.select("svg")//.append('g')
-		this.width = this.svg.attr("width")
-		this.height = this.svg.attr("height")
+		//this.svg = d3.select("svg")//.append('g')
+		//this.width = this.svg.attr("width")
+		//this.height = this.svg.attr("height")
 		let i0 = d3.interpolateHsvLong(d3.hsv(120, 1, 0.65), d3.hsv(60, 1, 0.90)),
 		    i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 0, 0.95)),
 		    interpolateTerrain = function(t) { return t < 0.5 ? i0(t * 2) : i1((t - 0.5) * 2); };
-		this.colorMap = d3.scaleSequential(interpolateTerrain).domain([0, 40]);
+		this.colorMap = d3.scaleSequential(interpolateTerrain).domain([0, 50]);
 		this.modelWidth = 10;
 		this.modelHeight = 10;
 		this.contours = null;
@@ -24,6 +24,9 @@ class AQMap {
 		    styles: myStyles,
 
 		  });
+		this.toolTip = d3.select("body").append("div")	
+		    .attr("class", "tooltip")				
+		    .style("opacity", 0);
 		/*L.map('map',{
 		    renderer: L.svg()
 		}).setView([40.7, -111.9], 10);
@@ -74,50 +77,130 @@ class AQMap {
 		//this.update(null,null);
 
 	}
-
-	update(sensorData, modelData){
-		this.sensorData = sensorData;
-		this.modelData = modelData;
-
-		//modelData = [8.964339902535034,15.595682501404061,16.57042698744204,18.19133816333678,11.611668095213714,11.565647168212108,9.916192521114132,6.541899730217069,7.052352588683608,7.501035178307062,12.019836906924501,16.98977615367748,14.43903630464879,18.41282496331842,11.333456684937138,9.348287548592062,14.489214074824726,6.790941527231953,7.815439492232705,8.135989384967434,13.852967147718985,17.47881501875145,17.602093468948997,18.830038387876115,16.222298703405457,11.069596451529595,12.860585717982625,5.843669206401813,6.430187999002033,8.673146088261356,14.552478042333625,17.200599865924136,21.489357944171832,20.283229563364984,22.151296051663245,12.974239563914061,10.456259349792571,9.093369517827368,8.655585226894358,9.608234030728035,14.663427790183809,15.271610089467535,19.424004390003876,19.44191061494021,20.92421296747697,15.638916349765802,9.75426986279476,12.976609675996558,11.121457884910457,10.471115502102577,14.966634341087122,15.06459586204938,19.77206699673942,16.27432872978454,21.08491498089317,18.887858898521586,11.711520640410228,10.284399004801326,10.85591700328193,10.676961765465006,15.418880386593878,17.324992752382588,20.867054510813166,13.975326921604745,20.773387078287815,21.984749565253274,15.453787202465993,15.829766955056902,13.49466080205513,10.41240450475944,15.238003806561725,15.702425998754974,19.789690539119942,17.16813636153775,23.63605745112857,24.109886934715696,21.57548452672802,20.333157196989834,16.441317860506214,13.19475038159874,14.422132334192963,13.80178996562388,14.180767016665985,18.971809169026482,24.201107603378983,25.317954340201148,25.655463931357115,22.65905392044519,19.313157803743675,17.18003245141215,12.696038236906523,13.763938609390353,12.647917754996156,19.517848958461776,24.30889143498016,25.726582171786102,26.038806451222484,24.10279485433458,21.681735071371676,20.208294359971237];
-		
+	updateSensor(sensorData){
+		console.log(sensorData);
 		// SENSOR CODE: BEGIN HERE: 
+		this.sensorData = sensorData;
 		let overlay = new google.maps.OverlayView();
+		let that = this;
 
 		  // Add the container when the overlay is added to the map.
 		  overlay.onAdd = function() {
-		    let layer = d3.select(this.getPanes().overlayLayer).append("div")
-		        .attr("class", "stations");
+		    let layer = d3.select(this.getPanes().overlayMouseTarget).append("div") // floatPane as I want sensors to be on top
+		        .attr("class", "sensors");
 
 		    // Draw each marker as a separate SVG element.
 		    // We could use a single SVG, but what size would it have?
 		    overlay.draw = function() {
-		      var projection = this.getProjection(),
-		          padding = 10;
+		      let projection = this.getProjection(),
+		          padding = 8.5;
 
-		      var marker = layer.selectAll("svg")
-		          .data(d3.entries(data))
-		          .each(transform) // update existing markers
+		      console.log(sensorData);
+		      let marker = layer.selectAll("svg")
+		          .data(sensorData)
+		          .each(transform)
+		          .attr("fill", (d)=>{
+		          	console.log(that.colorMap(d.pm25));
+		          	if(d.pm25< 0){
+		          		return "black";
+		          	}
+		          	return (that.colorMap(d.pm25))
+		          })
+		          .classed("hiddenMarker", (d)=> {
+		          	if(d.pm25< 0){
+		          		return true;
+		          	}
+		          	return false;
+		          })
+
+		      marker
+		          .on("mouseover", function(d) {		
+		          	console.log("MOUSEOVER!!!")
+		            that.toolTip.transition()		
+		                .duration(200)		
+		                .style("opacity", .9);		
+		            that.toolTip	.html(d.id + "<br/>"  + d.pm25)	
+		                .style("left", (d3.event.pageX - 30) + "px")		
+		                .style("top", (d3.event.pageY - 75) + "px");		
+		            })					
+		        .on("mouseout", function(d) {		
+		            that.toolTip.transition()		
+		                .duration(500)		
+		                .style("opacity", 0);	
+		        });
+
+		      let newMarkers = marker
 		        .enter().append("svg")
 		          .each(transform)
 		          .attr("class", "marker");
 
-		      // Add a circle.
-		      marker.append("circle")
-		          .attr("r", 4.5)
-		          .attr("cx", padding)
-		          .attr("cy", padding);
+		      marker.exit().remove();
 
+		      // Add a circle. May be unused?
+		      newMarkers.append("circle")
+		          .attr("r", 8.5)
+		          .attr("cx", padding)
+		          .attr("cy", padding)
+		          .attr("fill", (d)=>{
+		          	console.log(that.colorMap(d.pm25));
+		          	if(d.pm25< 0){
+		          		return "black";
+		          	}
+		          	return (that.colorMap(d.pm25))
+		          })
+		          .classed("hiddenMarker", (d)=> {
+		          	if(d.pm25< 0){
+		          		return true;
+		          	}
+		          	return false;
+		          });
+		          
+		          
 		      // Add a label.
-		      marker.append("text")
+		      /*
+		      newMarkers.append("text")
 		          .attr("x", padding + 7)
 		          .attr("y", padding)
 		          .attr("dy", ".31em")
-		          .text(function(d) { return d.key; });
-
+		          .text(function(d) {return d.id;});
+		       
 		      function transform(d) {
-		        d = new google.maps.LatLng(d.value[1], d.value[0]);
+		        let latLongObj = {lat:+d.lat,lng:+d.long};
+		        console.log(latLongObj);
+		        let realLLObj = new google.maps.LatLng(latLongObj.lat, latLongObj.lng); 
+		        let obj = projection.fromLatLngToDivPixel(realLLObj);
+		        console.log(obj);
+		        let sel = d3.select(this);
+		        return d3.select(this)
+		            .style("left", (obj.x - padding) + "px")
+		            .style("top", (obj.y - padding) + "px");
+		      } 
+				One SVG: 
+				let newMarkers = marker
+		        .enter()
+		          .append("circle")
+		          .attr("cx", (d) => {
+		          	 d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
+				        d = projection.fromLatLngToDivPixel(d);
+				       
+				        return (d.x-padding) +"px";
+		          })
+		          .attr("cy", (d) => {
+		          	 d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
+				        d = projection.fromLatLngToDivPixel(d);
+
+				        return (d.y-padding) +"px";
+		          })
+		          .attr("class", "marker")
+		          .attr("fill",(d)=>{
+		          	return (that.colorMap(d.pm25))
+		          });
+		      */
+		      function transform(d) {
+		        d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
 		        d = projection.fromLatLngToDivPixel(d);
+		        console.log(d3.select(this));
+
 		        return d3.select(this)
 		            .style("left", (d.x - padding) + "px")
 		            .style("top", (d.y - padding) + "px");
@@ -127,6 +210,13 @@ class AQMap {
 
 		  // Bind our overlay to the map…
 		  overlay.setMap(this.myMap);
+	}
+	updateModel(modelData){
+		
+		this.modelData = modelData;
+
+		//modelData = [8.964339902535034,15.595682501404061,16.57042698744204,18.19133816333678,11.611668095213714,11.565647168212108,9.916192521114132,6.541899730217069,7.052352588683608,7.501035178307062,12.019836906924501,16.98977615367748,14.43903630464879,18.41282496331842,11.333456684937138,9.348287548592062,14.489214074824726,6.790941527231953,7.815439492232705,8.135989384967434,13.852967147718985,17.47881501875145,17.602093468948997,18.830038387876115,16.222298703405457,11.069596451529595,12.860585717982625,5.843669206401813,6.430187999002033,8.673146088261356,14.552478042333625,17.200599865924136,21.489357944171832,20.283229563364984,22.151296051663245,12.974239563914061,10.456259349792571,9.093369517827368,8.655585226894358,9.608234030728035,14.663427790183809,15.271610089467535,19.424004390003876,19.44191061494021,20.92421296747697,15.638916349765802,9.75426986279476,12.976609675996558,11.121457884910457,10.471115502102577,14.966634341087122,15.06459586204938,19.77206699673942,16.27432872978454,21.08491498089317,18.887858898521586,11.711520640410228,10.284399004801326,10.85591700328193,10.676961765465006,15.418880386593878,17.324992752382588,20.867054510813166,13.975326921604745,20.773387078287815,21.984749565253274,15.453787202465993,15.829766955056902,13.49466080205513,10.41240450475944,15.238003806561725,15.702425998754974,19.789690539119942,17.16813636153775,23.63605745112857,24.109886934715696,21.57548452672802,20.333157196989834,16.441317860506214,13.19475038159874,14.422132334192963,13.80178996562388,14.180767016665985,18.971809169026482,24.201107603378983,25.317954340201148,25.655463931357115,22.65905392044519,19.313157803743675,17.18003245141215,12.696038236906523,13.763938609390353,12.647917754996156,19.517848958461776,24.30889143498016,25.726582171786102,26.038806451222484,24.10279485433458,21.681735071371676,20.208294359971237];
+		
 		// MODEL CODE: 
 		let startDate = new Date();
 		let startStamp = startDate.getTime()
@@ -184,8 +274,6 @@ class AQMap {
 		    return result;
 		}
 		
-		//console.log(geojson);
-
 		if(this.lastData){
 			this.myMap.data.forEach((feature) => {
 				this.myMap.data.remove(feature);

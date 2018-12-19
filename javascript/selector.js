@@ -51,7 +51,6 @@ class Selector {
 		.then((myJSON) => {
 			myJSON = JSON.parse(myJSON);
 			let sensors = [];
-			console.log(myJSON[0]);
 			for(let i = 0; i < myJSON.length; i++){
 				let val = {
 					id:myJSON[i].ID,
@@ -68,7 +67,6 @@ class Selector {
 	}	
 
 	getRange(){
-		console.log([this.startDate,this.endDate]);
 		return [this.startDate,this.endDate];
 	}
 
@@ -77,10 +75,8 @@ class Selector {
 		let fullData = {}
 		
 		let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+id+"&sensorSource=airu&start=" + this.startDate.toISOString() + "&end=" + this.endDate.toISOString()+ "&show=pm25";
-		console.log(url);
 		let req = this.getDataFromDB("https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+id+"&sensorSource=airu&start=" + this.startDate.toISOString() + "&end=" + this.endDate.toISOString()+ "&show=pm25")
 
-		console.log("grabbed")
 		let myData = await req;
 			
 	}
@@ -92,7 +88,6 @@ class Selector {
 		let that = this;
 		//let sensorMapData = Array.from(this.sensorList);
 		this.sensorMapData =[];
-		console.log(this.sensorList);
 
 		// grab the most recent values for each sensor
 		let promises = [];
@@ -146,11 +141,9 @@ class Selector {
 					};
 					parsedVals.push(obj) 
 				}
-				
 			}
-		    console.log(parsedVals);
-		    this.modelData = parsedVals;
-		    this.updateViews();
+		    this.sensorData = parsedVals;
+		    this.updateSensorViews();
 		    return values;
 		});
 	}
@@ -164,8 +157,6 @@ class Selector {
 
 		let latArr = linSpace(40.598850,40.810476,xReadings);
 		let longArr = linSpace(-111.818403,-112.001349,yReadings); //Note the second long value had to be increased otherwise, it gave an error.
-		console.log(latArr);
-		console.log("long array is",longArr)
 		let promises = [];
 		this.modelVals = []; // Generates xReadings by yReadings matrix to fill
 		let that = this;
@@ -196,11 +187,9 @@ class Selector {
 		Promise.all(promises).then(values =>{
 			let parsedVals = [];
 			for(let i = 0; i< values.length; i++){
-				console.log(JSON.parse(values[i]))
 				parsedVals.push(JSON.parse(values[i])[0].pm25) 
 			}
 		    that.modelData = values;
-		    console.log(parsedVals);
 		    this.modelData = parsedVals;
 		    this.updateViews();
 		    return values;
@@ -218,8 +207,12 @@ class Selector {
 	}
 
 	updateViews() {
-		this.dataMap.update(this.sensorMapData, this.modelData);
+		this.dataMap.updateModel(this.modelData);
 
+	}
+
+	updateSensorViews(){
+		this.dataMap.updateSensor(this.sensorData)
 	}
 
 	getDataFromDB(anURL) { 
