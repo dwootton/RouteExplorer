@@ -116,8 +116,10 @@ class timeChart {
 		console.log(modelData);
 
 		function brushed() {
+			console.log(d3.event.sourceEvent)
 		  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
 		  var s = d3.event.selection || self.x2Scale.range();
+		  
 		  self.xScale.domain(s.map(self.x2Scale.invert, self.x2Scale));
 		  self.focus.select(".area").attr("d", self.area);
 		  self.focus.select(".line").attr("d", self.line);
@@ -129,6 +131,7 @@ class timeChart {
 		}
 
 		function zoomed() {
+			console.log(d3.event.sourceEvent)
 		  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
 		  var t = d3.event.transform;
 		  self.xScale.domain(t.rescaleX(self.x2Scale).domain());
@@ -163,7 +166,6 @@ class timeChart {
 
     console.log(timeBounds);
 	  this.xScale.domain(timeBounds);
-	  modelData
 	  let maxSensorReading = d3.max(data, function(d) { return d.pm25; });
 	  let maxModelEstimate = d3.max(modelData, function(d) { return d.pm25; });
 	  console.log(maxModelEstimate);
@@ -193,16 +195,7 @@ class timeChart {
 	      .attr("class", "area")
 	      .attr("d", this.area);
 
-	  sensorData.on("click", function() {
-          let coords = d3.mouse(this);
-
-          // Normally we go from data to pixels, but here we're doing pixels to data
-          let newData= {
-            x: Math.round( that.xScale.invert(coords[0])),  // Takes the pixel number to convert to number
-            y: Math.round( that.yScale.invert(coords[1]))
-          }
-          console.log(newData);
-      })
+	  
 
 
 	  this.focus.append("path")
@@ -234,12 +227,34 @@ class timeChart {
 	      .call(this.brush)
 	      .call(this.brush.move, this.xScale.range());
 
-	  this.svg.append("rect")
+	  let overLay = this.svg.append("rect")
 	      .attr("class", "zoom")
 	      .attr("width", this.width)
 	      .attr("height", this.height)
 	      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 	      .call(this.zoom);
+	  let that = this;
+	  overLay.on("click", function() {
+	  		// One possibility is to make this s shift click:
+	  	  //if (d3.event.shiftKey) { 
+		   //     alert("Mouse+Shift pressed");
+		    //}
+
+          let coords = d3.mouse(this);
+          console.log("INSIDE CLICK@!!!")
+          // Normally we go from data to pixels, but here we're doing pixels to data
+          let newData= {
+            x: Math.round( that.xScale.invert(coords[0])),  // Takes the pixel number to convert to number
+            y: Math.round( that.yScale.invert(coords[1]))
+          }
+          that.selectedDate = new Date(newData.x);
+          selector.selectedDate = that.selectedDate;
+          console.log(selector.selectedDate);
+          selector.grabAllSensorData(selector.selectedDate);
+          selector.grabAllModelData(selector.selectedDate)
+          that.updateSlider(that.selectedDate)
+          console.log(selectedDate);
+      })
 	}
 
 }

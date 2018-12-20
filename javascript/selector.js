@@ -178,13 +178,13 @@ class Selector {
 		
 
 
-	async grabAllModelData(time, xReadings, yReadings){
+	async grabAllModelData(time){
 
 		let closestStartDate = new Date(time);
 		closestStartDate.setMinutes(time.getMinutes() + 5);
 
-		let latArr = linSpace(40.598850,40.810476,xReadings);
-		let longArr = linSpace(-111.818403,-112.001349,yReadings); //Note the second long value had to be increased otherwise, it gave an error.
+		//let latArr = linSpace(40.598850,40.810476,xReadings);
+		//let longArr = linSpace(-111.818403,-112.001349,yReadings); //Note the second long value had to be increased otherwise, it gave an error.
 		let promises = [];
 		this.modelVals = []; // Generates xReadings by yReadings matrix to fill
 		let that = this;
