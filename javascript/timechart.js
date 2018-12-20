@@ -188,10 +188,22 @@ class timeChart {
 		    .extent([[0, 0], [this.width, this.height]])
 		    .on("zoom", zoomed);
 
-	  this.focus.append("path")
+	  let sensorData = this.focus.append("path")
 	      .datum(data)
 	      .attr("class", "area")
 	      .attr("d", this.area);
+
+	  sensorData.on("click", function() {
+          let coords = d3.mouse(this);
+
+          // Normally we go from data to pixels, but here we're doing pixels to data
+          let newData= {
+            x: Math.round( that.xScale.invert(coords[0])),  // Takes the pixel number to convert to number
+            y: Math.round( that.yScale.invert(coords[1]))
+          }
+          console.log(newData);
+      })
+
 
 	  this.focus.append("path")
 	  	  .datum(modelData)
