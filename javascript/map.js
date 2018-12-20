@@ -93,7 +93,7 @@ class AQMap {
 		    // We could use a single SVG, but what size would it have?
 		    overlay.draw = function() {
 		      let projection = this.getProjection(),
-		          padding = 8.5;
+		          padding = 10.5;
 
 		      let marker = layer.selectAll("svg")
 		          .data(sensorData)
@@ -129,6 +129,13 @@ class AQMap {
 		        .on("click", function(d) {		
 		            console.log(d.id);
 		            selector.grabSensorData(d);
+		            d3.select(this).classed("selected", true);
+		            console.log(that);
+		            d3.select(that.lastSelected).classed("selected", false);
+		            d3.select(that.lastSelected).classed("nonSelected", true);
+		            that.lastSelected = this;
+		            
+                	
 
 		        });
 
@@ -296,7 +303,7 @@ class AQMap {
           return /** @type {!google.maps.Data.StyleOptions} */({
             fillColor: color,
             strokeWeight: 0,
-            fillOpacity: 0.1,
+            fillOpacity: 0.04,
           });
         });
         let stopDate = new Date();

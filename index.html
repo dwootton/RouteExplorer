@@ -70,8 +70,8 @@
 }
 
 .sensors svg {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   font: 10px sans-serif;
 }
 
@@ -99,6 +99,15 @@ div.tooltip {
     z-index:1000;		
 }
 
+.selected circle {
+	stroke-width:4px;
+	stroke:black;
+}
+
+.nonSelected circle {
+	stroke-width:0px;
+}
+
 .area {
   fill: steelblue;
   clip-path: url(#clip);
@@ -115,6 +124,9 @@ div.tooltip {
 	stroke:red;
 	fill:none;
 	clip-path: url(#clip);
+}
+.selectorLine {
+	z-index:100;
 }
 
 </style>

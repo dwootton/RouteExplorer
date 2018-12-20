@@ -68,8 +68,38 @@ class timeChart {
 
 	}
 
+	updateSlider(date){
+	  this.selectedDate = date;
+	  console.log(this.xScale(this.selectedDate))
+	  console.log(this.x2Scale(this.selectedDate));
+      this.slider
+        //.transition()
+        //.duration(500)
+        .attr('x1', this.xScale(this.selectedDate))
+        .attr('y1', 0)
+        .attr('x2', this.xScale(this.selectedDate))
+        .attr('y2', this.height)
+        .style("stroke", "grey")
+        .style("stroke-width", 4)
+        .style("stroke-dasharray",4);
+    }
+
+    updateSliderZoom(){
+      this.slider
+        .attr('x1', this.xScale(this.selectedDate))
+        .attr('y1', 0)
+        .attr('x2', this.xScale(this.selectedDate))
+        .attr('y2', this.height)
+        .style("stroke", "grey")
+        .style("stroke-width", 4)
+        .style("stroke-dasharray",4);
+
+    }
+
+
 	update(data,modelData){
 		this.refreshChart();
+		
 		let self = this;
 		function type(d) {
 			console.log("In Type!!!")
@@ -95,6 +125,7 @@ class timeChart {
 		  self.svg.select(".zoom").call(self.zoom.transform, d3.zoomIdentity
 		      .scale(self.width / (s[1] - s[0]))
 		      .translate(-s[0], 0));
+		  self.updateSliderZoom();
 		}
 
 		function zoomed() {
@@ -105,6 +136,7 @@ class timeChart {
 		  self.focus.select(".line").attr("d", self.line);
 		  self.focus.select(".axis--x").call(self.xAxis);
 		  self.context.select(".brush").call(self.brush.move, self.xScale.range().map(t.invertX, t));
+		  self.updateSliderZoom();
 		}
 
 		/*
@@ -138,6 +170,13 @@ class timeChart {
 	  this.yScale.domain([0, d3.max([maxSensorReading,maxModelEstimate]) ]);
 	  this.x2Scale.domain(this.xScale.domain());
 	  this.y2Scale.domain(this.yScale.domain());
+
+	  this.slider = this.focus.append("line");
+		console.log(this.slider);
+
+		console.log(selector.selectedDate);
+		this.updateSlider(selector.selectedDate);
+
 
 	  this.brush = d3.brushX()
 		    .extent([[0, 0], [this.width, this.height2]])
