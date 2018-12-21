@@ -258,7 +258,6 @@ class timeChart {
           selector.grabAllSensorData(selector.selectedDate);
           selector.grabAllModelData(selector.selectedDate)
           that.updateSlider(that.selectedDate)
-          console.log(selectedDate);
       })
 	}
 
