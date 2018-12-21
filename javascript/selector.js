@@ -82,14 +82,22 @@ class Selector {
 		let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+id+"&sensorSource=airu&start=" + this.startDate.toISOString() + "&end=" + this.endDate.toISOString()+ "&show=pm25";
 		let req = this.getDataFromDB("https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+id+"&sensorSource=airu&start=" + this.startDate.toISOString() + "&end=" + this.endDate.toISOString()+ "&show=pm25")
 
-		let myData = await req;
+		this.sensorData = await req;
 		console.log(selectedSensor);
 
 		// Grab Model Data //
+		console.log(selectedSensor);
+		let modelData = this.grabModelData(selectedSensor.lat, selectedSensor.long, this.sensorData);
+		
+			
+	}
+
+	async grabModelData(lat,long,sensorData){
+		console.log(lat,long)
 		let start = this.startDate.toISOString().slice(0,-5)+"Z";
 		let stop = this.endDate.toISOString().slice(0,-5)+"Z";
 
-		let modelURL = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+selectedSensor.lat+"&location_lng="+selectedSensor.long+"&start="+start + "&end=" + stop;
+		let modelURL = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+lat+"&location_lng="+long+"&start="+start + "&end=" + stop;
 		console.log(modelURL);
 		let modelReq = fetch(modelURL).then(function(response){ 
 			console.log(response);
@@ -99,14 +107,13 @@ class Selector {
 				});
 
 
-		let modelData = JSON.parse(await modelReq);
+		this.modelData = JSON.parse(await modelReq);
 
-		console.log(modelData);
+		console.log(this.modelData);
 
 
-		console.log("GOt here!", myData);
-		this.timeChart.update(myData, modelData)
-			
+		console.log("GOt here!", sensorData);
+		this.timeChart.update(sensorData, this.modelData)
 	}
 
 	async grabAllSensorData(time){ // TODO: Add in 'get closest time' and extend the readings by an hour each side

@@ -98,7 +98,9 @@ class timeChart {
 
 
 	update(data,modelData){
+
 		this.refreshChart();
+
 		
 		let self = this;
 		function type(d) {
@@ -107,13 +109,16 @@ class timeChart {
 		  d.pm25 = +d.pm25;
 		  return d;
 		}
-		this.currentData = data.data;
-		data = data.data;
-		console.log(modelData);
+		if(!data){
+			data = modelData;
+		} else {
+			this.currentData = data.data;
+			data = data.data;
+			
+		}
 
 		data = data.map(type);
 		modelData = modelData.map(type); 
-		console.log(modelData);
 
 		function brushed() {
 			console.log(d3.event.sourceEvent)

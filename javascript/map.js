@@ -13,6 +13,16 @@ class AQMap {
 		this.modelHeight = 49;
 		this.contours = null;
 
+		this.shiftKeyPressed = false;
+
+		window.onkeydown = (e) => {
+		  this.shiftKeyPressed = ((e.keyIdentifier == 'Shift') || (e.shiftKey == true));
+		}
+
+		window.onkeyup = (e)=> {
+		  this.shiftKeyPressed = false;
+		}
+
 		let osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 		    osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 		    osm = L.tileLayer(osmUrl, {maxZoom: 40, attribution: osmAttrib});
@@ -20,13 +30,44 @@ class AQMap {
 		let myStyles = [{"elementType":"geometry","stylers":[{"color":"#f5f5f5"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f5f5"}]},{"featureType":"administrative.land_parcel","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"poi","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.business","stylers":[{"visibility":"off"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"poi.park","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#dadada"}]},{"featureType":"road.highway","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"road.local","stylers":[{"visibility":"off"}]},{"featureType":"road.local","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#c9c9c9"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]}]
 		this.myMap = new google.maps.Map(document.getElementById('map'), {
 		    zoom: 12,
-		    center: {lat: 40.59, lng: -111.95},
+		    center: {lat: 40.585, lng: -111.945},
 		    styles: myStyles,
 
 		  });
 		this.toolTip = d3.select("body").append("div")	
 		    .attr("class", "tooltip")				
 		    .style("opacity", 0);
+
+
+
+			
+
+
+		this.myMap.data.addListener('click', (event) => {
+			
+			// NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
+
+		    console.log(this.shiftKeyPressed);
+			if (this.shiftKeyPressed) {
+				if(this.marker){
+					this.marker.setMap(null);
+				}
+				
+		        let myLatLng = event.latLng;
+			    let lat = myLatLng.lat();
+			    let lng = myLatLng.lng();
+				//console.log(event)
+				//console.log(event.latLng)
+				console.log(lat,lng);
+				selector.grabModelData(lat,lng, null);
+				this.placeMarker(event.latLng);
+		    } else {
+		    	console.log("sorry, no shift!")
+		    }
+			
+            
+          	//this.myMap.setCenter(marker.getPosition());
+        });
 		/*L.map('map',{
 		    renderer: L.svg()
 		}).setView([40.7, -111.9], 10);
@@ -77,6 +118,12 @@ class AQMap {
 		//this.update(null,null);
 
 	}
+	placeMarker(location) {
+		this.marker = new google.maps.Marker({
+			position: location, 
+			map: this.myMap
+		});
+	}
 	updateSensor(sensorData){
 		console.log(sensorData);
 		// SENSOR CODE: BEGIN HERE: 
@@ -126,8 +173,11 @@ class AQMap {
 		                .duration(500)		
 		                .style("opacity", 0);	
 		        })
-		        .on("click", function(d) {		
-		            console.log(d.id);
+		        .on("click", function(d) {
+
+		            if(that.marker){
+						that.marker.setMap(null);
+					}
 		            selector.grabSensorData(d);
 		            d3.select(this).classed("selected", true);
 		            console.log(that);
@@ -245,7 +295,6 @@ class AQMap {
 
 		for (let polygon of polygons) {
 		    if (polygon.coordinates.length === 0) continue;
-
 		    let coords = convertCoords(polygon.coordinates);
 
 		    geojson.features.push({
@@ -259,7 +308,6 @@ class AQMap {
 		        }
 		    })
 		}
-
 
 		function convertCoords(coords) { 
 			// NOTE: Work through flipping coordiantes
@@ -299,8 +347,6 @@ class AQMap {
 		this.myMap.data.setStyle(function(feature) {
           var color = 'gray';
 
-
-
           if (feature.getProperty('value')) {
             color = that.colorMap(feature.getProperty('value'));
           }
@@ -310,10 +356,12 @@ class AQMap {
             fillOpacity: 0.04,
           });
         });
+
         let stopDate = new Date();
 		let stopStamp = stopDate.getTime()
 		
 		console.log("d3 contour time: ", (stopStamp-startStamp))
+
 		/*
 		let heatLayer = L.geoJSON(geojson.features);
 		heatLayer.addTo(this.myMap);
