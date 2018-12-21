@@ -9,7 +9,7 @@ class timeChart {
 	this.svg = d3.select("#timeChart");
 
 		this.margin = {top: 20, right: 20, bottom: 110, left: 40}
-		this.margin2 = {top: 430, right: 20, bottom: 30, left: 40}
+		this.margin2 = {top: 370, right: 20, bottom: 30, left: 40}
 		this.width = +this.svg.attr("width") - this.margin.left - this.margin.right
 		this.height = +this.svg.attr("height") - this.margin.top - this.margin.bottom
 		this.height2 = +this.svg.attr("height") - this.margin2.top - this.margin2.bottom;

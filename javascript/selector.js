@@ -31,6 +31,9 @@ class Selector {
 	        that.startDate = new Date(start.format());
 	        that.endDate = new Date(end.format());    
 	        that.selectedDate =  new Date((that.startDate.getTime() + that.endDate.getTime()) / 2);
+	        console.log("CHECKOUT: " ,that.endDate.toISOString().slice(0,10).replace(/-/g,""))
+	        document.getElementById("startDate").textContent= formatDate(that.startDate) + " t"
+	        document.getElementById("stopDate").textContent= "o " + formatDate(that.endDate);
 
 	        that.getRange()
 	        let sensorData = that.grabSensorData("S-A-085");
@@ -306,4 +309,19 @@ function linSpace(startValue, stopValue, cardinality) {
     arr.push(currValue + (step * i));
   }
   return arr;
+}
+
+function formatDate(date) {
+  var monthNames = [
+    "January", "February", "March",
+    "April", "May", "June", "July",
+    "August", "September", "October",
+    "November", "December"
+  ];
+
+  var day = date.getDate();
+  var monthIndex = date.getMonth();
+  var year = date.getFullYear();
+
+  return day + ' ' + monthNames[monthIndex] + ' ' + year;
 }
