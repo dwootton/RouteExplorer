@@ -46,6 +46,7 @@
     <input type="text" name="datetimes" value="01/01/2018 - 01/15/2018" />
 	</div>
 	  <div width='500' height ='500' id="map"> </div>
+	  <svg width = "960" height= "500" id="timeChart" > </svg>
 
 
 
@@ -69,8 +70,8 @@
 }
 
 .sensors svg {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   font: 10px sans-serif;
 }
 
@@ -97,6 +98,34 @@ div.tooltip {
     pointer-events: none;	
     z-index:1000;		
 }
+
+.selected circle {
+	stroke-width:4px;
+	stroke:black;
+}
+
+.nonSelected circle {
+	stroke-width:0px;
+}
+
+.area {
+  fill: steelblue;
+  clip-path: url(#clip);
+}
+
+.zoom {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
+}
+
+.line {
+	stroke-width:5px;
+	stroke:red;
+	fill:none;
+	clip-path: url(#clip);
+}
+
 
 </style>
 </html>

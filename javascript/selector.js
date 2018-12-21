@@ -70,15 +70,50 @@ class Selector {
 		return [this.startDate,this.endDate];
 	}
 
-	async grabSensorData(id){
+	async grabSensorData(selectedSensor){
 		//let id = "S-A-085";// Ex id: S-A-085
+		if(!selectedSensor.id){
+			return;
+		}
+		let id = selectedSensor.id;
+		console.log(selectedSensor);
 		let fullData = {}
 		
 		let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+id+"&sensorSource=airu&start=" + this.startDate.toISOString() + "&end=" + this.endDate.toISOString()+ "&show=pm25";
 		let req = this.getDataFromDB("https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+id+"&sensorSource=airu&start=" + this.startDate.toISOString() + "&end=" + this.endDate.toISOString()+ "&show=pm25")
 
-		let myData = await req;
+		this.sensorData = await req;
+		console.log(selectedSensor);
+
+		// Grab Model Data //
+		console.log(selectedSensor);
+		let modelData = this.grabModelData(selectedSensor.lat, selectedSensor.long, this.sensorData);
+		
 			
+	}
+
+	async grabModelData(lat,long,sensorData){
+		console.log(lat,long)
+		let start = this.startDate.toISOString().slice(0,-5)+"Z";
+		let stop = this.endDate.toISOString().slice(0,-5)+"Z";
+
+		let modelURL = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+lat+"&location_lng="+long+"&start="+start + "&end=" + stop;
+		console.log(modelURL);
+		let modelReq = fetch(modelURL).then(function(response){ 
+			console.log(response);
+				         return response.text();
+				}).catch((err)=>{
+					console.log(err);
+				});
+
+
+		this.modelData = JSON.parse(await modelReq);
+
+		console.log(this.modelData);
+
+
+		console.log("GOt here!", sensorData);
+		this.timeChart.update(sensorData, this.modelData)
 	}
 
 	async grabAllSensorData(time){ // TODO: Add in 'get closest time' and extend the readings by an hour each side
@@ -150,13 +185,13 @@ class Selector {
 		
 
 
-	async grabAllModelData(time, xReadings, yReadings){
+	async grabAllModelData(time){
 
 		let closestStartDate = new Date(time);
 		closestStartDate.setMinutes(time.getMinutes() + 5);
 
-		let latArr = linSpace(40.598850,40.810476,xReadings);
-		let longArr = linSpace(-111.818403,-112.001349,yReadings); //Note the second long value had to be increased otherwise, it gave an error.
+		//let latArr = linSpace(40.598850,40.810476,xReadings);
+		//let longArr = linSpace(-111.818403,-112.001349,yReadings); //Note the second long value had to be increased otherwise, it gave an error.
 		let promises = [];
 		this.modelVals = []; // Generates xReadings by yReadings matrix to fill
 		let that = this;
@@ -164,6 +199,24 @@ class Selector {
 		let stop = closestStartDate.toISOString().slice(0,-5)+"Z";
 		let sitesArray = [];
 		let i = 0;
+		let url = "https://air.eng.utah.edu/dbapi/api/getGridEstimates?start="+start+"&end=" +stop;
+		
+		let modelReq = fetch(url).then(function(response){ 
+			console.log(response);
+				         return response.text();
+				}).catch((err)=>{
+					console.log(err);
+				});
+
+
+		let allModelData = JSON.parse(await modelReq)[1];
+		console.log(allModelData);
+		for (time in allModelData) {
+		    this.modelData = allModelData[time].pm25;
+		}
+		console.log(this.modelData);
+		this.updateViews();
+		/*
 		for (let [longIndex, long] of longArr.entries()){
 			for (let [latIndex, lat] of latArr.entries()){
 				let url = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+lat+"&location_lng="+long+"&start="+start + "&end=" + stop;
@@ -172,7 +225,7 @@ class Selector {
 				}).catch((err)=>{
 					console.log(err);
 				});
-
+				"https://air.eng.utah.edu/dbapi/api/getGridEstimates&start=2018-12-01T00:00:00Z&end=2018-12-02T00:00:00Z"
 				//let req = this.getDataFromDB(url)
 				//req.then((modelData)=> {
 				//	that.modelVals.push(modelData[0].pm25);
@@ -181,7 +234,8 @@ class Selector {
 				i++;
 			}
 		}
-
+		*/
+		/*
 		Promise.all(promises.map(p => p.catch(() => undefined)))
 
 		Promise.all(promises).then(values =>{
@@ -194,6 +248,7 @@ class Selector {
 		    this.updateViews();
 		    return values;
 		});
+		*/
 
 
 		// Mine: https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat=40.645877999999996&location_lng=-111.93736100000001&start=2018-12-13T16:00:00.000Z&end=2018-12-13T16:10:00.000Z

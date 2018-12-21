@@ -9,9 +9,19 @@ class AQMap {
 		    i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 0, 0.95)),
 		    interpolateTerrain = function(t) { return t < 0.5 ? i0(t * 2) : i1((t - 0.5) * 2); };
 		this.colorMap = d3.scaleSequential(interpolateTerrain).domain([0, 50]);
-		this.modelWidth = 10;
-		this.modelHeight = 10;
+		this.modelWidth = 36;
+		this.modelHeight = 49;
 		this.contours = null;
+
+		this.shiftKeyPressed = false;
+
+		window.onkeydown = (e) => {
+		  this.shiftKeyPressed = ((e.keyIdentifier == 'Shift') || (e.shiftKey == true));
+		}
+
+		window.onkeyup = (e)=> {
+		  this.shiftKeyPressed = false;
+		}
 
 		let osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 		    osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -20,13 +30,44 @@ class AQMap {
 		let myStyles = [{"elementType":"geometry","stylers":[{"color":"#f5f5f5"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f5f5"}]},{"featureType":"administrative.land_parcel","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"poi","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.business","stylers":[{"visibility":"off"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"poi.park","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#dadada"}]},{"featureType":"road.highway","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"road.local","stylers":[{"visibility":"off"}]},{"featureType":"road.local","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#c9c9c9"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]}]
 		this.myMap = new google.maps.Map(document.getElementById('map'), {
 		    zoom: 12,
-		    center: {lat: 40.59, lng: -111.95},
+		    center: {lat: 40.585, lng: -111.945},
 		    styles: myStyles,
 
 		  });
 		this.toolTip = d3.select("body").append("div")	
 		    .attr("class", "tooltip")				
 		    .style("opacity", 0);
+
+
+
+			
+
+
+		this.myMap.data.addListener('click', (event) => {
+			
+			// NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
+
+		    console.log(this.shiftKeyPressed);
+			if (this.shiftKeyPressed) {
+				if(this.marker){
+					this.marker.setMap(null);
+				}
+				
+		        let myLatLng = event.latLng;
+			    let lat = myLatLng.lat();
+			    let lng = myLatLng.lng();
+				//console.log(event)
+				//console.log(event.latLng)
+				console.log(lat,lng);
+				selector.grabModelData(lat,lng, null);
+				this.placeMarker(event.latLng);
+		    } else {
+		    	console.log("sorry, no shift!")
+		    }
+			
+            
+          	//this.myMap.setCenter(marker.getPosition());
+        });
 		/*L.map('map',{
 		    renderer: L.svg()
 		}).setView([40.7, -111.9], 10);
@@ -77,6 +118,12 @@ class AQMap {
 		//this.update(null,null);
 
 	}
+	placeMarker(location) {
+		this.marker = new google.maps.Marker({
+			position: location, 
+			map: this.myMap
+		});
+	}
 	updateSensor(sensorData){
 		console.log(sensorData);
 		// SENSOR CODE: BEGIN HERE: 
@@ -93,14 +140,12 @@ class AQMap {
 		    // We could use a single SVG, but what size would it have?
 		    overlay.draw = function() {
 		      let projection = this.getProjection(),
-		          padding = 8.5;
+		          padding = 10.5;
 
-		      console.log(sensorData);
 		      let marker = layer.selectAll("svg")
 		          .data(sensorData)
 		          .each(transform)
 		          .attr("fill", (d)=>{
-		          	console.log(that.colorMap(d.pm25));
 		          	if(d.pm25< 0){
 		          		return "black";
 		          	}
@@ -127,6 +172,21 @@ class AQMap {
 		            that.toolTip.transition()		
 		                .duration(500)		
 		                .style("opacity", 0);	
+		        })
+		        .on("click", function(d) {
+
+		            if(that.marker){
+						that.marker.setMap(null);
+					}
+		            selector.grabSensorData(d);
+		            d3.select(this).classed("selected", true);
+		            console.log(that);
+		            d3.select(that.lastSelected).classed("selected", false);
+		            d3.select(that.lastSelected).classed("nonSelected", true);
+		            that.lastSelected = this;
+		            
+                	
+
 		        });
 
 		      let newMarkers = marker
@@ -142,7 +202,6 @@ class AQMap {
 		          .attr("cx", padding)
 		          .attr("cy", padding)
 		          .attr("fill", (d)=>{
-		          	console.log(that.colorMap(d.pm25));
 		          	if(d.pm25< 0){
 		          		return "black";
 		          	}
@@ -199,7 +258,7 @@ class AQMap {
 		      function transform(d) {
 		        d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
 		        d = projection.fromLatLngToDivPixel(d);
-		        console.log(d3.select(this));
+		        //console.log(d3.select(this));
 
 		        return d3.select(this)
 		            .style("left", (d.x - padding) + "px")
@@ -218,12 +277,16 @@ class AQMap {
 		//modelData = [8.964339902535034,15.595682501404061,16.57042698744204,18.19133816333678,11.611668095213714,11.565647168212108,9.916192521114132,6.541899730217069,7.052352588683608,7.501035178307062,12.019836906924501,16.98977615367748,14.43903630464879,18.41282496331842,11.333456684937138,9.348287548592062,14.489214074824726,6.790941527231953,7.815439492232705,8.135989384967434,13.852967147718985,17.47881501875145,17.602093468948997,18.830038387876115,16.222298703405457,11.069596451529595,12.860585717982625,5.843669206401813,6.430187999002033,8.673146088261356,14.552478042333625,17.200599865924136,21.489357944171832,20.283229563364984,22.151296051663245,12.974239563914061,10.456259349792571,9.093369517827368,8.655585226894358,9.608234030728035,14.663427790183809,15.271610089467535,19.424004390003876,19.44191061494021,20.92421296747697,15.638916349765802,9.75426986279476,12.976609675996558,11.121457884910457,10.471115502102577,14.966634341087122,15.06459586204938,19.77206699673942,16.27432872978454,21.08491498089317,18.887858898521586,11.711520640410228,10.284399004801326,10.85591700328193,10.676961765465006,15.418880386593878,17.324992752382588,20.867054510813166,13.975326921604745,20.773387078287815,21.984749565253274,15.453787202465993,15.829766955056902,13.49466080205513,10.41240450475944,15.238003806561725,15.702425998754974,19.789690539119942,17.16813636153775,23.63605745112857,24.109886934715696,21.57548452672802,20.333157196989834,16.441317860506214,13.19475038159874,14.422132334192963,13.80178996562388,14.180767016665985,18.971809169026482,24.201107603378983,25.317954340201148,25.655463931357115,22.65905392044519,19.313157803743675,17.18003245141215,12.696038236906523,13.763938609390353,12.647917754996156,19.517848958461776,24.30889143498016,25.726582171786102,26.038806451222484,24.10279485433458,21.681735071371676,20.208294359971237];
 		
 		// MODEL CODE: 
+		console.log(modelData);
+		console.log(d3.max(modelData));
 		let startDate = new Date();
 		let startStamp = startDate.getTime()
 		let polygons = d3.contours()
-		    .size([10, 10])
+		    .size([36, 49])
 		    .thresholds(d3.range(0, d3.max(modelData), 1))
 		    (modelData);
+
+		console.log(polygons);
 
 		var geojson = {
 		    type: 'FeatureCollection',
@@ -232,7 +295,6 @@ class AQMap {
 
 		for (let polygon of polygons) {
 		    if (polygon.coordinates.length === 0) continue;
-
 		    let coords = convertCoords(polygon.coordinates);
 
 		    geojson.features.push({
@@ -247,13 +309,12 @@ class AQMap {
 		    })
 		}
 
-
 		function convertCoords(coords) { 
 			// NOTE: Work through flipping coordiantes
-		    var minLng = -111.713403000000;
-		    var maxLng = -112.001349000000;
-		    var maxLat = 40.81048;
-		    var minLat = 40.59885;
+		    var maxLng = -111.713403000000;
+		    var minLng = -112.001349000000;
+		    var minLat = 40.810475;
+		    var maxLat = 40.59885;
 
 		    var result = [];
 		    for (let poly of coords) {
@@ -263,8 +324,8 @@ class AQMap {
 		            var newRing = [];
 		            for (let p of ring) {
 		                newRing.push([
-		                    minLng + (maxLng - minLng) * (p[0] / 10),
-		                    maxLat - (maxLat - minLat) * (p[1] / 10)
+		                    minLng + (maxLng - minLng) * (p[0] / 36),
+		                    maxLat - (maxLat - minLat) * (p[1] / 49)
 		                ]);
 		            }
 		            newPoly.push(newRing);
@@ -286,21 +347,21 @@ class AQMap {
 		this.myMap.data.setStyle(function(feature) {
           var color = 'gray';
 
-
-
           if (feature.getProperty('value')) {
             color = that.colorMap(feature.getProperty('value'));
           }
           return /** @type {!google.maps.Data.StyleOptions} */({
             fillColor: color,
             strokeWeight: 0,
-            fillOpacity: 0.1,
+            fillOpacity: 0.04,
           });
         });
+
         let stopDate = new Date();
 		let stopStamp = stopDate.getTime()
 		
 		console.log("d3 contour time: ", (stopStamp-startStamp))
+
 		/*
 		let heatLayer = L.geoJSON(geojson.features);
 		heatLayer.addTo(this.myMap);
