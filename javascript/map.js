@@ -8,7 +8,15 @@ class AQMap {
 		let i0 = d3.interpolateHsvLong(d3.hsv(120, 1, 0.65), d3.hsv(60, 1, 0.90)),
 		    i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 0, 0.95)),
 		    interpolateTerrain = function(t) { return t < 0.5 ? i0(t * 2) : i1((t - 0.5) * 2); };
-		this.colorMap = d3.scaleSequential(interpolateTerrain).domain([0, 50]);
+		//d3.scaleSequential(interpolateTerrain).domain([0, 50]);
+		this.colorMap = d3.scaleThreshold()
+		    .domain([-1, 0, 4, 8, 12, 20, 28, 35,42,49,55,150,250,350])
+		    .range([
+		      '#000000', '#4faa6a', '#e8f5e5',
+		      '#f8f6ce', '#F0E0A4', '#EDCC80',
+		      '#F3E3A7', '#EF8F56', '#EF5946',
+		      '#DE343E', '#BD2241', '#801634'
+		    ]);
 		this.modelWidth = 36;
 		this.modelHeight = 49;
 		this.contours = null;
@@ -29,8 +37,8 @@ class AQMap {
 		this.lastData = null;
 		let myStyles = [{"elementType":"geometry","stylers":[{"color":"#f5f5f5"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f5f5"}]},{"featureType":"administrative.land_parcel","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"poi","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.business","stylers":[{"visibility":"off"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"poi.park","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#dadada"}]},{"featureType":"road.highway","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"road.local","stylers":[{"visibility":"off"}]},{"featureType":"road.local","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#c9c9c9"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]}]
 		this.myMap = new google.maps.Map(document.getElementById('map'), {
-		    zoom: 12,
-		    center: {lat: 40.585, lng: -111.945},
+		    zoom: 11,
+		    center: {lat: 40.69255337197885, lng: -111.86895401000976},
 		    styles: myStyles,
 
 		  });
@@ -40,7 +48,7 @@ class AQMap {
 
 
 
-			
+		
 
 
 		this.myMap.data.addListener('click', (event) => {
@@ -198,7 +206,7 @@ class AQMap {
 
 		      // Add a circle. May be unused?
 		      newMarkers.append("circle")
-		          .attr("r", 8.5)
+		          .attr("r", 5.5)
 		          .attr("cx", padding)
 		          .attr("cy", padding)
 		          .attr("fill", (d)=>{
@@ -213,7 +221,25 @@ class AQMap {
 		          	}
 		          	return false;
 		          });
-		          
+		    d3.selectAll('.legend').remove();
+		    let colorLegend = d3.legendColor()
+		        .labelFormat(d3.format(".0f"))
+		        .scale(that.colorMap)
+		        .shapePadding(5)
+		        .shapeWidth(50)
+		        .shapeHeight(20)
+		        .labelOffset(12);
+
+		    let testLegend = d3.select(this.getPanes().overlayMouseTarget).append("svg").attr('class','legend')
+		    	.attr('width',150)
+		    	.attr('height',650)
+		    	.attr('transform', 'translate(200,-200)')
+		    	.append("g")
+		        .attr("transform", "translate(10, 10)")
+		        .call(colorLegend);
+
+		        console.log(testLegend);
+
 		          
 		      // Add a label.
 		      /*
@@ -353,7 +379,7 @@ class AQMap {
           return /** @type {!google.maps.Data.StyleOptions} */({
             fillColor: color,
             strokeWeight: 0,
-            fillOpacity: 0.04,
+            fillOpacity: 0.1, //0.04,
           });
         });
 
