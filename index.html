@@ -171,9 +171,22 @@
 			<div style="overflow:hidden;">
 		    
 			</div>
-			  <div width='500' height ='500' id="map"> </div>
-			  <svg width = "1230" height= "450" id="timeChart" > </svg>
+			<div class="row">
+			  <div class="col-10">
+			  	<div width='500' height ='500' id="map"> </div>
+			  </div>
+			  <div class="col-2">
+			  	<svg id="legend"> </svg>
+			  </div>
+			</div>
+			<div class="row"> 
+					<svg width = "1230" height= "450" id="timeChart" > </svg>
+
+			</div>
+			
+
 	</div>
+
 
 
 </body>
@@ -370,12 +383,22 @@ a.article:hover {
 {
 	/*margin-top:10px; */
 	height: 500px;
-	width: 1200px;
+	width:100%;
+	display:inline-block;
+}
+
+#legend 
+{
+	width:100%;
+	display:inline-block;
+	margin-left:-20px;
+	font-size: .9em;
 }
 
 #timeChart {
 	height: 500px;
 	width: 1200px;
+
 }
 .sensors, .sensors svg {
   position: absolute;
@@ -389,6 +412,7 @@ a.article:hover {
 
 .marker {
 	z-index:5;
+
 }
 
 .hiddenMarker{

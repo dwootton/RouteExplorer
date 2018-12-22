@@ -9,14 +9,13 @@ class AQMap {
 		    i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 0, 0.95)),
 		    interpolateTerrain = function(t) { return t < 0.5 ? i0(t * 2) : i1((t - 0.5) * 2); };
 		//d3.scaleSequential(interpolateTerrain).domain([0, 50]);
+		this.colorRange = ['rgb(0,104,55,.2)','rgb(0,104,55,.5)','rgb(0,104,55)', 'rgb(26,152,80)', 'rgb(102,189,99)', 'rgb(166,217,106)', 'rgb(217,239,139)', 'rgb(255,255,191)', 'rgb(254,224,139)', 'rgb(253,174,97)', 'rgb(244,109,67)', 'rgb(215,48,39)', 'rgb(165,0,38)']
+;//['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
+		this.pm25Domain = [4, 8, 12, 20, 28, 35,42,49,55,150,250,350];
 		this.colorMap = d3.scaleThreshold()
-		    .domain([-1, 0, 4, 8, 12, 20, 28, 35,42,49,55,150,250,350])
-		    .range([
-		      '#000000', '#4faa6a', '#e8f5e5',
-		      '#f8f6ce', '#F0E0A4', '#EDCC80',
-		      '#F3E3A7', '#EF8F56', '#EF5946',
-		      '#DE343E', '#BD2241', '#801634'
-		    ]);
+		    .domain(this.pm25Domain)
+		    .range(this.colorRange);
+
 		this.modelWidth = 36;
 		this.modelHeight = 49;
 		this.contours = null;
@@ -46,8 +45,51 @@ class AQMap {
 		    .attr("class", "tooltip")				
 		    .style("opacity", 0);
 
+		   /* Create legend*/
+		//let legendColorRange = ['rgb(165,0,38)', 'rgb(215,48,39)', 'rgb(244,109,67)', 'rgb(253,174,97)', 'rgb(254,224,139)', 'rgb(255,255,191)', 'rgb(217,239,139)', 'rgb(166,217,106)', 'rgb(102,189,99)', 'rgb(26,152,80)', 'rgb(0,104,55)', 'rgb(0,177,55)', 'rgb(0,255,55)']
+;//['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
+		let legendColorMap = d3.scaleThreshold()
+		    .domain(this.pm25Domain.reverse())
+		    .range(this.colorRange.reverse());
 
+		   let colorLegend = d3.legendColor()
+		        .labelFormat(d3.format(".0f"))
+		        .labels(d3.legendHelpers.thresholdLabels)
+		        .scale(this.colorMap)
+		        .shapePadding(2)
+		        .shapeWidth(50)
+		        .shapeHeight(20)
+		        .labelOffset(5)
+		        .ascending(true);
 
+		    let testLegend = d3.select('#legend')
+		    	.attr('width',225)
+		    	.attr('height',300)
+		    	//.attr('transform', 'translate(200,-200)')
+		    	.append("g")
+		       // .attr("transform", "translate(10, 10)")
+		        .call(colorLegend);
+
+		        console.log(testLegend); 
+
+		let drawingManager = new google.maps.drawing.DrawingManager({
+          drawingMode: google.maps.drawing.OverlayType.MARKER,
+          drawingControl: true,
+          drawingControlOptions: {
+            position: google.maps.ControlPosition.TOP_CENTER,
+            drawingModes: ['marker', 'circle', 'polygon', 'polyline', 'rectangle']
+          },
+          circleOptions: {
+            fillColor: '#ffff00',
+            fillOpacity: 1,
+            strokeWeight: 5,
+            clickable: false,
+            editable: true,
+            zIndex: 1
+          }
+        });
+        drawingManager.setMap(this.myMap);
+ 
 		
 
 
@@ -207,6 +249,8 @@ class AQMap {
 		      // Add a circle. May be unused?
 		      newMarkers.append("circle")
 		          .attr("r", 5.5)
+		          .attr('stroke','white')
+		          .attr('stroke-width',3)
 		          .attr("cx", padding)
 		          .attr("cy", padding)
 		          .attr("fill", (d)=>{
@@ -221,24 +265,7 @@ class AQMap {
 		          	}
 		          	return false;
 		          });
-		    d3.selectAll('.legend').remove();
-		    let colorLegend = d3.legendColor()
-		        .labelFormat(d3.format(".0f"))
-		        .scale(that.colorMap)
-		        .shapePadding(5)
-		        .shapeWidth(50)
-		        .shapeHeight(20)
-		        .labelOffset(12);
-
-		    let testLegend = d3.select(this.getPanes().overlayMouseTarget).append("svg").attr('class','legend')
-		    	.attr('width',150)
-		    	.attr('height',650)
-		    	.attr('transform', 'translate(200,-200)')
-		    	.append("g")
-		        .attr("transform", "translate(10, 10)")
-		        .call(colorLegend);
-
-		        console.log(testLegend);
+		    
 
 		          
 		      // Add a label.
@@ -379,7 +406,8 @@ class AQMap {
           return /** @type {!google.maps.Data.StyleOptions} */({
             fillColor: color,
             strokeWeight: 0,
-            fillOpacity: 0.1, //0.04,
+            fillOpacity: 0.6,
+            zIndex:10 //0.04,
           });
         });
 
@@ -387,6 +415,50 @@ class AQMap {
 		let stopStamp = stopDate.getTime()
 		
 		console.log("d3 contour time: ", (stopStamp-startStamp))
+
+		let labelsMapType = new google.maps.StyledMapType([{
+    	// Hide all map features by default
+		    stylers: [{
+		        visibility: 'off'
+		    }]
+		},{
+            featureType: 'road.highway',
+            stylers: [
+                { visibility: 'on' }
+            ]
+        },{
+            featureType: 'road.arterial',
+            stylers: [
+                { visibility: 'on',
+                  color: '#444444' }
+            ]
+        },{
+            featureType: 'administrative',
+            stylers: [
+                { visibility: 'on' }
+            ]
+        }, {
+		    "featureType": "road",
+		    "elementType": "labels",
+		    "stylers": [
+		      { "visibility": "off" }
+		    ]
+		}, {
+		 	"elementType":"geometry",
+		    "stylers":[ {
+		        "color": "#f5f5f5"
+		    }
+		    ]}],  {
+		    name: 'Labels',
+		    id: "MyLabels"
+		});
+
+		// Add to the map's overlay collection
+		let labelsMap = this.myMap.overlayMapTypes.push(labelsMapType);
+		console.log(labelsMapType);
+		// Select the just created highway labels and bring it to the front.  
+		d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index',1000000).style('opacity',0.5);
+
 
 		/*
 		let heatLayer = L.geoJSON(geojson.features);
