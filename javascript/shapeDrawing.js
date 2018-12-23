@@ -3,6 +3,7 @@ class shapeDrawer {
     constructor(myMap) {
             console.log("Inside of shape drawer!")
             this.myMap = myMap;
+            this.interpChart = new interpolatedChart();
             var drawingManager;
             var selectedShape;
             var colors = ['#1E90FF', '#FF1493', '#32CD32', '#FF8C00', '#4B0082'];
@@ -170,6 +171,8 @@ class shapeDrawer {
                               });
                             }
                             console.log(coordinates);
+                            that.interpChart.update(coordinates);
+
 
 
 

@@ -191,10 +191,16 @@
 			  	<svg id="legend"> </svg>
 			  </div>
 			</div>
+			<div class="row">
+				<div id="lineMap"> 
+					<svg > </svg>
+				</div>
+			</div>
 			<div class="row"> 
 					<svg width = "1230" height= "450" id="timeChart" > </svg>
 
 			</div>
+
 			
 
 	</div>
@@ -202,6 +208,7 @@
 
 
 </body>
+<script src="javascript/interpolatedChart.js"> </script>
 <script src="javascript/shapeDrawing.js"> </script>
 <script src="javascript/map.js"> </script>
 <script src="javascript/timechart.js"> </script>
@@ -391,6 +398,14 @@ a.article:hover {
 ----------------------------------------------------- */
 
 
+#lineMap {
+        height: 300px;
+        width: 705px;
+        border:1px dashed #999;
+        overflow-y: scroll;
+        overflow-x: scroll;
+        background:  whitesmoke
+      }
 
 #map
 {
