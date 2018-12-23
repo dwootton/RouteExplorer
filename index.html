@@ -26,6 +26,8 @@
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 
+
+
 	    <!-- Font Awesome JS -->
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
@@ -47,6 +49,10 @@
 
 	  <!---Google Maps ---> 
 		  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCPkb5f5z6o5utgVRe3EQpA-PbDScQgVsU&callback=initMap"></script>
+
+		  <script type="text/javascript"
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCPkb5f5z6o5utgVRe3EQpA-PbDScQgVsU&libraries=drawing">
+</script>
 
 	<title>
 	
@@ -171,6 +177,12 @@
 			<div style="overflow:hidden;">
 		    
 			</div>
+			<div id="panel">
+            <div id="color-palette"></div>
+            <div>
+                <button id="delete-button">Delete Selected Shape</button>
+            </div>
+        </div>
 			<div class="row">
 			  <div class="col-10">
 			  	<div width='500' height ='500' id="map"> </div>
@@ -190,6 +202,7 @@
 
 
 </body>
+<script src="javascript/shapeDrawing.js"> </script>
 <script src="javascript/map.js"> </script>
 <script src="javascript/timechart.js"> </script>
 <script src="javascript/selector.js"> </script>
@@ -462,6 +475,31 @@ div.tooltip {
 	clip-path: url(#clip);
 }
 
+/* Drawing Layer */
 
+#panel {
+                width: 200px;
+                font-family: Arial, sans-serif;
+                font-size: 13px;
+                float: right;
+                margin: 10px;
+            }
+
+            #color-palette {
+                clear: both;
+            }
+
+            .color-button {
+                width: 14px;
+                height: 14px;
+                font-size: 0;
+                margin: 2px;
+                float: left;
+                cursor: pointer;
+            }
+
+            #delete-button {
+                margin-top: 5px;
+            }
 </style>
 </html>
