@@ -200,6 +200,8 @@ class Selector {
 		let that = this;
 		let start = time.toISOString().slice(0,-5)+"Z";
 		let stop = closestStartDate.toISOString().slice(0,-5)+"Z";
+		console.log('start', start);
+		console.log('stop', stop);
 		let sitesArray = [];
 		let i = 0;
 		let url = "https://air.eng.utah.edu/dbapi/api/getGridEstimates?start="+start+"&end=" +stop;
