@@ -73,7 +73,7 @@ class interpolatedChart {
 
 	    
 	    let domain = [this.times[0].start,this.times[this.times.length-1].start]
-	    console.log(domain);
+	    //console.log(domain);
 	    let xScale = d3.scaleTime()
 	            .domain(domain)
 	            .range([0, 400]).nice();
@@ -160,7 +160,7 @@ class interpolatedChart {
 	            return xScale(d.time);
 	        })
 	        .attr('y', function(d,i){
-	        	console.log(i,myData.length);
+	        	//console.log(i,myData.length);
 	            return yScale(i%(myData.length/that.times.length));
 	        })
 	        .attr('fill', function(d){
@@ -236,15 +236,12 @@ class interpolatedChart {
 
 	async getModelEst(points){
 		// change these dates to dates from the selector
-		let firstDateStart = new Date("2018-12-11T06:00:00Z")
-		let lastDateStart = new Date("2018-12-19T06:00:00Z")
-
-		
-
-		this.times = generateTimes(firstDateStart,lastDateStart);
+		//let firstDateStart = new Date("2018-12-11T06:00:00Z")
+		//let lastDateStart = new Date("2018-12-19T06:00:00Z")
+		this.times = generateTimes(window.controller.startDate, window.controller.endDate);
 
 
-		console.log(this.times);
+		//console.log(this.times);
 		let promises = [];
 		let promiseCounter = 0;
 		for (let timeCounter = 0; timeCounter < this.times.length; timeCounter++){
@@ -256,11 +253,11 @@ class interpolatedChart {
 
 
 				let url = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+point.lat+"&location_lng="+point.lng+"&start="+start + "&end=" + stop;
-				console.log(url)
+				//console.log(url)
 				promises[promiseCounter] = fetch(url).then(function(response){ 
 				         return response.text();
 				}).catch((err)=>{
-					console.log(err);
+					//console.log(err);
 				});
 				promiseCounter++;
 				//let req = this.getDataFromDB(url)
@@ -278,7 +275,7 @@ class interpolatedChart {
 
 		let allData = await Promise.all(promises).then(values =>{
 			let parsedVals = [];
-			console.log(values);
+			//console.log(values);
 
 			for(let i = 0; i< values.length; i++){
 				if(values[i]){
@@ -297,7 +294,7 @@ class interpolatedChart {
 				}
 			}
 			this.finalData = finalVals;
-			console.log(finalVals)
+			//console.log(finalVals)
 			this.drawLineHeatMap(finalVals)
 		    return finalVals;
 		});
@@ -348,7 +345,8 @@ function mergeLatsAndLongs(lats,longs){
 		}
 
 function generateTimes(firstDateStart,lastDateStart){ // Currently generates 1 time point per day
-
+	firstDateStart = new Date(firstDateStart);
+	lastDateStart = new Date(lastDateStart);
 	let firstDateStop = new Date(new Date(firstDateStart).setMinutes(firstDateStart.getMinutes()+5));
 	let LastDateStop = new Date(new Date(lastDateStart).setMinutes(lastDateStart.getMinutes()+5));
 	console.log(firstDateStart, firstDateStop)

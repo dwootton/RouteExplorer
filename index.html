@@ -210,6 +210,8 @@
 </body>
 <script src="javascript/interpolatedChart.js"> </script>
 <script src="javascript/shapeDrawing.js"> </script>
+<script src="javascript/simpleShapeDrawing.js"> </script>
+
 <script src="javascript/map.js"> </script>
 <script src="javascript/timechart.js"> </script>
 <script src="javascript/selector.js"> </script>
@@ -431,6 +433,16 @@ a.article:hover {
 }
 .sensors, .sensors svg {
   position: absolute;
+}
+
+.pathNodes, .pathNodes svg {
+  position: absolute;
+}
+.pathNodes svg {
+  width: 24px;
+  height: 24px;
+  font: 10px sans-serif;
+  z-index:100000000000000000000;
 }
 
 .sensors svg {

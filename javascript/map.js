@@ -71,7 +71,7 @@ class AQMap {
 		        .call(colorLegend);
 
 		        console.log(testLegend); 
-		    this.shapeDrawer = new shapeDrawer(this.myMap);
+		    this.shapeDrawer = new simpleShapeDrawer(this.myMap);
 			
 
 
@@ -80,9 +80,9 @@ class AQMap {
 
 
 		this.myMap.data.addListener('click', (event) => {
-			
+			console.log(event.latLng);
 			// NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
-
+			window.controller.addLatLng(event);
 		    console.log(this.shiftKeyPressed);
 			if (this.shiftKeyPressed) {
 				if(this.marker){
@@ -160,6 +160,7 @@ class AQMap {
 			map: this.myMap
 		});
 	}
+	
 	updateSensor(sensorData){
 		console.log(sensorData);
 		// SENSOR CODE: BEGIN HERE: 
