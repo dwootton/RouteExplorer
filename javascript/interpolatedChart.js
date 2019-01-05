@@ -1,12 +1,19 @@
 class interpolatedChart {
-	constructor() {
+	constructor(selector) {
+		console.log("Created!! Interp!!")
 
+	}
+
+	setSelector(selector){
+		this.selector = selector;
 	}
 	update(points){
 		console.log("Inside interpChart!")
 		let lats = points.map(x => x.lat);
 		let longs = points.map(x => x.lng);
-
+		console.log(window.controller);
+		window.controller.interpChart= this;
+		console.log(window.controller);
 
 
 		console.log(lats,longs);
@@ -25,6 +32,7 @@ class interpolatedChart {
 	}
 
 	drawLineHeatMap(myData){
+		console.log(myData);
 		let heatMapSVG;
 	    let allData = jQuery.extend(true, [], myData);
 	    console.log(allData);
@@ -187,11 +195,11 @@ class interpolatedChart {
 	                window.render(monthsSinceStart)
 	             })
 	*/
-
+		/*
 	    rects
 	        .attr('width', rectWidth)
 	        .attr('height', rectHeight)
-	        .attr('x', function(d,){
+	        .attr('x', function(d,i){
 	            return xScale(d.time);
 	        })
 	        .attr('y', function(d,i){
@@ -201,7 +209,7 @@ class interpolatedChart {
 	        .attr('fill', function(d){
 	            return colorScale(d.data);
 	        })
-
+		*/
 
 	    // Append Axis
 	    //let x_axis = d3.axisBottom(xScale).ticks((query.length/15+1));
@@ -227,7 +235,7 @@ class interpolatedChart {
 	}
 
 	async getModelEst(points){
-		 
+		// change these dates to dates from the selector
 		let firstDateStart = new Date("2018-12-11T06:00:00Z")
 		let lastDateStart = new Date("2018-12-19T06:00:00Z")
 

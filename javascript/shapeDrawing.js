@@ -88,13 +88,14 @@ class shapeDrawer {
                 selectColor(colors[0]);
             }
             function initialize () {
-                var polyOptions = {
+                let polyOptions = {
                     strokeWeight: 0,
                     fillOpacity: 0.8,
                     editable: true,
                     draggable: false,
                     zIndex: 100000000000
                 };
+                console.log(that);
                 // Creates a drawing manager attached to the map that allows the user to draw
                 // markers, lines, and shapes.
                 drawingManager = new google.maps.drawing.DrawingManager({
@@ -204,7 +205,7 @@ class shapeDrawer {
                     }
                     else {
                         google.maps.event.addListener(newShape, 'click', function (e) {
-                            setSelection(newShape);
+                            that.setSelection(newShape);
                         });
                         setSelection(newShape);
                     }

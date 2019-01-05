@@ -34,7 +34,7 @@ class Selector {
 	        console.log("CHECKOUT: " ,that.endDate.toISOString().slice(0,10).replace(/-/g,""))
 	        document.getElementById("startDate").textContent= formatDate(that.startDate) + " t"
 	        document.getElementById("stopDate").textContent= "o " + formatDate(that.endDate);
-
+	        that.interpChart = that.myMap.shapeDrawer.interpChart.setSelector(that);
 	        that.getRange()
 	        let sensorData = that.grabSensorData("S-A-085");
 	        console.log('final!', that.grabAllSensorData(that.selectedDate));
