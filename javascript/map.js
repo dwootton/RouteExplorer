@@ -63,7 +63,7 @@ class AQMap {
 		        .ascending(true);
 
 		    let testLegend = d3.select('#legend')
-		    	.attr('width',225)
+		    	.attr('width',275)
 		    	.attr('height',300)
 		    	//.attr('transform', 'translate(200,-200)')
 		    	.append("g")
@@ -72,18 +72,11 @@ class AQMap {
 
 		        console.log(testLegend); 
 		    this.shapeDrawer = new simpleShapeDrawer(this.myMap);
-			
-
-
- 
-		
-
+		    window.controller.shapeDrawer = this.shapeDrawer;
 
 		this.myMap.data.addListener('click', (event) => {
-			console.log(event.latLng);
 			// NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
-			window.controller.addLatLng(event);
-		    console.log(this.shiftKeyPressed);
+
 			if (this.shiftKeyPressed) {
 				if(this.marker){
 					this.marker.setMap(null);
@@ -98,6 +91,7 @@ class AQMap {
 				selector.grabModelData(lat,lng, null);
 				this.placeMarker(event.latLng);
 		    } else {
+		    	window.controller.addLatLng(event);
 		    	console.log("sorry, no shift!")
 		    }
 			
@@ -162,6 +156,7 @@ class AQMap {
 	}
 	
 	updateSensor(sensorData){
+
 		console.log(sensorData);
 		// SENSOR CODE: BEGIN HERE: 
 		this.sensorData = sensorData;
@@ -235,9 +230,9 @@ class AQMap {
 
 		      // Add a circle. May be unused?
 		      newMarkers.append("circle")
-		          .attr("r", 5.5)
+		          .attr("r", 6.5)
 		          .attr('stroke','white')
-		          .attr('stroke-width',3)
+		          .attr('stroke-width',1)
 		          .attr("cx", padding)
 		          .attr("cy", padding)
 		          .attr("fill", (d)=>{
@@ -309,6 +304,10 @@ class AQMap {
 
 		  // Bind our overlay to the map…
 		  overlay.setMap(this.myMap);
+		  if (d3.event) {
+	        d3.event.preventDefault();
+	        d3.event.stopPropagation();
+	      }
 	}
 	updateModel(modelData){
 		

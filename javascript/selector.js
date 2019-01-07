@@ -30,7 +30,7 @@ class Selector {
 	        $('#reportrange span').html(start.format('D MMMM YYYY') + ' - ' + end.format('D MMMM YYYY'));
 	        that.startDate = new Date(start.format());
 	        that.endDate = new Date(end.format()); 
-
+	        
 	        window.controller.startDate = new Date(start.format());
 	        window.controller.endDate = new Date(end.format());
 	        

@@ -16,7 +16,6 @@ class shapeDrawer {
                     if (selectedShape.type !== 'marker') {
                         selectedShape.setEditable(false);
                     }
-                    
                     selectedShape = null;
                 }
             }
@@ -27,7 +26,6 @@ class shapeDrawer {
                     shape.setEditable(true);
                     selectColor(shape.get('fillColor') || shape.get('strokeColor'));
                 }
-                
                 selectedShape = shape;
             }
 
@@ -244,7 +242,7 @@ class shapeDrawer {
 
     }
 
-    /* LOOK INTO http://jsfiddle.net/geocodezip/kvaztgaL/2/ FOR Poly Line Drawing*/ 
+    /* LOOK INTO http://jsfiddle.net/geocodezip/kvaztgaL/2/ FOR Poly Line Drawing */ 
 
     plotNodes(points) {
         console.log("IN POINT DRAWER!")
