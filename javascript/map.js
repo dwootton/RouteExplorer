@@ -220,7 +220,7 @@ class AQMap {
 					//d3.select(this).attr('transform','translate(-30px,-30px)')
 		            selector.grabSensorData(event);
 		            d3.select(this).attr("id","selected");
-		            console.log(this);
+		            //console.log(this);
 		            
 		            d3.select(this).selectAll('circle')
 		            	//.attr('transform','translate(15px,15px)')
@@ -229,8 +229,11 @@ class AQMap {
 		            	.attr('stroke-width','2')
 		            	.attr('stroke','gold');
 		            console.log(that);
-		            d3.select(that.lastSelected).attr("id", null).selectAll('circle').transition(500).attr('r',6.5).attr('stroke-width','1').attr('stroke','white');
-		            //d3.select(that.lastSelected).classed("nonSelected", true);
+		            
+		            if(that.lastSelected && that.lastSelected != this){
+		            	d3.select(that.lastSelected).attr("id", null).selectAll('circle').transition(500).attr('r',6.5).attr('stroke-width','1').attr('stroke','white');
+		            }
+		            
 		            that.lastSelected = this;
 		            
                 	console.log(window.controller.sensorClicked);
