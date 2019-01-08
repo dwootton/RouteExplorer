@@ -29,12 +29,16 @@ class Selector {
 	        console.log("Callback has been called!");
 	        $('#reportrange span').html(start.format('D MMMM YYYY') + ' - ' + end.format('D MMMM YYYY'));
 	        that.startDate = new Date(start.format());
-	        that.endDate = new Date(end.format());    
+	        that.endDate = new Date(end.format()); 
+
+	        window.controller.startDate = new Date(start.format());
+	        window.controller.endDate = new Date(end.format());
+
 	        that.selectedDate =  new Date((that.startDate.getTime() + that.endDate.getTime()) / 2);
 	        console.log("CHECKOUT: " ,that.endDate.toISOString().slice(0,10).replace(/-/g,""))
 	        document.getElementById("startDate").textContent= formatDate(that.startDate) + " t"
 	        document.getElementById("stopDate").textContent= "o " + formatDate(that.endDate);
-
+	        
 	        that.getRange()
 	        let sensorData = that.grabSensorData("S-A-085");
 	        console.log('final!', that.grabAllSensorData(that.selectedDate));
@@ -74,6 +78,7 @@ class Selector {
 	}
 
 	async grabSensorData(selectedSensor){
+		console.log("SELECTED SENSOR:", selectedSensor);
 		//let id = "S-A-085";// Ex id: S-A-085
 		if(!selectedSensor.id){
 			return;
@@ -272,6 +277,7 @@ class Selector {
 	}
 
 	updateSensorViews(){
+		window.controller.sensorData = this.sensorData;
 		this.dataMap.updateSensor(this.sensorData)
 	}
 

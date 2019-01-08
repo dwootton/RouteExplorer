@@ -63,7 +63,7 @@ class AQMap {
 		        .ascending(true);
 
 		    let testLegend = d3.select('#legend')
-		    	.attr('width',225)
+		    	.attr('width',275)
 		    	.attr('height',300)
 		    	//.attr('transform', 'translate(200,-200)')
 		    	.append("g")
@@ -71,19 +71,12 @@ class AQMap {
 		        .call(colorLegend);
 
 		        console.log(testLegend); 
-		    this.shapeDrawer = new shapeDrawer(this.myMap);
-			
-
-
- 
-		
-
+		    this.shapeDrawer = new simpleShapeDrawer(this.myMap);
+		    window.controller.shapeDrawer = this.shapeDrawer;
 
 		this.myMap.data.addListener('click', (event) => {
-			
 			// NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
 
-		    console.log(this.shiftKeyPressed);
 			if (this.shiftKeyPressed) {
 				if(this.marker){
 					this.marker.setMap(null);
@@ -98,6 +91,13 @@ class AQMap {
 				selector.grabModelData(lat,lng, null);
 				this.placeMarker(event.latLng);
 		    } else {
+		    	console.log(window.controller.sensorClicked);
+		    	if(window.controller.sensorClicked){ // if sensor was clicked 
+					window.controller.sensorClicked = false;
+		    	} else {
+		    		window.controller.addLatLng(event);
+		    	}
+		    	console.log(window.controller.sensorClicked);
 		    	console.log("sorry, no shift!")
 		    }
 			
@@ -160,7 +160,9 @@ class AQMap {
 			map: this.myMap
 		});
 	}
+	
 	updateSensor(sensorData){
+
 		console.log(sensorData);
 		// SENSOR CODE: BEGIN HERE: 
 		this.sensorData = sensorData;
@@ -176,7 +178,7 @@ class AQMap {
 		    // We could use a single SVG, but what size would it have?
 		    overlay.draw = function() {
 		      let projection = this.getProjection(),
-		          padding = 10.5;
+		          padding = 11;
 
 		      let marker = layer.selectAll("svg")
 		          .data(sensorData)
@@ -209,19 +211,31 @@ class AQMap {
 		                .duration(500)		
 		                .style("opacity", 0);	
 		        })
-		        .on("click", function(d) {
+		        .on("click", function(event) {
+		        	console.log(event);
 
 		            if(that.marker){
 						that.marker.setMap(null);
 					}
-		            selector.grabSensorData(d);
-		            d3.select(this).classed("selected", true);
+					//d3.select(this).attr('transform','translate(-30px,-30px)')
+		            selector.grabSensorData(event);
+		            d3.select(this).attr("id","selected");
+		            console.log(this);
+		            
+		            d3.select(this).selectAll('circle')
+		            	//.attr('transform','translate(15px,15px)')
+		            	.transition(500)
+		            	.attr('r',10)
+		            	.attr('stroke-width','2')
+		            	.attr('stroke','gold');
 		            console.log(that);
-		            d3.select(that.lastSelected).classed("selected", false);
-		            d3.select(that.lastSelected).classed("nonSelected", true);
+		            d3.select(that.lastSelected).attr("id", null).selectAll('circle').transition(500).attr('r',6.5).attr('stroke-width','1').attr('stroke','white');
+		            //d3.select(that.lastSelected).classed("nonSelected", true);
 		            that.lastSelected = this;
 		            
-                	
+                	console.log(window.controller.sensorClicked);
+                	window.controller.sensorClicked = true;
+                	console.log(window.controller.sensorClicked);
 
 		        });
 
@@ -234,9 +248,9 @@ class AQMap {
 
 		      // Add a circle. May be unused?
 		      newMarkers.append("circle")
-		          .attr("r", 5.5)
+		          .attr("r", 6.5)
 		          .attr('stroke','white')
-		          .attr('stroke-width',3)
+		          .attr('stroke-width',1)
 		          .attr("cx", padding)
 		          .attr("cy", padding)
 		          .attr("fill", (d)=>{
@@ -308,6 +322,10 @@ class AQMap {
 
 		  // Bind our overlay to the map…
 		  overlay.setMap(this.myMap);
+		  if (d3.event) {
+	        d3.event.preventDefault();
+	        d3.event.stopPropagation();
+	      }
 	}
 	updateModel(modelData){
 		

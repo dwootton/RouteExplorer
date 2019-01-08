@@ -189,6 +189,10 @@
 			  </div>
 			  <div class="col-2">
 			  	<svg id="legend"> </svg>
+                <form onsubmit="return makeSearch()">
+                  <input type="text" placeholder="Search.." name="search">
+                  <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
 			  </div>
 			</div>
 			<div class="row">
@@ -210,9 +214,12 @@
 </body>
 <script src="javascript/interpolatedChart.js"> </script>
 <script src="javascript/shapeDrawing.js"> </script>
+<script src="javascript/simpleShapeDrawing.js"> </script>
+
 <script src="javascript/map.js"> </script>
 <script src="javascript/timechart.js"> </script>
 <script src="javascript/selector.js"> </script>
+<script src="javascript/controller.js"> </script>
 
 
 <script src="javascript/main.js"> </script>
@@ -304,7 +311,16 @@ a:focus {
     background: #fff;
     color: #7386D5;
 }
-
+/*
+.highlightOverlay{
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 998;
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+}*/
 .overlay {
     display: none;
     position: fixed;
@@ -417,7 +433,7 @@ a.article:hover {
 
 #legend 
 {
-	width:100%;
+	width:225px;
 	display:inline-block;
 	margin-left:-20px;
 	font-size: .9em;
@@ -428,8 +444,40 @@ a.article:hover {
 	width: 1200px;
 
 }
+.highlightOverlay, .highlightOverlay svg {
+  position: absolute;
+}
+
+.highlightOverlay {
+  width: 24px;
+  height: 24px;
+  font: 10px sans-serif;
+  z-index:100000000000000000000;
+}
+
+.highlighter, .highlighter svg {
+  position: absolute;
+}
+
+.highlighter {
+  width: 24px;
+  height: 24px;
+  font: 10px sans-serif;
+  z-index:100000000000000000000;
+}
+
 .sensors, .sensors svg {
   position: absolute;
+}
+
+.pathNodes, .pathNodes svg {
+  position: absolute;
+}
+.pathNodes svg {
+  width: 24px;
+  height: 24px;
+  font: 10px sans-serif;
+  z-index:100000000000000000000;
 }
 
 .sensors svg {
@@ -463,17 +511,32 @@ div.tooltip {
     z-index:1000;		
 }
 
-.selected circle {
+.sensors svg .selected{
+    width:45px;
+    height:45px;
+}
+.selected svg {
+    width:45px;
+    height:45px;
+}
+#selected {
+    width:45px;
+    height:45px;
+}
+.#selected circle {
 	stroke-width:4px;
-	stroke:black;
+	stroke:gold;
 }
 
 .nonSelected circle {
-	stroke-width:0px;
+	stroke-width:1px;
+    stroke:white;
 }
 
 .area {
-  fill: steelblue;
+  stroke: steelblue;
+  stroke-width:1px;
+  fill:none;
   clip-path: url(#clip);
 }
 
@@ -484,10 +547,24 @@ div.tooltip {
 }
 
 .line {
-	stroke-width:5px;
+	stroke-width:2px;
+    stroke-dasharray: 1;
 	stroke:red;
 	fill:none;
 	clip-path: url(#clip);
+}
+
+div.HMtooltip {
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 60px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
 }
 
 /* Drawing Layer */

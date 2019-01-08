@@ -1,38 +1,80 @@
 class interpolatedChart {
-	constructor() {
+	constructor(selector) {
+		console.log("Created!! Interp!!")
+		this.pointSeparationDistances = 500; // grab point ever km
+		this.div = d3.select("body").append("div")
+            .attr("class", "HMtooltip")
+            .style("opacity", 0);
 
 	}
+
+	setSelector(selector){
+		this.selector = selector;
+	}
+
 	update(points){
 		console.log("Inside interpChart!")
-		let lats = points.map(x => x.lat);
-		let longs = points.map(x => x.lng);
+		//let lats = points.map(x => x.lat);
+		//let longs = points.map(x => x.lng);
+		console.log(window.controller);
+		window.controller.interpChart= this;
+		console.log(window.controller);
 
 
+		//console.log(lats,longs);
 
-		console.log(lats,longs);
-
-
-		let myLatPts = interpolateArray(lats,17);
+		let myFullPts = this.interpolateArrayTwo(points);
+		/*let myLatPts = interpolateArray(lats,17);
 		console.log(myLatPts)
 		let myLngPts = interpolateArray(longs,17);
 		console.log(myLngPts)
 
 		
-
-		let finalPts = mergeLatsAndLongs(myLatPts,myLngPts)
-		let myVals = this.getModelEst(finalPts);
+		*/
+		//let finalPts = mergeLatsAndLongs(myLatPts,myLngPts)
+		let myVals = this.getModelEst(myFullPts);
 
 	}
 
+	interpolateArrayTwo(points){
+		let allCoordinates = [];
+		if(points.length < 2) return;
+		// calcualte distance between two points and then interpolates between them based on 
+		for(let i = 1; i < points.length; i++){
+			let pathSectionDistance = google.maps.geometry.spherical.computeDistanceBetween(points[i-1],points[i]);
+			let timesToInterp = Math.floor(pathSectionDistance/this.pointSeparationDistances);
+			if(timesToInterp == 0){ continue; }
+
+			let interpInterval = 1.0/timesToInterp;
+			console.log(interpInterval);
+			let counter = 0;
+			while(counter < 1){
+				let interpolatedValue = google.maps.geometry.spherical.interpolate(points[i-1],points[i],counter)
+				console.log(interpolatedValue);
+				allCoordinates.push({
+					lat: interpolatedValue.lat(),
+					lng: interpolatedValue.lng()
+				})
+				counter += interpInterval;
+			}
+			console.log(allCoordinates);
+		}
+		return allCoordinates;
+		//google.maps.geometry.spherical.computeDistanceBetween(pt1,pt2);
+		//console.log(google.maps.geometry.spherical.computeLength(path))
+	}
+
+
 	drawLineHeatMap(myData){
+		console.log(myData);
 		let heatMapSVG;
 	    let allData = jQuery.extend(true, [], myData);
 	    console.log(allData);
 	    d3.select('#lineMap').attr('height', 300).attr('width',650);
 
 
-	    let width = 3500;
-	    let height = 1000;
+	    let width = 3000;
+	    let height = 3000;
 	    let margin = { top: 50, right: 0, bottom: 100, left: 50 };
 	    let rectHeight = 10;
 	    let rectWidth = 10;
@@ -65,16 +107,47 @@ class interpolatedChart {
 
 	    
 	    let domain = [this.times[0].start,this.times[this.times.length-1].start]
-	    console.log(domain);
+	    //console.log(domain);
+	    let xExtent = this.times.length*rectWidth;
 	    let xScale = d3.scaleTime()
 	            .domain(domain)
-	            .range([0, 400]).nice();
+	            .range([0, xExtent]).nice();
+
 	    let colorRange = ['rgb(0,104,55,.2)','rgb(0,104,55,.5)','rgb(0,104,55)', 'rgb(26,152,80)', 'rgb(102,189,99)', 'rgb(166,217,106)', 'rgb(217,239,139)', 'rgb(255,255,191)', 'rgb(254,224,139)', 'rgb(253,174,97)', 'rgb(244,109,67)', 'rgb(215,48,39)', 'rgb(165,0,38)']
 	;//['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
 			let pm25Domain = [4, 8, 12, 20, 28, 35,42,49,55,150,250,350];
 			let colorScale  = d3.scaleThreshold()
 			    .domain(pm25Domain)
 			    .range(colorRange);
+		// Append x axis 
+		let x_axis = d3.axisBottom(xScale)
+					   .tickFormat((d)=> {
+					   	return formatDate(d);//dataset[d].keyword;
+					   });
+		heatMapSVG.append("g")
+	       .call(x_axis)
+	       .selectAll("text")
+	        .attr("y", -10)
+	        .attr("x", 0)
+	        .attr("dy", ".35em");
+
+	    // remove unneeded ticks
+	    var ticks = d3.selectAll(".tick text");
+
+		ticks.attr("class", function(d,i){
+		 	if(i%10 != 0) d3.select(this).remove();
+		});
+
+		function formatDate(date) {
+		  var hours = date.getHours();
+		  var minutes = date.getMinutes();
+		  var ampm = hours >= 12 ? 'pm' : 'am';
+		  hours = hours % 12;
+		  hours = hours ? hours : 12; // the hour '0' should be '12'
+		  minutes = minutes < 10 ? '0'+minutes : minutes;
+		  var strTime = hours + ':' + minutes + ' ' + ampm;
+		  return date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear() + "  " + strTime;
+		}
 	    /*
 	    let pathGroups = pathGroup.selectAll('circle')
 	        .data(scaledPointDistances);
@@ -152,12 +225,39 @@ class interpolatedChart {
 	            return xScale(d.time);
 	        })
 	        .attr('y', function(d,i){
-	        	console.log(i,myData.length);
+	        	//console.log(i,myData.length);
 	            return yScale(i%(myData.length/that.times.length));
 	        })
 	        .attr('fill', function(d){
 	            return colorScale(d.data);
 	        })
+	        .on("mouseover", (d) => {
+	        	console.log(d);
+                 //this.mapPath.changeMapNavLine(.2)
+                 this.div.transition()
+                 	.duration(600)
+                 	.style("opacity", .7);
+                 this.div.html(formatDate(d.time)+ "</br>" + d.data.toFixed(2))
+                 	.style("top", d3.event.pageY - 70 + "px")
+                 	.style("left", d3.event.pageX - 30 + "px");
+                 window.controller.shapeDrawer.changeLineOpacity(0.3);
+                 window.controller.shapeDrawer.changeHighlightMarker(d.lat, d.lng)
+                 //let currentCoordinate = navCoordinates[d.point]
+                 //d3.select('#highlighter')
+                	//.transition().duration(100).attr('cx',currentCoordinate[0]).attr('cy',currentCoordinate[1]);
+             })
+             .on("mouseout",(d)=> {
+                 //this.mapPath.changeMapNavLine(0.9)
+                 console.log(this.div);
+                 this.div.transition()
+                 	.duration(300)
+                 	.style("opacity", 0);
+                 window.controller.shapeDrawer.changeLineOpacity(0.9);
+                 window.controller.shapeDrawer.changeHighlightMarker(0, 0)
+
+		    
+                 //d3.select('#highlighter').transition().duration(1000).attr('cx',-10).attr('cy',-10);
+               })
 	        
 	        /*.on("mouseover", function(d) {
 	               changeMapNavLine(.2)
@@ -187,11 +287,11 @@ class interpolatedChart {
 	                window.render(monthsSinceStart)
 	             })
 	*/
-
+		/*
 	    rects
 	        .attr('width', rectWidth)
 	        .attr('height', rectHeight)
-	        .attr('x', function(d,){
+	        .attr('x', function(d,i){
 	            return xScale(d.time);
 	        })
 	        .attr('y', function(d,i){
@@ -201,7 +301,7 @@ class interpolatedChart {
 	        .attr('fill', function(d){
 	            return colorScale(d.data);
 	        })
-
+		*/
 
 	    // Append Axis
 	    //let x_axis = d3.axisBottom(xScale).ticks((query.length/15+1));
@@ -227,16 +327,13 @@ class interpolatedChart {
 	}
 
 	async getModelEst(points){
-		 
-		let firstDateStart = new Date("2018-12-11T06:00:00Z")
-		let lastDateStart = new Date("2018-12-19T06:00:00Z")
-
-		
-
-		this.times = generateTimes(firstDateStart,lastDateStart);
+		// change these dates to dates from the selector
+		//let firstDateStart = new Date("2018-12-11T06:00:00Z")
+		//let lastDateStart = new Date("2018-12-19T06:00:00Z")
+		this.times = generateTimes(window.controller.startDate, window.controller.endDate);
 
 
-		console.log(this.times);
+		//console.log(this.times);
 		let promises = [];
 		let promiseCounter = 0;
 		for (let timeCounter = 0; timeCounter < this.times.length; timeCounter++){
@@ -248,11 +345,11 @@ class interpolatedChart {
 
 
 				let url = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+point.lat+"&location_lng="+point.lng+"&start="+start + "&end=" + stop;
-				console.log(url)
+				//console.log(url)
 				promises[promiseCounter] = fetch(url).then(function(response){ 
 				         return response.text();
 				}).catch((err)=>{
-					console.log(err);
+					//console.log(err);
 				});
 				promiseCounter++;
 				//let req = this.getDataFromDB(url)
@@ -270,7 +367,7 @@ class interpolatedChart {
 
 		let allData = await Promise.all(promises).then(values =>{
 			let parsedVals = [];
-			console.log(values);
+			//console.log(values);
 
 			for(let i = 0; i< values.length; i++){
 				if(values[i]){
@@ -283,13 +380,16 @@ class interpolatedChart {
 				for(let pointCounter = 0; pointCounter < points.length; pointCounter++){
 					finalVals[loggerCounter] = {
 						data:parsedVals[loggerCounter],
-						time:this.times[timeCounter].start
+						time:this.times[timeCounter].start,
+						lat: points[pointCounter].lat,
+						lng:points[pointCounter].lng
 					}
 					loggerCounter++;
 				}
 			}
+			console.log(finalVals);
 			this.finalData = finalVals;
-			console.log(finalVals)
+			//console.log(finalVals)
 			this.drawLineHeatMap(finalVals)
 		    return finalVals;
 		});
@@ -297,7 +397,7 @@ class interpolatedChart {
 	}
 	
 }
-function appendLabels(svg){
+	function appendLabels(svg){
         let height = 300;
         let width = 800;
         let margin = {
@@ -340,19 +440,20 @@ function mergeLatsAndLongs(lats,longs){
 		}
 
 function generateTimes(firstDateStart,lastDateStart){ // Currently generates 1 time point per day
-
+	firstDateStart = new Date(firstDateStart);
+	lastDateStart = new Date(lastDateStart);
 	let firstDateStop = new Date(new Date(firstDateStart).setMinutes(firstDateStart.getMinutes()+5));
 	let LastDateStop = new Date(new Date(lastDateStart).setMinutes(lastDateStart.getMinutes()+5));
 	console.log(firstDateStart, firstDateStop)
 	let arr=[]
-	for(let dt=firstDateStart; dt<=lastDateStart; dt.setDate(dt.getDate()+1)){
+	for(let dt=firstDateStart; dt<=lastDateStart; dt.setHours(dt.getHours()+3)){
         arr.push(new Date(dt));
     }
 
     let starts = arr;
     arr=[]
 
-    for(let dt=firstDateStop; dt<=LastDateStop; dt.setDate(dt.getDate()+1)){
+    for(let dt=firstDateStop; dt<=LastDateStop; dt.setHours(dt.getHours()+3)){
         arr.push(new Date(dt));
     }
     let stops = arr;

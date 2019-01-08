@@ -25,11 +25,11 @@ class timeChart {
 		this.xAxis2 = d3.axisBottom(this.x2Scale),
 		this.yAxis = d3.axisLeft(this.yScale);
 
-		this.area = d3.area()
+		this.area = d3.line()
 		    .curve(d3.curveMonotoneX)
 		    .x((d)=>{ return this.xScale(d.time); })
-		    .y0(this.height)
-		    .y1((d)=>{ return this.yScale(d.pm25); });
+		    //.y0(this.height)
+		    .y((d)=>{ return this.yScale(d.pm25); });
 		
 		this.line = d3.line()
 			.curve(d3.curveMonotoneX)
@@ -93,7 +93,6 @@ class timeChart {
         .style("stroke", "grey")
         .style("stroke-width", 4)
         .style("stroke-dasharray",4);
-
     }
 
 
