@@ -189,6 +189,10 @@
 			  </div>
 			  <div class="col-2">
 			  	<svg id="legend"> </svg>
+                <form onsubmit="return makeSearch()">
+                  <input type="text" placeholder="Search.." name="search">
+                  <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
 			  </div>
 			</div>
 			<div class="row">
@@ -429,7 +433,7 @@ a.article:hover {
 
 #legend 
 {
-	width:100%;
+	width:225px;
 	display:inline-block;
 	margin-left:-20px;
 	font-size: .9em;
@@ -507,17 +511,32 @@ div.tooltip {
     z-index:1000;		
 }
 
-.selected circle {
+.sensors svg .selected{
+    width:45px;
+    height:45px;
+}
+.selected svg {
+    width:45px;
+    height:45px;
+}
+#selected {
+    width:45px;
+    height:45px;
+}
+.#selected circle {
 	stroke-width:4px;
-	stroke:black;
+	stroke:gold;
 }
 
 .nonSelected circle {
-	stroke-width:0px;
+	stroke-width:1px;
+    stroke:white;
 }
 
 .area {
-  fill: steelblue;
+  stroke: steelblue;
+  stroke-width:1px;
+  fill:none;
   clip-path: url(#clip);
 }
 
@@ -528,7 +547,8 @@ div.tooltip {
 }
 
 .line {
-	stroke-width:5px;
+	stroke-width:2px;
+    stroke-dasharray: 1;
 	stroke:red;
 	fill:none;
 	clip-path: url(#clip);

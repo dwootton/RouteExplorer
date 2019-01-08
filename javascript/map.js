@@ -91,7 +91,13 @@ class AQMap {
 				selector.grabModelData(lat,lng, null);
 				this.placeMarker(event.latLng);
 		    } else {
-		    	window.controller.addLatLng(event);
+		    	console.log(window.controller.sensorClicked);
+		    	if(window.controller.sensorClicked){ // if sensor was clicked 
+					window.controller.sensorClicked = false;
+		    	} else {
+		    		window.controller.addLatLng(event);
+		    	}
+		    	console.log(window.controller.sensorClicked);
 		    	console.log("sorry, no shift!")
 		    }
 			
@@ -172,7 +178,7 @@ class AQMap {
 		    // We could use a single SVG, but what size would it have?
 		    overlay.draw = function() {
 		      let projection = this.getProjection(),
-		          padding = 10.5;
+		          padding = 11;
 
 		      let marker = layer.selectAll("svg")
 		          .data(sensorData)
@@ -205,19 +211,31 @@ class AQMap {
 		                .duration(500)		
 		                .style("opacity", 0);	
 		        })
-		        .on("click", function(d) {
+		        .on("click", function(event) {
+		        	console.log(event);
 
 		            if(that.marker){
 						that.marker.setMap(null);
 					}
-		            selector.grabSensorData(d);
-		            d3.select(this).classed("selected", true);
+					//d3.select(this).attr('transform','translate(-30px,-30px)')
+		            selector.grabSensorData(event);
+		            d3.select(this).attr("id","selected");
+		            console.log(this);
+		            
+		            d3.select(this).selectAll('circle')
+		            	//.attr('transform','translate(15px,15px)')
+		            	.transition(500)
+		            	.attr('r',10)
+		            	.attr('stroke-width','2')
+		            	.attr('stroke','gold');
 		            console.log(that);
-		            d3.select(that.lastSelected).classed("selected", false);
-		            d3.select(that.lastSelected).classed("nonSelected", true);
+		            d3.select(that.lastSelected).attr("id", null).selectAll('circle').transition(500).attr('r',6.5).attr('stroke-width','1').attr('stroke','white');
+		            //d3.select(that.lastSelected).classed("nonSelected", true);
 		            that.lastSelected = this;
 		            
-                	
+                	console.log(window.controller.sensorClicked);
+                	window.controller.sensorClicked = true;
+                	console.log(window.controller.sensorClicked);
 
 		        });
 
