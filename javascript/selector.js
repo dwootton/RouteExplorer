@@ -49,13 +49,18 @@ class Selector {
 	}
 
 	async getSensorInformation(){
+		console.log("SENSOR INFO CALLED")
 		let url = "http://air.eng.utah.edu/dbapi/api/liveSensors/airU";
 		let req = fetch(url)
+
+
 		let that = this;
 		req.then((response) => {
+			console.log("SENSOR INFO CALLED",response)
 			return response.text();
 		})
 		.then((myJSON) => {
+			console.log("Inside of Sensor info",myJSON)
 			myJSON = JSON.parse(myJSON);
 			let sensors = [];
 			for(let i = 0; i < myJSON.length; i++){
@@ -68,6 +73,7 @@ class Selector {
 				sensors.push(val)
 
 			}
+			console.log(sensors);
 			that.sensorList = sensors;
 
 		});
@@ -91,22 +97,21 @@ class Selector {
 		let req = this.getDataFromDB("https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id="+id+"&sensorSource=airu&start=" + this.startDate.toISOString() + "&end=" + this.endDate.toISOString()+ "&show=pm25")
 
 		this.sensorData = await req;
-		console.log(selectedSensor);
 
 		// Grab Model Data //
-		console.log(selectedSensor);
-		let modelData = this.grabModelData(selectedSensor.lat, selectedSensor.long, this.sensorData);
+		let modelData = this.grabModelData(selectedSensor, this.sensorData);
 		
 			
 	}
 
-	async grabModelData(lat,long,sensorData){
-		console.log(lat,long)
+	async grabModelData(selectedSensor,sensorData){
 		let start = this.startDate.toISOString().slice(0,-5)+"Z";
 		let stop = this.endDate.toISOString().slice(0,-5)+"Z";
 
+		let lat = selectedSensor.lat;
+		let long = selectedSensor.long;
+
 		let modelURL = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+lat+"&location_lng="+long+"&start="+start + "&end=" + stop;
-		console.log(modelURL);
 		let modelReq = fetch(modelURL).then(function(response){ 
 			console.log(response);
 				         return response.text();
@@ -117,11 +122,10 @@ class Selector {
 
 		this.modelData = JSON.parse(await modelReq);
 
-		console.log(this.modelData);
 
 
 		console.log("GOt here!", sensorData);
-		this.timeChart.update(sensorData, this.modelData)
+		this.timeChart.update(sensorData, this.modelData, selectedSensor)
 	}
 
 	async grabAllSensorData(time){ // TODO: Add in 'get closest time' and extend the readings by an hour each side
@@ -161,6 +165,7 @@ class Selector {
 			Promise.all(promises.map(p => p.catch(() => undefined)))
 
 		Promise.all(promises).then(values =>{
+			console.log("INSIDE OF PROMISES")
 			let parsedVals = [];
 			for(let i = 0; i< values.length; i++){
 				let sensorID = this.sensorList[i].id;

@@ -1,7 +1,6 @@
 class AQMap {
 
 	constructor(){
-		console.log("map created!")
 		//this.svg = d3.select("svg")//.append('g')
 		//this.width = this.svg.attr("width")
 		//this.height = this.svg.attr("height")
@@ -12,6 +11,10 @@ class AQMap {
 		this.colorRange = ['rgb(0,104,55,.2)','rgb(0,104,55,.5)','rgb(0,104,55)', 'rgb(26,152,80)', 'rgb(102,189,99)', 'rgb(166,217,106)', 'rgb(217,239,139)', 'rgb(255,255,191)', 'rgb(254,224,139)', 'rgb(253,174,97)', 'rgb(244,109,67)', 'rgb(215,48,39)', 'rgb(165,0,38)']
 ;//['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
 		this.pm25Domain = [4, 8, 12, 20, 28, 35,42,49,55,150,250,350];
+
+		window.controller.colorRange = this.colorRange;
+		window.controller.pm25Domain = this.pm25Domain;
+
 		this.colorMap = d3.scaleThreshold()
 		    .domain(this.pm25Domain)
 		    .range(this.colorRange);
@@ -70,7 +73,6 @@ class AQMap {
 		       // .attr("transform", "translate(10, 10)")
 		        .call(colorLegend);
 
-		        console.log(testLegend); 
 		    this.shapeDrawer = new simpleShapeDrawer(this.myMap);
 		    window.controller.shapeDrawer = this.shapeDrawer;
 
@@ -85,19 +87,15 @@ class AQMap {
 		        let myLatLng = event.latLng;
 			    let lat = myLatLng.lat();
 			    let lng = myLatLng.lng();
-				//console.log(event)
-				//console.log(event.latLng)
-				console.log(lat,lng);
+
 				selector.grabModelData(lat,lng, null);
 				this.placeMarker(event.latLng);
 		    } else {
-		    	console.log(window.controller.sensorClicked);
 		    	if(window.controller.sensorClicked){ // if sensor was clicked 
 					window.controller.sensorClicked = false;
 		    	} else {
 		    		window.controller.addLatLng(event);
 		    	}
-		    	console.log(window.controller.sensorClicked);
 		    	console.log("sorry, no shift!")
 		    }
 			
@@ -163,7 +161,6 @@ class AQMap {
 	
 	updateSensor(sensorData){
 
-		console.log(sensorData);
 		// SENSOR CODE: BEGIN HERE: 
 		this.sensorData = sensorData;
 		let overlay = new google.maps.OverlayView();
@@ -184,35 +181,44 @@ class AQMap {
 		          .data(sensorData)
 		          .each(transform)
 		          .attr("fill", (d)=>{
-		          	if(d.pm25< 0){
-		          		return "black";
-		          	}
-		          	return (that.colorMap(d.pm25))
-		          })
-		          .classed("hiddenMarker", (d)=> {
-		          	if(d.pm25< 0){
-		          		return true;
-		          	}
-		          	return false;
+		          	 if(d.pm25< 0){
+		          	 	 return "black";
+		          	 }
+		          	 return (that.colorMap(d.pm25))
 		          })
 
 		      marker
-		          .on("mouseover", function(d) {		
-		          	console.log("MOUSEOVER!!!")
+		        .on("mouseover", function(d) {		
 		            that.toolTip.transition()		
 		                .duration(200)		
 		                .style("opacity", .9);		
 		            that.toolTip	.html(d.id + "<br/>"  + d.pm25)	
 		                .style("left", (d3.event.pageX - 30) + "px")		
 		                .style("top", (d3.event.pageY - 75) + "px");		
-		            })					
+
+		            let sensorID = d.id;
+		            console.log(d3.selectAll('#sensorPath'+sensorID))
+			  		let prevSelection = d3.selectAll('#sensorPath'+sensorID)
+			  			.transition()
+			  			.duration(500)
+			  				.attr('stroke-width', 2)
+			  				.attr('stroke','url(#temperature-gradient)')
+			  				.attr('stroke-opacity',1.0)
+			  	})
 		        .on("mouseout", function(d) {		
 		            that.toolTip.transition()		
 		                .duration(500)		
 		                .style("opacity", 0);	
+		            let sensorID = d.id;
+		            console.log(d3.selectAll('#sensorPath'+sensorID))
+			  		let prevSelection = d3.selectAll('#sensorPath'+sensorID)
+			  			.transition()
+			  			.duration(500)
+			  				.attr('stroke-width', 1)
+			  				.attr('stroke','gray')
+			  				.attr('stroke-opacity',0.6)
 		        })
 		        .on("click", function(event) {
-		        	console.log(event);
 
 		            if(that.marker){
 						that.marker.setMap(null);
@@ -220,7 +226,6 @@ class AQMap {
 					//d3.select(this).attr('transform','translate(-30px,-30px)')
 		            selector.grabSensorData(event);
 		            d3.select(this).attr("id","selected");
-		            //console.log(this);
 		            
 		            d3.select(this).selectAll('circle')
 		            	//.attr('transform','translate(15px,15px)')
@@ -228,17 +233,16 @@ class AQMap {
 		            	.attr('r',10)
 		            	.attr('stroke-width','2')
 		            	.attr('stroke','gold');
-		            console.log(that);
-		            
+		           let lineChartSelector = '#sensorPath'+event.id;
+		           console.log(lineChartSelector);
+		           console.log(d3.selectAll(lineChartSelector));
+
 		            if(that.lastSelected && that.lastSelected != this){
 		            	d3.select(that.lastSelected).attr("id", null).selectAll('circle').transition(500).attr('r',6.5).attr('stroke-width','1').attr('stroke','white');
 		            }
 		            
 		            that.lastSelected = this;
-		            
-                	console.log(window.controller.sensorClicked);
                 	window.controller.sensorClicked = true;
-                	console.log(window.controller.sensorClicked);
 
 		        });
 
@@ -314,7 +318,6 @@ class AQMap {
 		      function transform(d) {
 		        d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
 		        d = projection.fromLatLngToDivPixel(d);
-		        //console.log(d3.select(this));
 
 		        return d3.select(this)
 		            .style("left", (d.x - padding) + "px")
@@ -337,8 +340,6 @@ class AQMap {
 		//modelData = [8.964339902535034,15.595682501404061,16.57042698744204,18.19133816333678,11.611668095213714,11.565647168212108,9.916192521114132,6.541899730217069,7.052352588683608,7.501035178307062,12.019836906924501,16.98977615367748,14.43903630464879,18.41282496331842,11.333456684937138,9.348287548592062,14.489214074824726,6.790941527231953,7.815439492232705,8.135989384967434,13.852967147718985,17.47881501875145,17.602093468948997,18.830038387876115,16.222298703405457,11.069596451529595,12.860585717982625,5.843669206401813,6.430187999002033,8.673146088261356,14.552478042333625,17.200599865924136,21.489357944171832,20.283229563364984,22.151296051663245,12.974239563914061,10.456259349792571,9.093369517827368,8.655585226894358,9.608234030728035,14.663427790183809,15.271610089467535,19.424004390003876,19.44191061494021,20.92421296747697,15.638916349765802,9.75426986279476,12.976609675996558,11.121457884910457,10.471115502102577,14.966634341087122,15.06459586204938,19.77206699673942,16.27432872978454,21.08491498089317,18.887858898521586,11.711520640410228,10.284399004801326,10.85591700328193,10.676961765465006,15.418880386593878,17.324992752382588,20.867054510813166,13.975326921604745,20.773387078287815,21.984749565253274,15.453787202465993,15.829766955056902,13.49466080205513,10.41240450475944,15.238003806561725,15.702425998754974,19.789690539119942,17.16813636153775,23.63605745112857,24.109886934715696,21.57548452672802,20.333157196989834,16.441317860506214,13.19475038159874,14.422132334192963,13.80178996562388,14.180767016665985,18.971809169026482,24.201107603378983,25.317954340201148,25.655463931357115,22.65905392044519,19.313157803743675,17.18003245141215,12.696038236906523,13.763938609390353,12.647917754996156,19.517848958461776,24.30889143498016,25.726582171786102,26.038806451222484,24.10279485433458,21.681735071371676,20.208294359971237];
 		
 		// MODEL CODE: 
-		console.log(modelData);
-		console.log(d3.max(modelData));
 		let startDate = new Date();
 		let startStamp = startDate.getTime()
 		let polygons = d3.contours()
@@ -346,7 +347,6 @@ class AQMap {
 		    .thresholds(d3.range(0, d3.max(modelData), 1))
 		    (modelData);
 
-		console.log(polygons);
 
 		var geojson = {
 		    type: 'FeatureCollection',
@@ -462,7 +462,6 @@ class AQMap {
 
 		// Add to the map's overlay collection
 		let labelsMap = this.myMap.overlayMapTypes.push(labelsMapType);
-		console.log(labelsMapType);
 		// Select the just created highway labels and bring it to the front.  
 		d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index',1000000).style('opacity',0.5);
 

@@ -48,6 +48,11 @@ class timeChart {
 		    .attr("width", this.width)
 		    .attr("height", this.height);
 
+		this.prevMaxValue = 0;
+		this.modelDatas = [];
+		this.sensorDatas = [];
+		this.sensorInfos = [];
+
 		
 	}
 
@@ -57,6 +62,8 @@ class timeChart {
 	}
 	refreshChart(){	
 		this.svg.selectAll('g').remove();
+		console.log(this.stopValues);
+		
 
 		this.focus = this.svg.append("g")
 	    	.attr("class", "focus")
@@ -95,10 +102,64 @@ class timeChart {
         .style("stroke-dasharray",4);
     }
 
+    generateColorScale(){
+    	let maxValue = this.prevMaxValue;
+    	console.log(window.controller);
 
-	update(data,modelData){
+    	let pm25Fixed = JSON.parse(JSON.stringify(window.controller.pm25Domain))//.reverse();
+    	pm25Fixed.unshift(0)
+    	let colorScale = JSON.parse(JSON.stringify(window.controller.colorRange))//.reverse();
+
+    	let index = pm25Fixed.findIndex(function(number) {
+			return number > maxValue;
+		});
+
+		console.log(index)
+		console.log(pm25Fixed);
+
+		let stopValues = [];
+		for(let i = 0; i < index; i++){
+			let color = colorScale[i];
+
+			let stopValue = {
+				'color':color,
+				'offset':0
+			}
+			stopValues.push(stopValue)
+		}
+
+		for(let i = index; i < pm25Fixed.length; i++){
+			console.log(colorScale[i],pm25Fixed[i],this.prevMaxValue)
+			let offset = (this.prevMaxValue*1.0 - window.controller.pm25Domain[i])/this.prevMaxValue;
+			if(offset < 0){
+				offset = 0;
+			}
+
+			//offset = 1 - offset;
+			let color = colorScale[i];
+
+			let stopValue = {
+				'color':color,
+				'offset':offset 
+			}
+
+			console.log(stopValue);
+			stopValues.push(stopValue)
+			//
+			
+		}
+		console.log(this.prevMaxValue);
+		
+		this.stopValues = stopValues;
+		console.log(this.stopValues);
+
+    }
+
+
+	update(data,modelData,sensorInfo){
 
 		this.refreshChart();
+
 
 		
 		let self = this;
@@ -119,14 +180,19 @@ class timeChart {
 		data = data.map(type);
 		modelData = modelData.map(type); 
 
+		this.modelDatas.push(modelData);
+		this.sensorDatas.push(data);
+		this.sensorInfos.push(sensorInfo);
+		console.log(this.sensorInfos);
+
 		function brushed() {
 			console.log(d3.event.sourceEvent)
 		  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
 		  var s = d3.event.selection || self.x2Scale.range();
 		  
 		  self.xScale.domain(s.map(self.x2Scale.invert, self.x2Scale));
-		  self.focus.select(".area").attr("d", self.area);
-		  self.focus.select(".line").attr("d", self.line);
+		  self.focus.selectAll(".area").attr("d", self.area);
+		  self.focus.selectAll(".line").attr("d", self.line);
 		  self.focus.select(".axis--x").call(self.xAxis);
 		  self.svg.select(".zoom").call(self.zoom.transform, d3.zoomIdentity
 		      .scale(self.width / (s[1] - s[0]))
@@ -139,8 +205,8 @@ class timeChart {
 		  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
 		  var t = d3.event.transform;
 		  self.xScale.domain(t.rescaleX(self.x2Scale).domain());
-		  self.focus.select(".area").attr("d", self.area);
-		  self.focus.select(".line").attr("d", self.line);
+		  self.focus.selectAll(".area").attr("d", self.area);
+		  self.focus.selectAll(".line").attr("d", self.line);
 		  self.focus.select(".axis--x").call(self.xAxis);
 		  self.context.select(".brush").call(self.brush.move, self.xScale.range().map(t.invertX, t));
 		  self.updateSliderZoom();
@@ -153,14 +219,7 @@ class timeChart {
 	    .attr("x1", 0).attr("y1", this.yScale(0))			
 	    .attr("x2", 0).attr("y2", this.yScale(1000))		
 	  .selectAll("stop")						
-	    .data([								
-	      {offset: "0%", color: "red"},		
-	      {offset: "30%", color: "red"},	
-	      {offset: "45%", color: "black"},		
-	      {offset: "55%", color: "black"},		
-	      {offset: "60%", color: "lawngreen"},	
-	      {offset: "100%", color: "lawngreen"}	
-	    ])					
+	    .data()					
 	  .enter().append("stop")			
 	    .attr("offset", function(d) { return d.offset; })	
 	    .attr("stop-color", function(d) { return d.color; });
@@ -168,12 +227,35 @@ class timeChart {
     // Start of update
     let timeBounds = [data[0].time, data[data.length-1].time];
 
-    console.log(timeBounds);
+      console.log(timeBounds);
 	  this.xScale.domain(timeBounds);
+
 	  let maxSensorReading = d3.max(data, function(d) { return d.pm25; });
 	  let maxModelEstimate = d3.max(modelData, function(d) { return d.pm25; });
 	  console.log(maxModelEstimate);
-	  this.yScale.domain([0, d3.max([maxSensorReading,maxModelEstimate]) ]);
+
+	  this.prevMaxValue = d3.max([this.prevMaxValue,maxSensorReading,maxModelEstimate]);
+	  this.generateColorScale();
+	  this.svg.append("linearGradient")
+		      .attr("id", "temperature-gradient")
+		      .attr("gradientUnits", "objectBoundingBox")
+		      .attr("x1", 0).attr("y1", 0)
+		      .attr("x2", 0).attr("y2", 1)
+		    .selectAll("stop")
+		      .data(this.stopValues)
+		    /*	.data([								
+			      {offset: "0", color: "red"},		
+			      {offset: "0.1", color: "purple"},	
+			      {offset: "0.2", color: "black"},		
+			      {offset: "0.3", color: "yellow"},		
+			      {offset: "0.5", color: "lawngreen"},	
+			      {offset: "1.0", color: "lawngreen"}	
+			    ])*/
+		    .enter().append("stop")
+		      .attr("offset", function(d) { return d.offset; })
+		      .attr("stop-color", function(d) { return d.color; });
+
+	  this.yScale.domain([0, this.prevMaxValue]);
 	  this.x2Scale.domain(this.xScale.domain());
 	  this.y2Scale.domain(this.yScale.domain());
 
@@ -183,6 +265,7 @@ class timeChart {
 		console.log(selector.selectedDate);
 		this.updateSlider(selector.selectedDate);
 
+	  
 
 	  this.brush = d3.brushX()
 		    .extent([[0, 0], [this.width, this.height2]])
@@ -194,18 +277,60 @@ class timeChart {
 		    .extent([[0, 0], [this.width, this.height]])
 		    .on("zoom", zoomed);
 
-	  let sensorData = this.focus.append("path")
-	      .datum(data)
+	//let that = this;
+      
+	  for(let i = 0; i < this.sensorDatas.length; i++){
+	  	
+	  	let sensorPaths = this.focus.append("path")
+	      .datum(this.sensorDatas[i])
 	      .attr("class", "area")
-	      .attr("d", this.area);
+	      .attr("d", this.area)
+	      .attr('stroke-width','1px')
+	      .attr('stroke','gray')
+	      .attr('stroke-opacity',0.6)
+	      .attr("id","sensorPath"+this.sensorInfos[i].id);
+	    console.log(sensorPaths);
+	    
+
+	    let modelPaths = this.focus.append("path")
+	  	  .datum(this.modelDatas[i])
+	  	  .attr("class","line")
+	  	  .attr("d", this.line)
+	  	  .attr('stroke-width','2px')
+	  	  .attr('stroke','darkgrey')
+	  	  .attr('stroke-opacity',0.6)
+	  	  .attr("id","sensorPath"+this.sensorInfos[i].id);
+
+	  	sensorPaths.on("mouseover",function(){
+	  		console.log("IN MOUSEOVER ON PATH!")
+	  		if(that.prevSelection){
+	  			that.prevSelection.attr('stroke-width', 1)
+	  		}
+
+	  		let sensorID = d3.select(this).attr('id');
+	  		let prevSelection = d3.selectAll('#sensorPath'+sensorID)
+	  			.attr('stroke-width', 4)
+
+	  		d3.event.stopPropagation();
+	  	})
+
+	  	this.context.append("path")
+	      .datum(this.sensorDatas[i])
+	      .attr("class", "area")
+	      .attr("d", this.area2)
+	      .attr('stroke-width','1px')
+	      .attr('stroke','gray')
+	      .attr('stroke-opacity',0.8);
+
+	  }
+
+
+	  
 
 	  
 
 
-	  this.focus.append("path")
-	  	  .datum(modelData)
-	  	  .attr("class","line")
-	  	  .attr("d", this.line);
+	  
 
 	  this.focus.append("g")
 	      .attr("class", "axis axis--x")
@@ -245,7 +370,6 @@ class timeChart {
 		    //}
 
           let coords = d3.mouse(this);
-          console.log("INSIDE CLICK@!!!")
           // Normally we go from data to pixels, but here we're doing pixels to data
           let newData= {
             x: Math.round( that.xScale.invert(coords[0])),  // Takes the pixel number to convert to number

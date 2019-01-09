@@ -17,17 +17,14 @@ class simpleShapeDrawer {
 		this.markers = [];
 
 		function addLatLng(event) {
-			console.log("INSIDE OF LAT LONG")
 		  var path = that.poly.getPath();
 
 		  // Because path is an MVCArray, we can simply append a new coordinate
 		  // and it will automatically appear.
 		  path.push(event.latLng);
-		  console.log(event.latLng);
 
 		  
 		  // Add a new marker at the new plotted point on the polyline.
-		  console.log(path.length.toString());
 		  let markerNum = that.markers.length; // done before to not need to -1
 		  that.markers.push(new google.maps.Marker({
 		    position: event.latLng,
@@ -50,7 +47,6 @@ class simpleShapeDrawer {
 
 
 		  let newShape = event.overlay;
-		  console.log(path.getArray());
 		  //let coordinates = [];
 		  let pts = path.getArray();
 		  that.selectedNode = markerNum;
@@ -86,28 +82,21 @@ class simpleShapeDrawer {
 		            document.getElementById("long").value = event.latLng.lng();*/
 
 		            //infoWindow.open(map, marker);
-		            console.log(markerNum);
-		            console.log(event.latLng.lng())
-		            console.log(path[markerNum])
-					console.log(path.getAt);
-					console.log(path.setAt);
+
 					path.setAt(markerNum,event.latLng);
 					let draggedPts = path.getArray();
 					window.interpChart.update(draggedPts);
 					that.selectedNode = markerNum;
 
 					//path.push(event.latLng)
-					console.log(path[markerNum])
 		   });
 
 		  google.maps.event.addDomListener(document, 'keyup', (event) => {
 			    var code = (event.keyCode ? event.keyCode : event.which);
-			    console.log("INSIDE OF KEUP!", code)
 			    if (code === 8) {
-			    	console.log("Inside of delete!")
-			    	console.log(markerNum)
+
 			    	let prevPath = path.getArray();
-			    	console.log(prevPath)
+
 			    	//that.markers[markerNum].setMap(null);
 			    	let newPathArray = prevPath.map((element,index) => {
 			    		if(index===markerNum){
@@ -115,8 +104,7 @@ class simpleShapeDrawer {
 			    		}
 			    		return element;
 			    	})
-			    	console.log(prevPath)
-			    	console.log(newPathArray)
+
 			    	prevPath = newPathArray;
 
 			    	//path.removeAt(markerNum)
@@ -150,8 +138,7 @@ class simpleShapeDrawer {
 
 
 		}
-		console.log(window)
-		console.log(window.controller);
+
 		window.controller.addLatLng = addLatLng
 	}
 
@@ -169,7 +156,6 @@ class simpleShapeDrawer {
 			lat:lat,
 			long:lng
 		}];
-		console.log(dataPoint);
 		this.highlightOverlay = new google.maps.OverlayView();
 		let that = this;
 
@@ -188,7 +174,6 @@ class simpleShapeDrawer {
 		          .data(dataPoint)
 		          .each(transform)
 		          .attr("fill", function(d){
-		          	console.log(d);
 		          	return "white";
 		          })
 		          .attr("opacity", "0.5")
@@ -209,7 +194,6 @@ class simpleShapeDrawer {
 		          .attr("cx", padding)
 		          .attr("cy", padding)
 		          .attr("fill", "black");
-		      console.log(newMarkers);
 	
 		    
 

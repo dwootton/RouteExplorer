@@ -139,6 +139,14 @@
                             </li>
  
                         </ul>
+                        <ul>
+                            <text id="currentMode" class="align-middle"> </text>
+                                <label class="switch nav-link" class="float-xl-left">
+                                <input type="checkbox" id="modeSwitch"checked>
+                                <span class="slider"></span>
+                            </label>
+
+                        </ul>
                     </div>
                 </div>
             </nav>
@@ -173,15 +181,20 @@
         });
     </script>
 
-    <div class="container">
+    <div class="container custom-container">
 			<div style="overflow:hidden;">
 		    
 			</div>
 			<div id="panel">
             <div id="color-palette"></div>
             <div>
-                <button id="delete-button">Delete Selected Shape</button>
+                <button id="drawing-mode-button">Delete Map Line</button>
             </div>
+
+            <div>
+                <button id="line-delete-button">Delete Map Line</button>
+            </div>
+            
         </div>
 			<div class="row">
 			  <div class="col-10">
@@ -226,6 +239,8 @@
 <style> 
 
 
+
+/* Other CSS */
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 body {
     font-family: 'Poppins', sans-serif;
@@ -270,6 +285,9 @@ a:focus {
     margin: 40px 0;
 }
 
+.container .custom-container {
+      margin:50px;
+}
 /* ---------------------------------------------------
     SIDEBAR STYLE
 ----------------------------------------------------- */
@@ -534,8 +552,6 @@ div.tooltip {
 }
 
 .area {
-  stroke: steelblue;
-  stroke-width:1px;
   fill:none;
   clip-path: url(#clip);
 }
@@ -547,9 +563,7 @@ div.tooltip {
 }
 
 .line {
-	stroke-width:2px;
-    stroke-dasharray: 1;
-	stroke:red;
+    stroke-dasharray: 2;
 	fill:none;
 	clip-path: url(#clip);
 }
@@ -590,7 +604,11 @@ div.HMtooltip {
                 cursor: pointer;
             }
 
-            #delete-button {
+            #line-delete-button {
+                margin-top: 5px;
+            }
+
+            #drawing-mode-button {
                 margin-top: 5px;
             }
 </style>
