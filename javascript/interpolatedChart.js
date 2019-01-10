@@ -13,12 +13,9 @@ class interpolatedChart {
 	}
 
 	update(points){
-		console.log("Inside interpChart!")
 		//let lats = points.map(x => x.lat);
 		//let longs = points.map(x => x.lng);
-		console.log(window.controller);
 		window.controller.interpChart= this;
-		console.log(window.controller);
 
 
 		//console.log(lats,longs);
@@ -46,18 +43,15 @@ class interpolatedChart {
 			if(timesToInterp == 0){ continue; }
 
 			let interpInterval = 1.0/timesToInterp;
-			console.log(interpInterval);
 			let counter = 0;
 			while(counter < 1){
 				let interpolatedValue = google.maps.geometry.spherical.interpolate(points[i-1],points[i],counter)
-				console.log(interpolatedValue);
 				allCoordinates.push({
 					lat: interpolatedValue.lat(),
 					lng: interpolatedValue.lng()
 				})
 				counter += interpInterval;
 			}
-			console.log(allCoordinates);
 		}
 		return allCoordinates;
 		//google.maps.geometry.spherical.computeDistanceBetween(pt1,pt2);
@@ -66,10 +60,8 @@ class interpolatedChart {
 
 
 	drawLineHeatMap(myData){
-		console.log(myData);
 		let heatMapSVG;
 	    let allData = jQuery.extend(true, [], myData);
-	    console.log(allData);
 	    d3.select('#lineMap').attr('height', 300).attr('width',650);
 
 
@@ -107,7 +99,6 @@ class interpolatedChart {
 
 	    
 	    let domain = [this.times[0].start,this.times[this.times.length-1].start]
-	    //console.log(domain);
 	    let xExtent = this.times.length*rectWidth;
 	    let xScale = d3.scaleTime()
 	            .domain(domain)
@@ -232,7 +223,6 @@ class interpolatedChart {
 	            return colorScale(d.data);
 	        })
 	        .on("mouseover", (d) => {
-	        	console.log(d);
                  //this.mapPath.changeMapNavLine(.2)
                  this.div.transition()
                  	.duration(600)
@@ -248,7 +238,6 @@ class interpolatedChart {
              })
              .on("mouseout",(d)=> {
                  //this.mapPath.changeMapNavLine(0.9)
-                 console.log(this.div);
                  this.div.transition()
                  	.duration(300)
                  	.style("opacity", 0);
@@ -387,7 +376,6 @@ class interpolatedChart {
 					loggerCounter++;
 				}
 			}
-			console.log(finalVals);
 			this.finalData = finalVals;
 			//console.log(finalVals)
 			this.drawLineHeatMap(finalVals)
@@ -444,7 +432,6 @@ function generateTimes(firstDateStart,lastDateStart){ // Currently generates 1 t
 	lastDateStart = new Date(lastDateStart);
 	let firstDateStop = new Date(new Date(firstDateStart).setMinutes(firstDateStart.getMinutes()+5));
 	let LastDateStop = new Date(new Date(lastDateStart).setMinutes(lastDateStart.getMinutes()+5));
-	console.log(firstDateStart, firstDateStop)
 	let arr=[]
 	for(let dt=firstDateStart; dt<=lastDateStart; dt.setHours(dt.getHours()+3)){
         arr.push(new Date(dt));
@@ -464,7 +451,6 @@ function generateTimes(firstDateStart,lastDateStart){ // Currently generates 1 t
     		stop:stops[i]
     	})
     }
-    console.log(times);
 
     return times;
 }

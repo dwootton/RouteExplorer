@@ -130,6 +130,7 @@
 
 
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <!--
                         <ul class="nav navbar-nav ml-auto">
                             <li class="nav-item active">
                                 <a class="nav-link" href="https://github.com/dwootton/AQExplorer">Github</a>
@@ -137,7 +138,15 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="http://www.aqandu.org/">AQandU Website</a>
                             </li>
- 
+                        </ul>
+                        --->
+                        <ul>
+                            <text id="currentMode" class="align-middle"> </text>
+                                <label class="switch nav-link" class="float-xl-left">
+                                <input type="checkbox" id="modeSwitch"checked>
+                                <span class="slider"></span>
+                            </label>
+
                         </ul>
                     </div>
                 </div>
@@ -173,15 +182,20 @@
         });
     </script>
 
-    <div class="container">
+    <div class="container custom-container">
 			<div style="overflow:hidden;">
 		    
 			</div>
 			<div id="panel">
             <div id="color-palette"></div>
             <div>
-                <button id="delete-button">Delete Selected Shape</button>
+                <button id="drawing-mode-button">Delete Map Line</button>
             </div>
+
+            <div>
+                <button id="line-delete-button">Delete Map Line</button>
+            </div>
+            
         </div>
 			<div class="row">
 			  <div class="col-10">
@@ -220,12 +234,89 @@
 <script src="javascript/timechart.js"> </script>
 <script src="javascript/selector.js"> </script>
 <script src="javascript/controller.js"> </script>
-
+<script src="javascript/modeSelection.js"> </script>
 
 <script src="javascript/main.js"> </script>
 <style> 
 
 
+/* Switch CSS*/
+  /* Sliders CSS*/
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 200px;
+  height: 40px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.hidden {
+  display: none;
+}
+
+.shown {
+  display: block;
+}
+
+#currentMode {
+  font-size: 24px;
+}
+#container {
+  margin-left: 155px;
+  margin-right: 55px;
+}
+#plots{
+  margin-left:50px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 32px;
+  width: 60px;
+  top: 4px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #006837;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #006837;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(130px);
+  -ms-transform: translateX(130px);
+  transform: translateX(130px);
+}
+/* End Slider code obtained from: https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_switch */
+/* Navbar button */
+#sidebarCollapse {
+      background-color: #006837;
+      border-color: #014c29;
+}
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 body {
     font-family: 'Poppins', sans-serif;
@@ -270,6 +361,9 @@ a:focus {
     margin: 40px 0;
 }
 
+.container .custom-container {
+      margin:50px;
+}
 /* ---------------------------------------------------
     SIDEBAR STYLE
 ----------------------------------------------------- */
@@ -534,8 +628,6 @@ div.tooltip {
 }
 
 .area {
-  stroke: steelblue;
-  stroke-width:1px;
   fill:none;
   clip-path: url(#clip);
 }
@@ -547,9 +639,7 @@ div.tooltip {
 }
 
 .line {
-	stroke-width:2px;
-    stroke-dasharray: 1;
-	stroke:red;
+    stroke-dasharray: 2;
 	fill:none;
 	clip-path: url(#clip);
 }
@@ -590,7 +680,11 @@ div.HMtooltip {
                 cursor: pointer;
             }
 
-            #delete-button {
+            #line-delete-button {
+                margin-top: 5px;
+            }
+
+            #drawing-mode-button {
                 margin-top: 5px;
             }
 </style>
