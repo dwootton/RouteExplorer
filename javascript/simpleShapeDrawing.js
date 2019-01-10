@@ -134,7 +134,7 @@ class simpleShapeDrawer {
 		  	that.markers[markerNum].setMap(null);
 		    that.markers.splice(markerNum, 1);
 		    that.poly.getPath().removeAt(markerNum);
-		    that.selectedNode = that.poly.getPath().getArray().length-1;
+		    that.selectedNode = 9999;
 		    console.log("removed!")
 		    /*
 		    for (let i = 0; i < markers.length; i++) {

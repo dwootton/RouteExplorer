@@ -9,6 +9,7 @@ window.controller.selector = selector;
 window.controller.map = aqMap;
 let mode = new ModeSelector();
 console.log(mode)
+window.controller.modeSelector = mode;
 function makeSearch() {
 
 	let sensorName = document.getElementsByName("search")[0].value;
