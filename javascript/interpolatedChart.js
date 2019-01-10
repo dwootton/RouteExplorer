@@ -5,6 +5,7 @@ class interpolatedChart {
 		this.div = d3.select("body").append("div")
             .attr("class", "HMtooltip")
             .style("opacity", 0);
+        this.margin = { top: 50, right: 0, bottom: 100, left: 50 };
 
 	}
 
@@ -12,7 +13,76 @@ class interpolatedChart {
 		this.selector = selector;
 	}
 
+	drawPathLegend(points,allPoints){
+		let totalLength = google.maps.geometry.spherical.computeLength(points);
+		console.log(totalLength);
+		let percentagesAlongPath = [0];
+		let pathSectionDistance =0
+		for(let i = 1; i < points.length; i++){
+			pathSectionDistance += google.maps.geometry.spherical.computeDistanceBetween(points[i-1],points[i]);
+			let percentAlongPath = pathSectionDistance/totalLength;
+			percentagesAlongPath.push(percentAlongPath);
+		}
+		console.log(percentagesAlongPath);
+		/* Append Line */
+
+		console.log(this.points.length, this.rectHeight)
+		
+		let pathScale = d3.scaleLinear()
+	        .domain([0, 1])
+	        .range([0, this.allPoints.length*this.rectHeight]);
+
+	    let pathGroup = d3.select('#lineMap').select('svg').append('g')
+        	.attr("transform", "translate(" + this.margin.left/2 + "," + (this.margin.top+5) + ")");
+
+       	/* Append Linearized Path Line */
+	    pathGroup.append('rect')
+	        .attr('width', 2)
+	        .attr('height', function(d){
+	            return pathScale(1);
+	        })
+	        .attr('x',12)
+	        .attr('fill', 'steelblue');
+
+	    /* Append Nodes Along Path Legend*/
+	    console.log("Your scaled point distances are:", percentagesAlongPath)
+	    let pathGroups = pathGroup.selectAll('circle')
+        	.data(percentagesAlongPath);
+
+    	pathGroups.exit().remove();
+
+    	let newPathGroups = pathGroups.enter().append('g')
+        	.attr('transform', function(d){
+            	return 'translate(' + 12+','+pathScale(d)+')';
+        	});
+
+        newPathGroups
+	        .append('circle')
+	        .attr('r', 10)
+	        .attr('fill', 'white');
+
+	    newPathGroups.append('text')
+	        .text(function(d,i){
+	            return i+1;
+	        })
+	        .attr('x', function(d,i){ 
+	            if(i > 8){
+	                return -8.5;
+	            }
+	            return -4})
+	        .attr('y', +5)
+	        .attr('fill','black');
+
+
+	
+
+		console.log(percentagesAlongPath);
+
+		
+	}
+
 	update(points){
+		this.points = points;
 		//let lats = points.map(x => x.lat);
 		//let longs = points.map(x => x.lng);
 		window.controller.interpChart= this;
@@ -26,10 +96,14 @@ class interpolatedChart {
 		let myLngPts = interpolateArray(longs,17);
 		console.log(myLngPts)
 
+
 		
 		*/
 		//let finalPts = mergeLatsAndLongs(myLatPts,myLngPts)
+		this.allPoints = myFullPts;
 		let myVals = this.getModelEst(myFullPts);
+
+		
 
 	}
 
@@ -68,6 +142,8 @@ class interpolatedChart {
 	    let width = 3000;
 	    let height = 3000;
 	    let margin = { top: 50, right: 0, bottom: 100, left: 50 };
+	    this.rectHeight = 10;
+	    this.rectWidth = 10;
 	    let rectHeight = 10;
 	    let rectWidth = 10;
 	    d3.select('#lineMap').select('svg').selectAll('g').remove();
@@ -379,6 +455,7 @@ class interpolatedChart {
 			this.finalData = finalVals;
 			//console.log(finalVals)
 			this.drawLineHeatMap(finalVals)
+			this.drawPathLegend(this.points,points);
 		    return finalVals;
 		});
 		return allData;

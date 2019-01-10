@@ -140,9 +140,9 @@
                             </li>
                         </ul>
                         --->
-                        <ul>
-                            <text id="currentMode" class="align-middle"> </text>
-                                <label class="switch nav-link" class="float-xl-left">
+                        <ul id="buttonUL">
+                            <text id="currentMode" class="align-right"> </text>
+                                <label class="switch nav-link" class="float-xl-right">
                                 <input type="checkbox" id="modeSwitch"checked>
                                 <span class="slider"></span>
                             </label>
@@ -188,13 +188,14 @@
 			</div>
 			<div id="panel">
             <div id="color-palette"></div>
+            <!--
             <div>
                 <button id="drawing-mode-button">Delete Map Line</button>
             </div>
 
             <div>
                 <button id="line-delete-button">Delete Map Line</button>
-            </div>
+            </div> -->
             
         </div>
 			<div class="row">
@@ -313,6 +314,9 @@ input:checked + .slider:before {
 }
 /* End Slider code obtained from: https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_switch */
 /* Navbar button */
+#buttonUL {
+    margin-left: 650px;
+}
 #sidebarCollapse {
       background-color: #006837;
       border-color: #014c29;

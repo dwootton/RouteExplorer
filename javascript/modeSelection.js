@@ -13,6 +13,7 @@ class ModeSelector {
         button.on('change', update);
         button.attr('checked','false');
         $('#modeSwitch').trigger('click');
+        let self = this;
 
         function update(){
             /*
@@ -28,22 +29,23 @@ class ModeSelector {
             let status = document.getElementById("modeSwitch").checked; // False => Explorer, True => Navigator
             let modeText = d3.select('#currentMode');
             modeText.attr('padding-bottom',20);
-            console.log(this.first)
 
             if(status){ // Navigator Mode
                 //modeButton.selectAll().remove();
-
+                self.mode = 'navigate';
                 modeText
                     .text('Path Exploration');
                 console.log(window.controller.polyline)
                 window.controller.polyline.setMap(window.controller.map.myMap);
                 if(window.controller.markers){
                     for(let i = 0; i < window.controller.markers.length; i++){
+                        console.log(window.controller.markers);
                         window.controller.markers[i].setMap(window.controller.map.myMap);
                     }
                 }
                 d3.select('div #lineMap').transition().duration(500).attr('class','shown');
                 d3.select('#timeChart').transition().duration(500).attr('class','hidden');
+                window.controller.map.refreshClick();
 
                 
                 //window.controller.markers
@@ -57,6 +59,7 @@ class ModeSelector {
 
             } else { // Explorer Mode
                 //modeButton.selectAll().remove();
+                self.mode = 'explore';
                 modeText
                     .text('Data Exploration');
                 console.log(window.controller.map)
@@ -68,6 +71,7 @@ class ModeSelector {
                 }
                 d3.select('div #lineMap').transition().duration(500).attr('class','hidden');
                 d3.select('#timeChart').transition().duration(500).attr('class','shown');
+                window.controller.map.hideClick();
                     /*
                 myPath.changeMapNavLine(0);
                  d3.select('#chart').transition().duration(500).attr('class','shown');

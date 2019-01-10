@@ -9,15 +9,17 @@ class simpleShapeDrawer {
 		    zIndex: 100000000000000000000000000000000000000000000000000000000
 		  });
 		this.poly.setMap(this.myMap);
+
 		window.controller.polyline = this.poly;
 		window.controller.map = this.myMap;
-		
+
 		window.interpChart = new interpolatedChart();
 
 		//this.myMap.addListener('click', addLatLng);
 		// Handles click events on a map, and adds a new point to the Polyline.
 		let that = this;
 		this.markers = [];
+		window.controller.markers = this.markers;
 
 		function addLatLng(event) {
 		  var path = that.poly.getPath();
@@ -25,7 +27,6 @@ class simpleShapeDrawer {
 		  // Because path is an MVCArray, we can simply append a new coordinate
 		  // and it will automatically appear.
 		  path.push(event.latLng);
-
 		  
 		  // Add a new marker at the new plotted point on the polyline.
 		  let markerNum = that.markers.length; // done before to not need to -1
@@ -47,6 +48,7 @@ class simpleShapeDrawer {
 		        },
 		    draggable: true
 		  }));
+		  console.log(window.controller.markers);
 
 
 		  let newShape = event.overlay;
@@ -97,10 +99,19 @@ class simpleShapeDrawer {
 		  google.maps.event.addDomListener(document, 'keyup', (event) => {
 			    var code = (event.keyCode ? event.keyCode : event.which);
 			    if (code === 8) {
-
+			    	console.log(markerNum);
 			    	let prevPath = path.getArray();
+			    	if(markerNum == that.selectedNode){
+			    		console.log(that.selectedNode)
+			    		removePoint(that.selectedNode);
+			    		let pts = path.getArray();
+				        window.interpChart.update(pts);
+				        event.preventDefault();
+    					event.stopPropagation();
+			    	}
+			    	
 
-			    	//that.markers[markerNum].setMap(null);
+			    	/*that.markers[markerNum].setMap(null);
 			    	let newPathArray = prevPath.map((element,index) => {
 			    		if(index===markerNum){
 			    			return
@@ -108,23 +119,30 @@ class simpleShapeDrawer {
 			    		return element;
 			    	})
 
-			    	prevPath = newPathArray;
+			    	console.log(newPathArray);
+			    	newPathArray.forEach(function(coord) {
+					    //note: getPath returns a reference,
+					    //you may add a point directly
+					    that.poly.getPath().push(coord);
+					 });
 
-			    	//path.removeAt(markerNum)
+			    	//path.removeAt(markerNum)*/
 			    }
 			});
 
-		  function removePoint(markerNum) {
+		function removePoint(markerNum) {
+		  	that.markers[markerNum].setMap(null);
+		    that.markers.splice(markerNum, 1);
+		    that.poly.getPath().removeAt(markerNum);
+		    that.selectedNode = 9999;
+		    console.log("removed!")
+		    /*
 		    for (let i = 0; i < markers.length; i++) {
+		        if (i === markerNum) {
 
-		        if (markers[i] === marker) {
-
-		            markers[i].setMap(null);
-		            markers.splice(i, 1);
-
-		            polyline.getPath().removeAt(i);
+		            
 		        }
-		    }
+		    }*/
 		}
 		  /*
 		  google.maps.event.addDomListener(marker, 'keydown', function(event){

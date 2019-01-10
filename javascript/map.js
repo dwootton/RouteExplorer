@@ -75,8 +75,8 @@ class AQMap {
 
 		    this.shapeDrawer = new simpleShapeDrawer(this.myMap);
 		    window.controller.shapeDrawer = this.shapeDrawer;
-
-		this.myMap.data.addListener('click', (event) => {
+		 //this.refreshClick()
+		/*this.myMap.data.addListener('click', (event) => {
 			// NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
 
 			if (this.shiftKeyPressed) {
@@ -101,7 +101,7 @@ class AQMap {
 			
             
           	//this.myMap.setCenter(marker.getPosition());
-        });
+        });*/
 		/*L.map('map',{
 		    renderer: L.svg()
 		}).setView([40.7, -111.9], 10);
@@ -152,6 +152,43 @@ class AQMap {
 		//this.update(null,null);
 
 	}
+	refreshClick(){
+		this.myMap.data.addListener('click', (event) => {
+			// NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
+			console.log(window.controller.modeSelector.mode);
+			if (this.shiftKeyPressed) {
+				if(this.marker){
+					this.marker.setMap(null);
+				}
+				
+		        let myLatLng = event.latLng;
+			    let lat = myLatLng.lat();
+			    let lng = myLatLng.lng();
+
+				selector.grabModelData(lat,lng, null);
+				this.placeMarker(event.latLng);
+		    }
+
+			if(window.controller.modeSelector.mode === 'explore'){
+				return;
+			}
+
+			  
+	    	if(window.controller.sensorClicked){ // if sensor was clicked 
+				window.controller.sensorClicked = false;
+		   	} else {
+		   		window.controller.addLatLng(event);
+		    }
+		    console.log("sorry, no shift!")
+		    
+			
+            
+          	//this.myMap.setCenter(marker.getPosition());
+        });
+	}
+	hideClick(){
+		this.myMap.data.addListener('click',null);
+	}
 	placeMarker(location) {
 		this.marker = new google.maps.Marker({
 			position: location, 
@@ -198,7 +235,7 @@ class AQMap {
 
 		            let sensorID = d.id;
 		            console.log(d3.selectAll('#sensorPath'+sensorID))
-			  		let prevSelection = d3.selectAll('#sensorPath'+sensorID)
+			  		let prevSelection = d3.select('#sensorPath'+sensorID)
 			  			.transition()
 			  			.duration(500)
 			  				.attr('stroke-width', 2)
@@ -211,7 +248,7 @@ class AQMap {
 		                .style("opacity", 0);	
 		            let sensorID = d.id;
 		            console.log(d3.selectAll('#sensorPath'+sensorID))
-			  		let prevSelection = d3.selectAll('#sensorPath'+sensorID)
+			  		let prevSelection = d3.select('#sensorPath'+sensorID)
 			  			.transition()
 			  			.duration(500)
 			  				.attr('stroke-width', 1)
