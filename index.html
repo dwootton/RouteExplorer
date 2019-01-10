@@ -130,6 +130,7 @@
 
 
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <!--
                         <ul class="nav navbar-nav ml-auto">
                             <li class="nav-item active">
                                 <a class="nav-link" href="https://github.com/dwootton/AQExplorer">Github</a>
@@ -137,8 +138,8 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="http://www.aqandu.org/">AQandU Website</a>
                             </li>
- 
                         </ul>
+                        --->
                         <ul>
                             <text id="currentMode" class="align-middle"> </text>
                                 <label class="switch nav-link" class="float-xl-left">
@@ -233,14 +234,89 @@
 <script src="javascript/timechart.js"> </script>
 <script src="javascript/selector.js"> </script>
 <script src="javascript/controller.js"> </script>
-
+<script src="javascript/modeSelection.js"> </script>
 
 <script src="javascript/main.js"> </script>
 <style> 
 
 
+/* Switch CSS*/
+  /* Sliders CSS*/
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 200px;
+  height: 40px;
+}
 
-/* Other CSS */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.hidden {
+  display: none;
+}
+
+.shown {
+  display: block;
+}
+
+#currentMode {
+  font-size: 24px;
+}
+#container {
+  margin-left: 155px;
+  margin-right: 55px;
+}
+#plots{
+  margin-left:50px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 32px;
+  width: 60px;
+  top: 4px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #006837;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #006837;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(130px);
+  -ms-transform: translateX(130px);
+  transform: translateX(130px);
+}
+/* End Slider code obtained from: https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_switch */
+/* Navbar button */
+#sidebarCollapse {
+      background-color: #006837;
+      border-color: #014c29;
+}
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 body {
     font-family: 'Poppins', sans-serif;

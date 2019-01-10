@@ -9,6 +9,9 @@ class simpleShapeDrawer {
 		    zIndex: 100000000000000000000000000000000000000000000000000000000
 		  });
 		this.poly.setMap(this.myMap);
+		window.controller.polyline = this.poly;
+		window.controller.map = this.myMap;
+		
 		window.interpChart = new interpolatedChart();
 
 		//this.myMap.addListener('click', addLatLng);
@@ -112,7 +115,7 @@ class simpleShapeDrawer {
 			});
 
 		  function removePoint(markerNum) {
-		    for (var i = 0; i < markers.length; i++) {
+		    for (let i = 0; i < markers.length; i++) {
 
 		        if (markers[i] === marker) {
 

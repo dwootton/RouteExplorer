@@ -7,7 +7,8 @@ let chart = new timeChart();
 let selector = new Selector(aqMap, chart);
 window.controller.selector = selector;
 window.controller.map = aqMap;
-
+let mode = new ModeSelector();
+console.log(mode)
 function makeSearch() {
 
 	let sensorName = document.getElementsByName("search")[0].value;
