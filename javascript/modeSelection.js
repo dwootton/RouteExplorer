@@ -39,6 +39,7 @@ class ModeSelector {
                 window.controller.polyline.setMap(window.controller.map.myMap);
                 if(window.controller.markers){
                     for(let i = 0; i < window.controller.markers.length; i++){
+                        console.log(window.controller.markers);
                         window.controller.markers[i].setMap(window.controller.map.myMap);
                     }
                 }

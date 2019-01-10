@@ -51,6 +51,7 @@ class Selector {
 	async getSensorInformation(){
 		console.log("SENSOR INFO CALLED")
 		let url = "http://air.eng.utah.edu/dbapi/api/liveSensors/airU";
+		//let url = "http://air.eng.utah.edu/dbapi/api/sensorsAtTime/airU&2019-01-04T22:00:00Z"
 		let req = fetch(url)
 
 
@@ -223,13 +224,12 @@ class Selector {
 					console.log(err);
 				});
 
-
 		let allModelData = JSON.parse(await modelReq)[1];
-		console.log(allModelData);
+
 		for (time in allModelData) {
 		    this.modelData = allModelData[time].pm25;
 		}
-		console.log(this.modelData);
+
 		this.updateViews();
 		/*
 		for (let [longIndex, long] of longArr.entries()){

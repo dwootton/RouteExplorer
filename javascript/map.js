@@ -198,7 +198,7 @@ class AQMap {
 
 		            let sensorID = d.id;
 		            console.log(d3.selectAll('#sensorPath'+sensorID))
-			  		let prevSelection = d3.selectAll('#sensorPath'+sensorID)
+			  		let prevSelection = d3.select('#sensorPath'+sensorID)
 			  			.transition()
 			  			.duration(500)
 			  				.attr('stroke-width', 2)
@@ -211,7 +211,7 @@ class AQMap {
 		                .style("opacity", 0);	
 		            let sensorID = d.id;
 		            console.log(d3.selectAll('#sensorPath'+sensorID))
-			  		let prevSelection = d3.selectAll('#sensorPath'+sensorID)
+			  		let prevSelection = d3.select('#sensorPath'+sensorID)
 			  			.transition()
 			  			.duration(500)
 			  				.attr('stroke-width', 1)
