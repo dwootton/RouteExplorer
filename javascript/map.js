@@ -75,7 +75,7 @@ class AQMap {
 
 		    this.shapeDrawer = new simpleShapeDrawer(this.myMap);
 		    window.controller.shapeDrawer = this.shapeDrawer;
-		 //this.refreshClick()
+		 	this.refreshClick()
 		/*this.myMap.data.addListener('click', (event) => {
 			// NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
 

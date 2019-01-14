@@ -27,6 +27,7 @@ class ModeSelector {
 
 
             let status = document.getElementById("modeSwitch").checked; // False => Explorer, True => Navigator
+            
             let modeText = d3.select('#currentMode');
             modeText.attr('padding-bottom',20);
 
@@ -45,7 +46,7 @@ class ModeSelector {
                 }
                 d3.select('div #lineMap').transition().duration(500).attr('class','shown');
                 d3.select('#timeChart').transition().duration(500).attr('class','hidden');
-                window.controller.map.refreshClick();
+                //window.controller.map.refreshClick();
 
                 
                 //window.controller.markers
@@ -71,7 +72,7 @@ class ModeSelector {
                 }
                 d3.select('div #lineMap').transition().duration(500).attr('class','hidden');
                 d3.select('#timeChart').transition().duration(500).attr('class','shown');
-                window.controller.map.hideClick();
+                //window.controller.map.hideClick();
                     /*
                 myPath.changeMapNavLine(0);
                  d3.select('#chart').transition().duration(500).attr('class','shown');
