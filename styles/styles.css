@@ -1,5 +1,8 @@
-/* Custom Styles */
-/* Switch CSS*/
+/* ---------------------------------------------------
+    Switch Styles
+		obtained  in part from:
+		https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_switch
+----------------------------------------------------- */
 .switch {
   position: relative;
   display: inline-block;
@@ -41,11 +44,7 @@
   margin-left: 155px;
   margin-right: 55px;
 }
-/*
-#plots {
-  margin-left: 50px;
-}
-*/
+
 .slider:before {
   position: absolute;
   content: "";
@@ -77,10 +76,11 @@ input:checked+.slider:before {
   margin-left: 650px;
 }
 
-/* End Slider code obtained from: https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_switch */
+/* Slider code  */
 
-
-/* Navbar button */
+/* ---------------------------------------------------
+    navBar Styles
+----------------------------------------------------- */
 #sidebarCollapse {
   background-color: #006837;
   border-color: #014c29;
@@ -123,11 +123,7 @@ a:focus {
   outline: none !important;
   border: none;
 }
-/*
-.container .custom-container {
-  margin: 50px;
-}
-*/
+
 /* ---------------------------------------------------
     SIDEBAR STYLE
 ----------------------------------------------------- */
@@ -358,8 +354,8 @@ a.article:hover {
 }
 
 .pathHighlight {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   font: 10px sans-serif;
   z-index: 100000000000000000000;
 }
@@ -377,7 +373,7 @@ a.article:hover {
 ----------------------------------------------------- */
 #timeChart {
   height: 450px;
-  width: 100%; /* eight="450" width="1230"*/
+  width: 100%;
 }
 
 .zoom {

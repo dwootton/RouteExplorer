@@ -160,10 +160,6 @@ class AQMap {
 					        .style("left", (window.pageXOffset + matrix.e - 16.5) + "px")
 					        .style("top", (window.pageYOffset + matrix.f - 44) + "px");
 
-
-								/*.style("left", d3.select(this).attr("cx") + that.sensorWidth + "px")
-								.style("top", d3.select(this).attr("cy") + "px");*/
-
 		            let sensorID = d.id;
 			  		let prevSelection = d3.select('#sensorPath'+sensorID)
 			  			.transition()

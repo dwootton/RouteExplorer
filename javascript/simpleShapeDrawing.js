@@ -1,274 +1,181 @@
-// Ref for plyline: https://stackoverflow.com/questions/2698112/how-to-add-markers-on-google-maps-polylines-based-on-distance-along-the-line
+/**
+ * @file Shape Drawing
+ * @author Dylan Wootton <me@dylanwootton.com>
+ * @version 0.2
+ */
+
 class simpleShapeDrawer {
-	constructor(myMap){
-		this.myMap = myMap;
-		this.poly = new google.maps.Polyline({
-		    strokeColor: '#000000',
-		    strokeOpacity: 1.0,
-		    strokeWeight: 3,
-		    zIndex: 100000000000000000000000000000000000000000000000000000000
-		  });
-		this.poly.setMap(this.myMap);
+  /**
+   * The constructor of the shape drawer
+   * @param {[type]} myMap [description]
+   */
+  constructor(myMap) {
+		/* Set up drawing on the map */
+    this.myMap = myMap;
+    this.poly = new google.maps.Polyline({
+      strokeColor: '#000000',
+      strokeOpacity: 1.0,
+      strokeWeight: 3,
+      zIndex: 100000000000000000000000000000000000000000000000000000000
+    });
+    this.poly.setMap(this.myMap);
 
-		window.controller.polyline = this.poly;
-		window.controller.map = this.myMap;
+		/* Stores the polyline, map, interp Chart as global objects */
+    window.controller.polyline = this.poly;
+    window.controller.map = this.myMap;
+    window.controller.interpChart = new interpolatedChart();
 
-		window.interpChart = new interpolatedChart();
+    /* Markers are new points of the Polyline */
+    let that = this;
+    this.pathNodes = [];
+    window.controller.pathNodes = this.pathNodes;
 
-		//this.myMap.addListener('click', addLatLng);
-		// Handles click events on a map, and adds a new point to the Polyline.
-		let that = this;
-		this.markers = [];
-		window.controller.markers = this.markers;
+		/* On click, add point and update views */
+    let addLatLng = event => {
+      var path = this.poly.getPath();
 
-		function addLatLng(event) {
-		  var path = that.poly.getPath();
+      /* Add point to path */
+      path.push(event.latLng); // note: this re-renders the polyline on the map
 
-		  // Because path is an MVCArray, we can simply append a new coordinate
-		  // and it will automatically appear.
-		  path.push(event.latLng);
+      /* Add a new circle marker at the new plotted point on the polyline. */
+      let markerNum = this.pathNodes.length;
+      this.pathNodes.push(new google.maps.Marker({
+        position: event.latLng,
+        map: that.myMap,
+        label: path.length.toString(),
+        icon: {
+          path: 'M256,320c-70.688,0-128-57.312-128-128c0-70.687,57.313-128,128-128c70.688,0,128,57.313,128,128C384,262.688,326.688,320,256,320z',
+          fillColor: 'white',
+          fillOpacity: 1,
+          scale: 0.075,
+          strokeColor: 'black',
+          strokeWeight: 1,
+          strokeOpacity: 1,
+          labelOrigin: new google.maps.Point(250, 210),
+          anchor: new google.maps.Point(250, 210)
+        },
+        draggable: true
+      }));
 
-		  // Add a new marker at the new plotted point on the polyline.
-		  let markerNum = that.markers.length; // done before to not need to -1
-		  that.markers.push(new google.maps.Marker({
-		    position: event.latLng,
-		    //title: '#' + path.getLength(),
-		    map:  that.myMap,
-		    label: path.length.toString(),
-		    icon: {
-		            path: 'M256,320c-70.688,0-128-57.312-128-128c0-70.687,57.313-128,128-128c70.688,0,128,57.313,128,128C384,262.688,326.688,320,256,320z',
-		            fillColor: 'white',
-		            fillOpacity: 1,
-		            scale: 0.075,
-		            strokeColor: 'black',
-		            strokeWeight: 1,
-		            strokeOpacity: 1,
-		            labelOrigin : new google.maps.Point(250, 210),
-		            anchor: new google.maps.Point(250, 210)
-		        },
-		    draggable: true
-		  }));
-		  console.log(window.controller.markers);
+			/* Update interpChart view */
+      let pts = path.getArray();
+      window.controller.interpChart.update(pts);
 
+			/* Delete the most recently editted node if delete is pressed */
+			this.selectedNode = markerNum;
+			google.maps.event.addDomListener(document, 'keyup', (event) => {
+        let code = (event.keyCode ? event.keyCode : event.which);
+        if (code === 8) {
+          let prevPath = path.getArray();
+          if (markerNum == that.selectedNode) {
+            removePoint(that.selectedNode);
+            let pts = path.getArray();
+            window.controller.interpChart.update(pts);
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        }
+      });
 
-		  let newShape = event.overlay;
-		  //let coordinates = [];
-		  let pts = path.getArray();
-		  that.selectedNode = markerNum;
-		  /*
-		  for (var i = 0 ; i < pts.length ; i++) {
-                                  coordinates.push({
-                                    lat: pts[i].lat(),
-                                    lng: pts[i].lng()
-                                  });
-                                }
-                                */
-          window.interpChart.update(pts);
+			/* Update marker position on drag */
+      google.maps.event.addListener(this.pathNodes[markerNum], 'drag', (event) => {
+        path.setAt(markerNum, event.latLng);
+        this.selectedNode = markerNum;
+      })
 
-		  google.maps.event.addListener(that.markers[markerNum], 'drag', (event) => {
+			/* Update path location and render new interp chart views */
+      google.maps.event.addListener(this.pathNodes[markerNum], 'dragend', (event) => {
+        path.setAt(markerNum, event.latLng);
+        let draggedPts = path.getArray();
+        window.controller.interpChart.update(draggedPts);
+        this.selectedNode = markerNum;
 
-		            /*document.getElementById("lat").value = event.latLng.lat();
+      });
 
-		            document.getElementById("long").value = event.latLng.lng();*/
+			/* Removes the point that corresponds to the recently clicked marker */
+      let removePoint = markerNum => {
+        this.pathNodes[markerNum].setMap(null);
+        this.pathNodes.splice(markerNum, 1);
+        this.poly.getPath().removeAt(markerNum);
+        this.selectedNode = 9999;
+      }
+    }
 
-		            //infoWindow.open(map, marker);
+		// add globally for use inside of map.js
+    window.controller.addLatLng = addLatLng
+  }
 
-					path.setAt(markerNum,event.latLng);
-					that.selectedNode = markerNum;
-					//path.push(event.latLng)
-		   })
+	/**
+   * Used to set the opacity of the drawn path Markers
+   * and lines on the google map.
+   *
+   * @param  {[double]} opacity [The opacity value to set them to]
+   * @return {[type]}         [description]
+   */
+  changeLineOpacity(opacity) {
+		/* Change opacity of the line */
+    this.poly.setOptions({
+      strokeOpacity: opacity
+    });
 
+		/* Change opacity of the path pathNodes */
+    for (let i = 0; i < this.pathNodes.length; i++) {
+      this.pathNodes[i].setOpacity(opacity)
+    }
+  }
 
+  /**
+   * Used to set the path highlighter's lat and lng on
+   * the google map.
+   *
+   * @param  {[double]} lat [The Latitutde.]
+   * @param  {[double]} lng [The Longitude.]
+   * @return
+   */
+  changeHighlightMarker(lat, lng) {
+		/* Convert lat and lng to at latlng obj */
+    let dataPoint = [{
+      lat: lat,
+      long: lng
+    }];
 
-		  google.maps.event.addListener(that.markers[markerNum], 'dragend',  (event) => {
+    this.pathHighlightOverlay = new google.maps.OverlayView();
+    let that = this;
 
-		            /*document.getElementById("lat").value = event.latLng.lat();
+    this.pathHighlightOverlay.onAdd = function() {
 
-		            document.getElementById("long").value = event.latLng.lng();*/
+      d3.select(this.getPanes().overlayMouseTarget).selectAll(".pathHighlight").remove();
+      let layer = d3.select(this.getPanes().overlayMouseTarget).append("div") // floatPane as I want sensors to be on top
+        .attr("class", "pathHighlight");
 
-		            //infoWindow.open(map, marker);
+      that.pathHighlightOverlay.draw = function() {
+        let projection = this.getProjection(),
+          padding = 14;
 
-					path.setAt(markerNum,event.latLng);
-					let draggedPts = path.getArray();
-					window.interpChart.update(draggedPts);
-					that.selectedNode = markerNum;
+        layer.selectAll("svg")
+          .data(dataPoint)
+          .enter().append("svg")
+          .each(transform)
+          .append("circle")
+            .attr("r", 11)
+            .attr('stroke', 'gold')
+            .attr('stroke-width', 3)
+            .attr('fill-opacity', 0.2)
+            .attr("cx", padding)
+            .attr("cy", padding)
+            .attr("fill", "black");
 
-					//path.push(event.latLng)
-		   });
+        function transform(d) {
+          d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
+          d = projection.fromLatLngToDivPixel(d);
+          return d3.select(this)
+            .style("left", (d.x - padding) + "px")
+            .style("top", (d.y - padding) + "px");
+        }
+      };
+    };
 
-		  google.maps.event.addDomListener(document, 'keyup', (event) => {
-			    var code = (event.keyCode ? event.keyCode : event.which);
-			    if (code === 8) {
-			    	console.log(markerNum);
-			    	let prevPath = path.getArray();
-			    	if(markerNum == that.selectedNode){
-			    		console.log(that.selectedNode)
-			    		removePoint(that.selectedNode);
-			    		let pts = path.getArray();
-				        window.interpChart.update(pts);
-				        event.preventDefault();
-    					event.stopPropagation();
-			    	}
-
-
-			    	/*that.markers[markerNum].setMap(null);
-			    	let newPathArray = prevPath.map((element,index) => {
-			    		if(index===markerNum){
-			    			return
-			    		}
-			    		return element;
-			    	})
-
-			    	console.log(newPathArray);
-			    	newPathArray.forEach(function(coord) {
-					    //note: getPath returns a reference,
-					    //you may add a point directly
-					    that.poly.getPath().push(coord);
-					 });
-
-			    	//path.removeAt(markerNum)*/
-			    }
-			});
-
-		function removePoint(markerNum) {
-		  	that.markers[markerNum].setMap(null);
-		    that.markers.splice(markerNum, 1);
-		    that.poly.getPath().removeAt(markerNum);
-		    that.selectedNode = 9999;
-		    console.log("removed!")
-		    /*
-		    for (let i = 0; i < markers.length; i++) {
-		        if (i === markerNum) {
-
-
-		        }
-		    }*/
-		}
-		  /*
-		  google.maps.event.addDomListener(marker, 'keydown', function(event){
-		  	console.log(event)
-		  			if(event.keyCode == 46) {
-				        alert('Delete key released');
-				        path.removeAt(markerNum);
-
-				    }
-		  })
-		  */
-
-
-
-
-		}
-
-		window.controller.addLatLng = addLatLng
-	}
-
-	changeLineOpacity(opacity){
-		this.poly.setOptions({strokeOpacity: opacity});
-		for(let i = 0; i < this.markers.length; i++){
-			this.markers[i].setOpacity(opacity)
-		}
-		this.markers
-
-	}
-
-	changeHighlightMarker(lat,lng){
-		let dataPoint = [{
-			lat:lat,
-			long:lng
-		}];
-		this.pathHighlightOverlay = new google.maps.OverlayView();
-		let that = this;
-
-		this.pathHighlightOverlay.onAdd = function() {
-			d3.select(this.getPanes().overlayMouseTarget).selectAll(".pathHighlight").remove();
-		    let layer = d3.select(this.getPanes().overlayMouseTarget).append("div") // floatPane as I want sensors to be on top
-		        .attr("class", "pathHighlight");
-
-		    // Draw each marker as a separate SVG element.
-		    // We could use a single SVG, but what size would it have?
-		    that.pathHighlightOverlay.draw = function() {
-		      let projection = this.getProjection(),
-		          padding = 10.5;
-
-		      let marker = layer.selectAll("svg")
-		          .data(dataPoint)
-		          .each(transform)
-
-		      let newMarkers = marker
-		        .enter().append("svg")
-		          .each(transform);
-
-		      marker.exit().remove();
-
-		      // Add a circle. May be unused?
-		      newMarkers.append("circle")
-		          .attr("r", 10)
-		          .attr('stroke','gold')
-		          .attr('stroke-width',3)
-		          .attr('fill-opacity',0.2)
-		          .attr("cx", padding)
-		          .attr("cy", padding)
-		          .attr("fill", "black");
-
-
-
-
-		      // Add a label.
-		      /*
-		      newMarkers.append("text")
-		          .attr("x", padding + 7)
-		          .attr("y", padding)
-		          .attr("dy", ".31em")
-		          .text(function(d) {return d.id;});
-
-		      function transform(d) {
-		        let latLongObj = {lat:+d.lat,lng:+d.long};
-		        console.log(latLongObj);
-		        let realLLObj = new google.maps.LatLng(latLongObj.lat, latLongObj.lng);
-		        let obj = projection.fromLatLngToDivPixel(realLLObj);
-		        console.log(obj);
-		        let sel = d3.select(this);
-		        return d3.select(this)
-		            .style("left", (obj.x - padding) + "px")
-		            .style("top", (obj.y - padding) + "px");
-		      }
-				One SVG:
-				let newMarkers = marker
-		        .enter()
-		          .append("circle")
-		          .attr("cx", (d) => {
-		          	 d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
-				        d = projection.fromLatLngToDivPixel(d);
-
-				        return (d.x-padding) +"px";
-		          })
-		          .attr("cy", (d) => {
-		          	 d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
-				        d = projection.fromLatLngToDivPixel(d);
-
-				        return (d.y-padding) +"px";
-		          })
-		          .attr("class", "marker")
-		          .attr("fill",(d)=>{
-		          	return (that.colorMap(d.pm25))
-		          });
-		      */
-		      function transform(d) {
-		        d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
-		        d = projection.fromLatLngToDivPixel(d);
-		        //console.log(d3.select(this));
-
-		        return d3.select(this)
-		            .style("left", (d.x - padding) + "px")
-		            .style("top", (d.y - padding) + "px");
-		      }
-		    };
-		  };
-
-		  // Bind our overlay to the map…
-		  this.pathHighlightOverlay.setMap(this.myMap);
-
-
-	}
+    // Bind our overlay to the map
+    this.pathHighlightOverlay.setMap(this.myMap);
+  }
 }
