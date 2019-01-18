@@ -43,8 +43,9 @@ class AQMap {
 		});
 
 		this.toolTip = d3.select("body").append("div")
-		    .attr("class", "tooltip")
+		    .attr("class", "mapTooltip")
 		    .style("opacity", 0);
+	this.sensorWidth = 11;
 
 		/* Create legend */
 		let legendColorMap = d3.scaleThreshold()
@@ -134,7 +135,7 @@ class AQMap {
 		    // We could use a single SVG, but what size would it have?
 		    overlay.draw = function() {
 		      let projection = this.getProjection(),
-		          padding = 11;
+		          padding = that.sensorWidth;
 
 		      let marker = layer.selectAll("svg")
 		          .data(sensorData)
@@ -148,15 +149,22 @@ class AQMap {
 
 		      marker
 		        .on("mouseover", function(d) {
-		            that.toolTip.transition()
-		                .duration(200)
-		                .style("opacity", .9);
-		            that.toolTip	.html(d.id + "<br/>"  + d.pm25)
-		                .style("left", (d3.event.pageX - 30) + "px")
-		                .style("top", (d3.event.pageY - 75) + "px");
+							console.log(d3.select(this).attr("cx") + that.sensorWidth);
+							let matrix = this.getScreenCTM()
+					        .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
+
+									that.toolTip.transition()
+											.duration(200)
+											.style("opacity", .9);
+									that.toolTip.html(d.id + "<br/>"  + d.pm25)
+					        .style("left", (window.pageXOffset + matrix.e - 16.5) + "px")
+					        .style("top", (window.pageYOffset + matrix.f - 44) + "px");
+
+
+								/*.style("left", d3.select(this).attr("cx") + that.sensorWidth + "px")
+								.style("top", d3.select(this).attr("cy") + "px");*/
 
 		            let sensorID = d.id;
-		            console.log(d3.selectAll('#sensorPath'+sensorID))
 			  		let prevSelection = d3.select('#sensorPath'+sensorID)
 			  			.transition()
 			  			.duration(500)
@@ -225,12 +233,13 @@ class AQMap {
 		          	}
 		          	return (that.colorMap(d.pm25))
 		          })
+							/*
 		          .classed("hiddenMarker", (d)=> {
 		          	if(d.pm25< 0){
 		          		return true;
 		          	}
 		          	return false;
-		          });
+		          });*/
 
 
 

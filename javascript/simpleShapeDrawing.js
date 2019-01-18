@@ -27,7 +27,7 @@ class simpleShapeDrawer {
 		  // Because path is an MVCArray, we can simply append a new coordinate
 		  // and it will automatically appear.
 		  path.push(event.latLng);
-		  
+
 		  // Add a new marker at the new plotted point on the polyline.
 		  let markerNum = that.markers.length; // done before to not need to -1
 		  that.markers.push(new google.maps.Marker({
@@ -109,7 +109,7 @@ class simpleShapeDrawer {
 				        event.preventDefault();
     					event.stopPropagation();
 			    	}
-			    	
+
 
 			    	/*that.markers[markerNum].setMap(null);
 			    	let newPathArray = prevPath.map((element,index) => {
@@ -140,7 +140,7 @@ class simpleShapeDrawer {
 		    for (let i = 0; i < markers.length; i++) {
 		        if (i === markerNum) {
 
-		            
+
 		        }
 		    }*/
 		}
@@ -154,7 +154,7 @@ class simpleShapeDrawer {
 				    }
 		  })
 		  */
-		  
+
 
 
 
@@ -177,32 +177,27 @@ class simpleShapeDrawer {
 			lat:lat,
 			long:lng
 		}];
-		this.highlightOverlay = new google.maps.OverlayView();
+		this.pathHighlightOverlay = new google.maps.OverlayView();
 		let that = this;
 
-		this.highlightOverlay.onAdd = function() {
-			d3.select(this.getPanes().overlayMouseTarget).selectAll(".highlightOverlay").remove();
+		this.pathHighlightOverlay.onAdd = function() {
+			d3.select(this.getPanes().overlayMouseTarget).selectAll(".pathHighlight").remove();
 		    let layer = d3.select(this.getPanes().overlayMouseTarget).append("div") // floatPane as I want sensors to be on top
-		        .attr("class", "highlightOverlay");
+		        .attr("class", "pathHighlight");
 
 		    // Draw each marker as a separate SVG element.
 		    // We could use a single SVG, but what size would it have?
-		    that.highlightOverlay.draw = function() {
+		    that.pathHighlightOverlay.draw = function() {
 		      let projection = this.getProjection(),
 		          padding = 10.5;
 
 		      let marker = layer.selectAll("svg")
 		          .data(dataPoint)
 		          .each(transform)
-		          .attr("fill", function(d){
-		          	return "white";
-		          })
-		          .attr("opacity", "0.5")
 
 		      let newMarkers = marker
 		        .enter().append("svg")
-		          .each(transform)
-		          .attr("class", "highlighter");
+		          .each(transform);
 
 		      marker.exit().remove();
 
@@ -215,10 +210,10 @@ class simpleShapeDrawer {
 		          .attr("cx", padding)
 		          .attr("cy", padding)
 		          .attr("fill", "black");
-	
-		    
 
-		          
+
+
+
 		      // Add a label.
 		      /*
 		      newMarkers.append("text")
@@ -226,26 +221,26 @@ class simpleShapeDrawer {
 		          .attr("y", padding)
 		          .attr("dy", ".31em")
 		          .text(function(d) {return d.id;});
-		       
+
 		      function transform(d) {
 		        let latLongObj = {lat:+d.lat,lng:+d.long};
 		        console.log(latLongObj);
-		        let realLLObj = new google.maps.LatLng(latLongObj.lat, latLongObj.lng); 
+		        let realLLObj = new google.maps.LatLng(latLongObj.lat, latLongObj.lng);
 		        let obj = projection.fromLatLngToDivPixel(realLLObj);
 		        console.log(obj);
 		        let sel = d3.select(this);
 		        return d3.select(this)
 		            .style("left", (obj.x - padding) + "px")
 		            .style("top", (obj.y - padding) + "px");
-		      } 
-				One SVG: 
+		      }
+				One SVG:
 				let newMarkers = marker
 		        .enter()
 		          .append("circle")
 		          .attr("cx", (d) => {
 		          	 d = new google.maps.LatLng(parseFloat(d.lat), parseFloat(d.long));
 				        d = projection.fromLatLngToDivPixel(d);
-				       
+
 				        return (d.x-padding) +"px";
 		          })
 		          .attr("cy", (d) => {
@@ -272,7 +267,7 @@ class simpleShapeDrawer {
 		  };
 
 		  // Bind our overlay to the map…
-		  this.highlightOverlay.setMap(this.myMap);
+		  this.pathHighlightOverlay.setMap(this.myMap);
 
 
 	}

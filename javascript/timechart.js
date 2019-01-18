@@ -5,14 +5,15 @@ class timeChart {
 		console.log("timechart created!")
 
 
-		
+
 	this.svg = d3.select("#timeChart");
 
-		this.margin = {top: 20, right: 100, bottom: 110, left: 50}
-		this.margin2 = {top: 370, right: 100, bottom: 30, left: 50}
-		this.width = +this.svg.attr("width") - this.margin.left - this.margin.right
-		this.height = +this.svg.attr("height") - this.margin.top - this.margin.bottom
-		this.height2 = +this.svg.attr("height") - this.margin2.top - this.margin2.bottom;
+
+		this.margin = {top: 20, right: 5, bottom: 110, left: 30}
+		this.margin2 = {top: 370, right: 5, bottom: 30, left: 30}
+		this.width = +this.svg.node().getBoundingClientRect().width - this.margin.left - this.margin.right
+		this.height = +this.svg.node().getBoundingClientRect().height - this.margin.top - this.margin.bottom
+		this.height2 = +this.svg.node().getBoundingClientRect().height - this.margin2.top - this.margin2.bottom;
 
 		this.parseDate = d3.timeParse("%b %Y");
 
@@ -25,13 +26,12 @@ class timeChart {
 		this.xAxis2 = d3.axisBottom(this.x2Scale),
 		this.yAxis = d3.axisLeft(this.yScale);
 
-		this.area = d3.line()
+		this.sensorLineGenerator = d3.line()
 		    .curve(d3.curveMonotoneX)
 		    .x((d)=>{ return this.xScale(d.time); })
-		    //.y0(this.height)
 		    .y((d)=>{ return this.yScale(d.pm25); });
-		
-		this.line = d3.line()
+
+		this.modelLineGenerator = d3.line()
 			.curve(d3.curveMonotoneX)
 			.x((d)=>{ return this.xScale(d.time); })
 		    .y((d)=>{ return this.yScale(d.pm25); });
@@ -53,16 +53,16 @@ class timeChart {
 		this.sensorDatas = [];
 		this.sensorInfos = [];
 
-		
+
 	}
 
-	
+
 	initChart(){
 
 	}
-	refreshChart(){	
+	refreshChart(){
 		this.svg.selectAll('g').remove();
-		
+
 
 		this.focus = this.svg.append("g")
 	    	.attr("class", "focus")
@@ -139,16 +139,16 @@ class timeChart {
 
 			let stopValue = {
 				'color':color,
-				'offset':offset 
+				'offset':offset
 			}
 
 			console.log(stopValue);
 			stopValues.push(stopValue)
 			//
-			
+
 		}
 		console.log(this.prevMaxValue);
-		
+
 		this.stopValues = stopValues;
 		console.log(this.stopValues);
 
@@ -160,7 +160,7 @@ class timeChart {
 		this.refreshChart();
 
 
-		
+
 		let self = this;
 		function type(d) {
 			console.log("In Type!!!")
@@ -173,11 +173,11 @@ class timeChart {
 		} else {
 			this.currentData = data.data;
 			data = data.data;
-			
+
 		}
 
 		data = data.map(type);
-		modelData = modelData.map(type); 
+		modelData = modelData.map(type);
 
 		this.modelDatas.push(modelData);
 		this.sensorDatas.push(data);
@@ -188,10 +188,10 @@ class timeChart {
 			console.log(d3.event.sourceEvent)
 		  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
 		  var s = d3.event.selection || self.x2Scale.range();
-		  
+
 		  self.xScale.domain(s.map(self.x2Scale.invert, self.x2Scale));
-		  self.focus.selectAll(".area").attr("d", self.area);
-		  self.focus.selectAll(".line").attr("d", self.line);
+		  self.focus.selectAll(".sensorLine").attr("d", self.sensorLineGenerator);
+		  self.focus.selectAll(".modelLine").attr("d", self.modelLineGenerator);
 		  self.focus.select(".axis--x").call(self.xAxis);
 		  self.svg.select(".zoom").call(self.zoom.transform, d3.zoomIdentity
 		      .scale(self.width / (s[1] - s[0]))
@@ -204,23 +204,23 @@ class timeChart {
 		  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
 		  var t = d3.event.transform;
 		  self.xScale.domain(t.rescaleX(self.x2Scale).domain());
-		  self.focus.selectAll(".area").attr("d", self.area);
-		  self.focus.selectAll(".line").attr("d", self.line);
+		  self.focus.selectAll(".sensorLine").attr("d", self.sensorLineGenerator);
+		  self.focus.selectAll(".modelLine").attr("d", self.modelLineGenerator);
 		  self.focus.select(".axis--x").call(self.xAxis);
 		  self.context.select(".brush").call(self.brush.move, self.xScale.range().map(t.invertX, t));
 		  self.updateSliderZoom();
 		}
 
 		/*
-	this.svg.append("linearGradient")				
-	    .attr("id", "area-gradient")			
-	    .attr("gradientUnits", "userSpaceOnUse")	
-	    .attr("x1", 0).attr("y1", this.yScale(0))			
-	    .attr("x2", 0).attr("y2", this.yScale(1000))		
-	  .selectAll("stop")						
-	    .data()					
-	  .enter().append("stop")			
-	    .attr("offset", function(d) { return d.offset; })	
+	this.svg.append("linearGradient")
+	    .attr("id", "area-gradient")
+	    .attr("gradientUnits", "userSpaceOnUse")
+	    .attr("x1", 0).attr("y1", this.yScale(0))
+	    .attr("x2", 0).attr("y2", this.yScale(1000))
+	  .selectAll("stop")
+	    .data()
+	  .enter().append("stop")
+	    .attr("offset", function(d) { return d.offset; })
 	    .attr("stop-color", function(d) { return d.color; });
 	    */
     // Start of update
@@ -242,13 +242,13 @@ class timeChart {
 		      .attr("x2", 0).attr("y2", 1)
 		    .selectAll("stop")
 		      .data(this.stopValues)
-		    /*	.data([								
-			      {offset: "0", color: "red"},		
-			      {offset: "0.1", color: "purple"},	
-			      {offset: "0.2", color: "black"},		
-			      {offset: "0.3", color: "yellow"},		
-			      {offset: "0.5", color: "lawngreen"},	
-			      {offset: "1.0", color: "lawngreen"}	
+		    /*	.data([
+			      {offset: "0", color: "red"},
+			      {offset: "0.1", color: "purple"},
+			      {offset: "0.2", color: "black"},
+			      {offset: "0.3", color: "yellow"},
+			      {offset: "0.5", color: "lawngreen"},
+			      {offset: "1.0", color: "lawngreen"}
 			    ])*/
 		    .enter().append("stop")
 		      .attr("offset", function(d) { return d.offset; })
@@ -264,7 +264,7 @@ class timeChart {
 		console.log(selector.selectedDate);
 		this.updateSlider(selector.selectedDate);
 
-	  
+
 
 	  this.brush = d3.brushX()
 		    .extent([[0, 0], [this.width, this.height2]])
@@ -277,24 +277,24 @@ class timeChart {
 		    .on("zoom", zoomed);
 
 	//let that = this;
-      
+
 	  for(let i = 0; i < this.sensorDatas.length; i++){
-	  	
+
 	  	let sensorPaths = this.focus.append("path")
 	      .datum(this.sensorDatas[i])
-	      .attr("class", "area")
-	      .attr("d", this.area)
+	      .attr("class", "sensorLine")
+	      .attr("d", this.sensorLineGenerator)
 	      .attr('stroke-width','1px')
 	      .attr('stroke','gray')
 	      .attr('stroke-opacity',0.6)
 	      .attr("id","sensorPath"+this.sensorInfos[i].id);
 	    console.log(sensorPaths);
-	    
+
 
 	    let modelPaths = this.focus.append("path")
 	  	  .datum(this.modelDatas[i])
-	  	  .attr("class","line")
-	  	  .attr("d", this.line)
+	  	  .attr("class","modelLine")
+	  	  .attr("d", this.modelLineGenerator)
 	  	  .attr('stroke-width','2px')
 	  	  .attr('stroke','darkgrey')
 	  	  .attr('stroke-opacity',0.6)
@@ -315,21 +315,20 @@ class timeChart {
 
 	  	this.context.append("path")
 	      .datum(this.sensorDatas[i])
-	      .attr("class", "area")
+	      .attr("class", "sensorLine")
 	      .attr("d", this.area2)
 	      .attr('stroke-width','1px')
 	      .attr('stroke','gray')
 	      .attr('stroke-opacity',0.8);
-
 	  }
 
 
-	  
-
-	  
 
 
-	  
+
+
+
+
 
 	  this.focus.append("g")
 	      .attr("class", "axis axis--x")
@@ -342,7 +341,7 @@ class timeChart {
 
 	  this.context.append("path")
 	      .datum(data)
-	      .attr("class", "area")
+	      .attr("class", "sensorLine")
 	      .attr("d", this.area2);
 
 	  this.context.append("g")
@@ -364,7 +363,7 @@ class timeChart {
 	  let that = this;
 	  overLay.on("click", function() {
 	  		// One possibility is to make this s shift click:
-	  	  //if (d3.event.shiftKey) { 
+	  	  //if (d3.event.shiftKey) {
 		   //     alert("Mouse+Shift pressed");
 		    //}
 
@@ -384,4 +383,3 @@ class timeChart {
 	}
 
 }
-

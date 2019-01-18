@@ -1,6 +1,5 @@
 class interpolatedChart {
 	constructor(selector) {
-		console.log("Created!! Interp!!")
 		this.pointSeparationDistances = 500; // grab point ever km
 		this.div = d3.select("body").append("div")
             .attr("class", "HMtooltip")
@@ -15,7 +14,6 @@ class interpolatedChart {
 
 	drawPathLegend(points,allPoints){
 		let totalLength = google.maps.geometry.spherical.computeLength(points);
-		console.log(totalLength);
 		let percentagesAlongPath = [0];
 		let pathSectionDistance =0
 		for(let i = 1; i < points.length; i++){
@@ -23,11 +21,9 @@ class interpolatedChart {
 			let percentAlongPath = pathSectionDistance/totalLength;
 			percentagesAlongPath.push(percentAlongPath);
 		}
-		console.log(percentagesAlongPath);
 		/* Append Line */
 
-		console.log(this.points.length, this.rectHeight)
-		
+
 		let pathScale = d3.scaleLinear()
 	        .domain([0, 1])
 	        .range([0, this.allPoints.length*this.rectHeight]);
@@ -45,7 +41,6 @@ class interpolatedChart {
 	        .attr('fill', 'steelblue');
 
 	    /* Append Nodes Along Path Legend*/
-	    console.log("Your scaled point distances are:", percentagesAlongPath)
 	    let pathGroups = pathGroup.selectAll('circle')
         	.data(percentagesAlongPath);
 
@@ -65,7 +60,7 @@ class interpolatedChart {
 	        .text(function(d,i){
 	            return i+1;
 	        })
-	        .attr('x', function(d,i){ 
+	        .attr('x', function(d,i){
 	            if(i > 8){
 	                return -8.5;
 	            }
@@ -74,11 +69,11 @@ class interpolatedChart {
 	        .attr('fill','black');
 
 
-	
+
 
 		console.log(percentagesAlongPath);
 
-		
+
 	}
 
 	update(points){
@@ -88,29 +83,20 @@ class interpolatedChart {
 		window.controller.interpChart= this;
 
 
-		//console.log(lats,longs);
 
 		let myFullPts = this.interpolateArrayTwo(points);
-		/*let myLatPts = interpolateArray(lats,17);
-		console.log(myLatPts)
-		let myLngPts = interpolateArray(longs,17);
-		console.log(myLngPts)
 
-
-		
-		*/
-		//let finalPts = mergeLatsAndLongs(myLatPts,myLngPts)
 		this.allPoints = myFullPts;
 		let myVals = this.getModelEst(myFullPts);
 
-		
+
 
 	}
 
 	interpolateArrayTwo(points){
 		let allCoordinates = [];
 		if(points.length < 2) return;
-		// calcualte distance between two points and then interpolates between them based on 
+		// calcualte distance between two points and then interpolates between them based on
 		for(let i = 1; i < points.length; i++){
 			let pathSectionDistance = google.maps.geometry.spherical.computeDistanceBetween(points[i-1],points[i]);
 			let timesToInterp = Math.floor(pathSectionDistance/this.pointSeparationDistances);
@@ -128,8 +114,6 @@ class interpolatedChart {
 			}
 		}
 		return allCoordinates;
-		//google.maps.geometry.spherical.computeDistanceBetween(pt1,pt2);
-		//console.log(google.maps.geometry.spherical.computeLength(path))
 	}
 
 
@@ -173,7 +157,7 @@ class interpolatedChart {
 
 
 
-	    
+
 	    let domain = [this.times[0].start,this.times[this.times.length-1].start]
 	    let xExtent = this.times.length*rectWidth;
 	    let xScale = d3.scaleTime()
@@ -186,7 +170,7 @@ class interpolatedChart {
 			let colorScale  = d3.scaleThreshold()
 			    .domain(pm25Domain)
 			    .range(colorRange);
-		// Append x axis 
+		// Append x axis
 		let x_axis = d3.axisBottom(xScale)
 					   .tickFormat((d)=> {
 					   	return formatDate(d);//dataset[d].keyword;
@@ -232,7 +216,7 @@ class interpolatedChart {
 	        .attr('fill',function(d,i){
 	            if(currentSelectedCircle === i){
 	                return '#F5B000';
-	            } 
+	            }
 	            return 'white'});
 
 	    newPathGroups.append('text')
@@ -250,7 +234,7 @@ class interpolatedChart {
 	    for(let i = 0; i < allData.length; i++){
 	        if(allData[i] !== undefined){
 	            allData[i].val = bindDateAndPointToData(allData[i], new Date(1990,0),i);
-	        } 
+	        }
 	    }
 
 	    let query = heatmap.getCurrentQuery();
@@ -258,10 +242,9 @@ class interpolatedChart {
 	    //let groupedSelectedData = groupData(query,selectedData);
 
 	    // Currently data is not grouped by point. Group by point and then visualize array as heatmap
-	    
+
 
 	    let xScaleWidth = query.length*(rectWidth);
-	    console.log(xScaleWidth);
 	    if(xScaleWidth < 200){
 	        xScaleWidth = 200;
 	    }
@@ -298,14 +281,19 @@ class interpolatedChart {
 	        .attr('fill', function(d){
 	            return colorScale(d.data);
 	        })
-	        .on("mouseover", (d) => {
+	        .on("mouseover", (d, i, nodes) => {
                  //this.mapPath.changeMapNavLine(.2)
+								 console.log(d)
+								 //let e = d3.select();
+								 let matrix = nodes[i].getScreenCTM()
+	 					        .translate(+ nodes[i].getAttribute("x"), + nodes[i].getAttribute("y"));
+
                  this.div.transition()
                  	.duration(600)
                  	.style("opacity", .7);
                  this.div.html(formatDate(d.time)+ "</br>" + d.data.toFixed(2))
-                 	.style("top", d3.event.pageY - 70 + "px")
-                 	.style("left", d3.event.pageX - 30 + "px");
+								 .style("left", (window.pageXOffset + matrix.e - this.rectHeight*2.55) + "px")
+								 .style("top", (window.pageYOffset + matrix.f - this.rectWidth*6) + "px");
                  window.controller.shapeDrawer.changeLineOpacity(0.3);
                  window.controller.shapeDrawer.changeHighlightMarker(d.lat, d.lng)
                  //let currentCoordinate = navCoordinates[d.point]
@@ -320,10 +308,10 @@ class interpolatedChart {
                  window.controller.shapeDrawer.changeLineOpacity(0.9);
                  window.controller.shapeDrawer.changeHighlightMarker(0, 0)
 
-		    
+
                  //d3.select('#highlighter').transition().duration(1000).attr('cx',-10).attr('cy',-10);
                })
-	        
+
 	        /*.on("mouseover", function(d) {
 	               changeMapNavLine(.2)
 	               div.transition()
@@ -360,7 +348,6 @@ class interpolatedChart {
 	            return xScale(d.time);
 	        })
 	        .attr('y', function(d,i){
-	        	console.log(i%myData.length)
 	            return yScale(i%myData.length);
 	        })
 	        .attr('fill', function(d){
@@ -411,7 +398,7 @@ class interpolatedChart {
 
 				let url = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+point.lat+"&location_lng="+point.lng+"&start="+start + "&end=" + stop;
 				//console.log(url)
-				promises[promiseCounter] = fetch(url).then(function(response){ 
+				promises[promiseCounter] = fetch(url).then(function(response){
 				         return response.text();
 				}).catch((err)=>{
 					//console.log(err);
@@ -422,12 +409,12 @@ class interpolatedChart {
 				//	that.modelVals.push(modelData[0].pm25);
 				//})
 				//promises.push(req);
-			
+
 			}
 
 		}
-		
-		
+
+
 		Promise.all(promises.map(p => p.catch(() => undefined)))
 
 		let allData = await Promise.all(promises).then(values =>{
@@ -436,7 +423,7 @@ class interpolatedChart {
 
 			for(let i = 0; i< values.length; i++){
 				if(values[i]){
-					parsedVals.push(JSON.parse(values[i])[0].pm25) 
+					parsedVals.push(JSON.parse(values[i])[0].pm25)
 				}
 			}
 			let finalVals = []
@@ -460,7 +447,7 @@ class interpolatedChart {
 		});
 		return allData;
 	}
-	
+
 }
 	function appendLabels(svg){
         let height = 300;
