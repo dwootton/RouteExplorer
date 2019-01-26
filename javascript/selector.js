@@ -9,7 +9,7 @@ class Selector {
     this.selectedDate = new Date();
     this.dataMap = window.controller.map;
     this.timeChart = window.controller.timeChart;
-    this.sensorSource = "all";//"airU"
+    this.sensorSource = "airU";//"airU"
 
     this.populateSensorList();
 

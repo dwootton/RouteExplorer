@@ -224,13 +224,8 @@ class AQMap {
       .append("g")
       // .attr("transform", "translate(10, 10)")
       .call(colorLegend);
+    this.setUpSourceMenu();
 
-    let sensorSourceMenu = document.getElementById('mapLegend');
-    var div = document.createElement('div');
-    div.innerHTML = "Sensor source: airU";
-    sensorSourceMenu.appendChild(div);
-
-    this.myMap.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(sensorSourceMenu);
 
     /*
 
@@ -248,6 +243,54 @@ class AQMap {
     this.refreshClick()
 
   }
+
+  setUpSourceMenu(){
+    let sensorSourceMenu = document.getElementById('mapLegend');
+    var div = document.createElement('div');
+    let sourceTypes = ['AirU','Purple Air','All']
+    for(var i=0 ; i < sourceTypes.length ; i++)
+    {
+        let innerDiv = document.createElement('div')
+        innerDiv.id = sourceTypes[i];
+        let button = document.createElement('input')
+        button.type = "radio"
+        button.name = "sensor source"
+        button.value = sourceTypes[i];
+
+        if(i == 0){
+          button.checked = true;
+        }
+        //item.innerHTML= '<input type="checkbox" name="item[]" value="'+label+'>';
+        console.log(button);
+        //let item = label + newBox;
+        let label = document.createElement('label');
+        label.innerHTML = sourceTypes[i];
+        label.htmlFor = sourceTypes[i];
+        innerDiv.appendChild(button);
+        innerDiv.appendChild(label);
+        sensorSourceMenu.appendChild(innerDiv);
+        innerDiv.onclick = (e)=>{
+          let source = e.toElement.value;
+
+          switch(source){
+            case "Purple Air":
+              source = "purpleAir";
+              break;
+            case "All":
+              source = "all";
+              break;
+            case "AirU":
+              source = "airU";
+              break;
+          }
+          window.controller.selector.setSensorSource(source);
+        }
+    }
+    sensorSourceMenu.appendChild(div);
+
+    this.myMap.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(sensorSourceMenu);
+  }
+  
   refreshClick() {
     this.myMap.data.addListener('click', (event) => {
       // NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
