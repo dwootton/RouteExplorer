@@ -35,7 +35,7 @@ class ModeSelector {
                 //modeButton.selectAll().remove();
                 self.mode = 'navigate';
                 modeText
-                    .text('Path Exploration');
+                    .text('Path Exploration ');
                 console.log(window.controller.polyline)
                 window.controller.polyline.setMap(window.controller.map.myMap);
                 if(window.controller.pathNodes){
@@ -62,7 +62,7 @@ class ModeSelector {
                 //modeButton.selectAll().remove();
                 self.mode = 'explore';
                 modeText
-                    .text('Data Exploration');
+                    .text('Data Exploration ');
                 console.log(window.controller.map)
                 window.controller.polyline.setMap(null);
                 if(window.controller.pathNodes){

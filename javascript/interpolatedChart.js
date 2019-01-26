@@ -6,7 +6,7 @@ class interpolatedChart {
   constructor() {
     // The point separation distances is the length in meters to grab data along
     // the drawn path.
-    this.pointInterpolationDistance = 500;
+    this.pointInterpolationDistance = 1250;
 
     // The div for the tool tip
     this.div = d3.select("body").append("div")

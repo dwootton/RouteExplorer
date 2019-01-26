@@ -81,6 +81,11 @@ input:checked+.slider:before {
 /* ---------------------------------------------------
     navBar Styles
 ----------------------------------------------------- */
+.text-center{
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
 #sidebarCollapse {
   background-color: #006837;
   border-color: #014c29;
@@ -260,7 +265,7 @@ a.article:hover {
 
 #lineMap {
   height: 300px;
-  width: 705px;
+  width: 930px;
   border: 1px dashed #999;
   overflow-y: scroll;
   overflow-x: scroll;
@@ -395,7 +400,7 @@ a.article:hover {
   position: absolute;
   text-align: center;
   width: 65px;
-  height: 50px;
+  height: 70px;
   padding: 2px;
   font: 12px sans-serif;
   background: whitesmoke;

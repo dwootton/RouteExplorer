@@ -3,20 +3,18 @@ class Selector {
    * Creates a selector object
    *
    */
-  constructor(myMap, chart) {
+  constructor() {
     this.startDate = new Date();
     this.endDate = new Date();
     this.selectedDate = new Date();
-    this.dataMap = myMap;
-    this.timeChart = chart;
+    this.dataMap = window.controller.map;
+    this.timeChart = window.controller.timeChart;
     this.fullData = null;
 
     this.getSensorInformation();
 
-
-    let that = this;
-
-    $(function() {
+    $(()=> {
+      /* Set up the time selector UI */
       $('input[name="datetimes"]').daterangepicker({
           timePicker: true,
           startDate: moment().startOf('hour').subtract(36, 'hour'),
@@ -25,24 +23,26 @@ class Selector {
             format: 'M/DD hh:mm A'
           }
         },
+        /* Callback for when dates are selected on the picker */ 
         (start, end) => {
           console.log("Callback has been called!");
           $('#reportrange span').html(start.format('D MMMM YYYY') + ' - ' + end.format('D MMMM YYYY'));
-          that.startDate = new Date(start.format());
-          that.endDate = new Date(end.format());
+          this.startDate = new Date(start.format());
+          this.endDate = new Date(end.format());
 
           window.controller.startDate = new Date(start.format());
           window.controller.endDate = new Date(end.format());
 
-          that.selectedDate = new Date((that.startDate.getTime() + that.endDate.getTime()) / 2);
-          console.log("CHECKOUT: ", that.endDate.toISOString().slice(0, 10).replace(/-/g, ""))
-          document.getElementById("startDate").textContent = formatDate(that.startDate) + " t"
-          document.getElementById("stopDate").textContent = "o " + formatDate(that.endDate);
+          this.selectedDate = new Date((this.startDate.getTime() + this.endDate.getTime()) / 2);
+          console.log("CHECKOUT: ", this.endDate.toISOString().slice(0, 10).replace(/-/g, ""))
+					document.getElementById("dateDisplay").textContent = "to";
+          document.getElementById("startDate").textContent = formatDate(this.startDate)
+          document.getElementById("stopDate").textContent =  formatDate(this.endDate);
 
-          that.getRange()
-          let sensorData = that.grabSensorData("S-A-085");
-          console.log('final!', that.grabAllSensorData(that.selectedDate));
-          that.modelData = that.grabAllModelData(that.selectedDate, 10, 10);
+          this.getRange()
+          let sensorData = this.grabSensorData("S-A-085");
+          console.log('final!', this.grabAllSensorData(this.selectedDate));
+          this.modelData = this.grabAllModelData(this.selectedDate, 10, 10);
 
         });
     });
@@ -54,8 +54,6 @@ class Selector {
     //let url = "http://air.eng.utah.edu/dbapi/api/sensorsAtTime/airU&2019-01-04T22:00:00Z"
     let req = fetch(url)
 
-
-    let that = this;
     req.then((response) => {
         console.log("SENSOR INFO CALLED", response)
         return response.text();
@@ -75,7 +73,7 @@ class Selector {
 
         }
         console.log(sensors);
-        that.sensorList = sensors;
+        this.sensorList = sensors;
 
       });
   }
@@ -133,7 +131,6 @@ class Selector {
     let closestStartDate = new Date(time);
     closestStartDate.setMinutes(time.getMinutes() + 10);
 
-    let that = this;
     //let sensorMapData = Array.from(this.sensorList);
     this.sensorMapData = [];
 
@@ -242,7 +239,6 @@ class Selector {
     //let longArr = linSpace(-111.818403,-112.001349,yReadings); //Note the second long value had to be increased otherwise, it gave an error.
     let promises = [];
     this.modelVals = []; // Generates xReadings by yReadings matrix to fill
-    let that = this;
     let start = time.toISOString().slice(0, -5) + "Z";
     let stop = closestStartDate.toISOString().slice(0, -5) + "Z";
     console.log('start', start);

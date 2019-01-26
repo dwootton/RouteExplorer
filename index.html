@@ -74,28 +74,58 @@
 						<i class="fas fa-align-justify"></i>
 					</button>
 
-					<!-- Date Display -->
+					<!-- Date Display
 					<div class="collapse navbar-collapse" id="navbarSupportedContent">
 						<ul class="nav navbar-nav ml-auto">
-							<li class="nav-item active">
-								<span id="startDate"></span>
-							</li>
-							<li class="nav-item">
-								<span id="stopDate"></span>
-							</li>
+
 						</ul>
 					</div>
+-->
+
+					<text class="navbar-text">
+						<span class="navbar-text" id="startDate"></span>
+						<span class="navbar-text" id="dateDisplay"> Select a date range on the side bar. </span>
+						<span class="navbar-text" id="stopDate"></span>
+					</text>
+					<!--
+					<span class="navbar-brand" href="#">
+						<div class="container-fluid-nav text-center">
+
+						</div>
+					</span>
+				-->
+					<!--
+					<ul class="nav-item">
+						<li class="nav-item active">
+
+						</li>
+						<li class="nav-item">
+							<span id="stopDate"></span>
+						</li>
+		      </ul> -->
 
 					<!-- Mode Selection Toggle -->
+					<form class="navbar-form navbar-left navbar-input-group">
+
+
+					<div class="input-group">
+						<text id="currentMode" class="navbar-text pr-2"></text>
+						<div class="form-group checkbox navbar-btn">
+
+							<label class="switch nav-link" class="float-xl-left">
+								<input type="checkbox" id="modeSwitch" checked>
+								<span class="slider mx-auto"></span>
+							</label>
+					  </div>
+					</div>
+					</form>
+					<!--
 					<div class="collapse navbar-collapse" id="navbarSupportedContent">
 						<ul id="buttonUL">
-							<text id="currentMode" class="align-right"> </text>
-							<label class="switch nav-link" class="float-xl-right">
-								<input type="checkbox" id="modeSwitch" checked>
-								<span class="slider"></span>
-							</label>
+
 						</ul>
 					</div>
+				-->
 
 				</div>
 			</nav>
@@ -145,7 +175,6 @@
 
 </body>
 <script src="javascript/interpolatedChart.js"> </script>
-<script src="javascript/shapeDrawing.js"> </script>
 <script src="javascript/simpleShapeDrawing.js"> </script>
 
 <script src="javascript/map.js"> </script>
