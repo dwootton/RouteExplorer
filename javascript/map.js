@@ -194,6 +194,7 @@ class AQMap {
         lng: -111.86895401000976
       },
       styles: myStyles,
+      streetViewControl: false,
     });
 
     this.toolTip = d3.select("body").append("div")
@@ -216,13 +217,31 @@ class AQMap {
       .labelOffset(5)
       .ascending(true);
 
-    let testLegend = d3.select('#legend')
+    let testLegend = d3.select('#pm25Legend')
       .attr('width', 275)
       .attr('height', 300)
       //.attr('transform', 'translate(200,-200)')
       .append("g")
       // .attr("transform", "translate(10, 10)")
       .call(colorLegend);
+
+    let sensorSourceMenu = document.getElementById('mapLegend');
+    var div = document.createElement('div');
+    div.innerHTML = "Sensor source: airU";
+    sensorSourceMenu.appendChild(div);
+
+    this.myMap.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(sensorSourceMenu);
+
+    /*
+
+      var type = icons[key];
+      var name = type.name;
+      var icon = type.icon;
+      var div = document.createElement('div');
+      div.innerHTML = '<img src="' + icon + '"> ' + name;
+      legend.appendChild(div);
+    }
+    */
 
     this.shapeDrawer = new simpleShapeDrawer(this.myMap);
     window.controller.shapeDrawer = this.shapeDrawer;
@@ -274,15 +293,12 @@ class AQMap {
   }
 
   updateSensor(sensorData) {
-
-    // SENSOR CODE: BEGIN HERE:
-    this.sensorData = sensorData;
     let overlay = new google.maps.OverlayView();
     let that = this;
 
     // Add the container when the overlay is added to the map.
     overlay.onAdd = function() {
-			d3.select(this.getPanes().overlayMouseTarget).selectAll("div").remove();
+      d3.select(this.getPanes().overlayMouseTarget).selectAll("div").remove();
       let layer = d3.select(this.getPanes().overlayMouseTarget).append("div") // floatPane as I want sensors to be on top
         .attr("class", "sensors");
 
@@ -339,7 +355,7 @@ class AQMap {
               that.marker.setMap(null);
             }
             //d3.select(this).attr('transform','translate(-30px,-30px)')
-            selector.grabSensorData(event);
+            selector.grabIndividualSensorData(event);
             d3.select(this).attr("id", "selected");
 
             d3.select(this).selectAll('circle')

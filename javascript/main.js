@@ -15,12 +15,12 @@ function makeSearch() {
 
 	let sensorName = document.getElementsByName("search")[0].value;
 
-	let sensor = window.controller.sensorData.find(function(element){
+	let sensor = window.controller.allSensorsData.find(function(element){
 		return element.id === sensorName;
 	})
 
 
-  	window.controller.selector.grabSensorData(sensor)
+  	window.controller.selector.grabIndividualSensorData(sensor)
   	window.controller.map.myMap.panTo(new google.maps.LatLng(sensor.lat, sensor.long));
 
   	let element = d3.selectAll(".marker")

@@ -77,11 +77,10 @@ input:checked+.slider:before {
 }
 
 /* Slider code  */
-
 /* ---------------------------------------------------
     navBar Styles
 ----------------------------------------------------- */
-.text-center{
+.text-center {
   margin-top: auto;
   margin-bottom: auto;
 }
@@ -262,7 +261,6 @@ a.article:hover {
 /* ---------------------------------------------------
     interpolatedChart Styles
 ----------------------------------------------------- */
-
 #lineMap {
   height: 300px;
   width: 930px;
@@ -282,6 +280,13 @@ a.article:hover {
   display: inline-block;
 }
 
+#mapLegend {
+  font-family: Arial, sans-serif;
+  background: #fff;
+  padding: 10px;
+  margin: 10px;
+}
+
 /* Sensor */
 .sensors,
 .sensors svg {
@@ -293,6 +298,7 @@ a.article:hover {
   height: 24px;
   font: 10px sans-serif;
 }
+
 .sensors svg .selected {
   width: 45px;
   height: 45px;
@@ -307,7 +313,6 @@ a.article:hover {
   width: 45px;
   height: 45px;
 }
-
 
 .marker {
   z-index: 5;
@@ -328,10 +333,12 @@ a.article:hover {
   z-index: 1000;
 }
 
-.mapTooltip::after { /* Makes a triangle at the boottom of tooltip*/
+.mapTooltip::after {
+  /* Makes a triangle at the boottom of tooltip*/
   content: " ";
   position: absolute;
-  top: 100%; /* At the bottom of the tooltip */
+  top: 100%;
+  /* At the bottom of the tooltip */
   left: 40%;
   margin-left: -5px;
   border-width: 9px;
@@ -366,7 +373,7 @@ a.article:hover {
 }
 
 /* The legend of the map */
-#legend {
+#pm25Legend {
   width: 225px;
   display: inline-block;
   margin-left: -20px;
@@ -386,10 +393,12 @@ a.article:hover {
   fill: none;
   pointer-events: all;
 }
+
 .sensorLine {
   fill: none;
   clip-path: url(#clip);
 }
+
 .modelLine {
   stroke-dasharray: 2;
   fill: none;
@@ -408,10 +417,13 @@ a.article:hover {
   border-radius: 8px;
   pointer-events: none;
 }
-.HMtooltip::after { /* Makes a triangle at the boottom of tooltip*/
+
+.HMtooltip::after {
+  /* Makes a triangle at the boottom of tooltip*/
   content: " ";
   position: absolute;
-  top: 100%; /* At the bottom of the tooltip */
+  top: 100%;
+  /* At the bottom of the tooltip */
   left: 40%;
   margin-left: -5px;
   border-width: 9px;

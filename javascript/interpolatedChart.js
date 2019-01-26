@@ -22,7 +22,7 @@ class interpolatedChart {
     };
   }
   /**
-   * drawPathLegend draws a verticle 'legend' of a linearized version of the
+   * drawPathLegend draws a verticle linearized version of the
    * drawn path. It draws both the
    * @param  {[type]} points    [description]
    * @return {[type]}           [description]
@@ -285,7 +285,6 @@ class interpolatedChart {
 
     /* Draw y axis label */
     this.drawPathLegend();
-
   }
 
   async getModelEst() {
