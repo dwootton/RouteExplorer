@@ -158,25 +158,32 @@ class timeChart {
 	update(data,modelData,sensorInfo){
 
 		this.refreshChart();
-
+		if(data == modelData){
+			modelData = jQuery.extend(true, {}, data).data;
+			//modelData.data;
+		}
 
 
 		let self = this;
 		function type(d) {
-			console.log("In Type!!!")
 		  d.time = new Date(d.time);
 		  d.pm25 = +d.pm25;
 		  return d;
 		}
+
+		console.log(data, modelData);
 		if(!data){
 			data = modelData;
 		} else {
 			this.currentData = data.data;
 			data = data.data;
-
 		}
 
+
+
+
 		data = data.map(type);
+		console.log(data, modelData);
 		modelData = modelData.map(type);
 
 		this.modelDatas.push(modelData);

@@ -1,3 +1,9 @@
+/**
+ * @file Interpolated Chart
+ * @author Dylan Wootton <me@dylanwootton.com>
+ * @version 0.2
+ */
+
 class interpolatedChart {
   /**
    * Constructor for the interpolatedChart class.

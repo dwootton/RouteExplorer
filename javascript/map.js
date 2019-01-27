@@ -1,15 +1,6 @@
 class AQMap {
 
   constructor() {
-    //this.svg = d3.select("svg")//.append('g')
-    //this.width = this.svg.attr("width")
-    //this.height = this.svg.attr("height")
-    let i0 = d3.interpolateHsvLong(d3.hsv(120, 1, 0.65), d3.hsv(60, 1, 0.90)),
-      i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 0, 0.95)),
-      interpolateTerrain = function(t) {
-        return t < 0.5 ? i0(t * 2) : i1((t - 0.5) * 2);
-      };
-    //d3.scaleSequential(interpolateTerrain).domain([0, 50]);
     this.colorRange = ['rgb(0,104,55,.2)', 'rgb(0,104,55,.5)', 'rgb(0,104,55)', 'rgb(26,152,80)', 'rgb(102,189,99)', 'rgb(166,217,106)', 'rgb(217,239,139)', 'rgb(255,255,191)', 'rgb(254,224,139)', 'rgb(253,174,97)', 'rgb(244,109,67)', 'rgb(215,48,39)', 'rgb(165,0,38)']; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
     this.pm25Domain = [4, 8, 12, 20, 28, 35, 42, 49, 55, 150, 250, 350];
 
@@ -280,7 +271,7 @@ class AQMap {
               source = "all";
               break;
             case "AirU":
-              source = "airU";
+              source = "airu";
               break;
           }
           window.controller.selector.setSensorSource(source);
@@ -290,7 +281,7 @@ class AQMap {
 
     this.myMap.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(sensorSourceMenu);
   }
-  
+
   refreshClick() {
     this.myMap.data.addListener('click', (event) => {
       // NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
@@ -572,6 +563,7 @@ class AQMap {
 
     if (this.lastData) {
       this.myMap.data.forEach((feature) => {
+        console.log(feature)
         this.myMap.data.remove(feature);
       })
     }

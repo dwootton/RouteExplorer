@@ -1,3 +1,9 @@
+/**
+ * @file Selector
+ * @author Dylan Wootton <me@dylanwootton.com>
+ * @version 0.2
+ */
+
 class Selector {
   /**
    * Creates a selector object
@@ -10,6 +16,7 @@ class Selector {
     this.dataMap = window.controller.map;
     this.timeChart = window.controller.timeChart;
     this.sensorSource = "airU";//"airU"
+    this.rendered = false;
 
     this.populateSensorList();
 
@@ -44,16 +51,15 @@ class Selector {
 
           this.grabAllSensorData(this.selectedDate);
           this.modelData = this.grabAllModelData(this.selectedDate, 10, 10);
+          this.rendered = true;
         });
     });
   }
 
   /**
-   * Queries the API to figure out which sensors are active and stores active sensors
+   * Determines which sensors are active and stores active sensors
    * in sensorList.
    *
-   * DEVELOPER NOTE: THE USE OF LIVE SENSORS COULD RESULT IN AN INACCURATE LIST
-   * FOR DIFFERENT TIME POINTS
    */
   async populateSensorList() {
     let url = "http://air.eng.utah.edu/dbapi/api/liveSensors/"+this.sensorSource;
@@ -79,6 +85,21 @@ class Selector {
       });
   }
 
+  changeSource(){
+
+    if(this.sensorSource == "airU"){
+      return "airu";
+    } else if(this.sensorSource == "all") {
+      if(this.selectedSensor[0]=="S"){ //if AirU sensor was selected
+        return "airu"
+      } else {
+        return "Purple Air";
+      }
+    } else {
+      return "Purple Air";
+    }
+  }
+
   /**
    * Grabs a individuals sensors pm25 data for the time inbetween startDate and
    * endDate. Updates this.sensorData and calls this.grabModelData.
@@ -89,20 +110,56 @@ class Selector {
     if (!selectedSensor.id) {
       return;
     }
+    let start = this.startDate.toISOString().slice(0, -5) + "Z";
+    let stop = this.endDate.toISOString().slice(0, -5) + "Z";
 
     let id = selectedSensor.id;
-    let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + id + "&sensorSource="+this.sensorSource+"&start=" + this.startDate.toISOString() + "&end=" + this.endDate.toISOString() + "&show=pm25";
+    this.selectedSensor = selectedSensor;
+    let processed = true;
+    var numDaysBetween = function(d1, d2) {
+      var diff = Math.abs(d1.getTime() - d2.getTime());
+      return diff / (1000 * 60 * 60 * 24);
+    };
+    let url;
+    let timeInterval = numDaysBetween(this.startDate,this.endDate);
+    this.generateModelData = true;
 
+    if(timeInterval > 2){ // if time difference is
+      let changedSource = this.changeSource();
+      url = "https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=" + id + "&sensorSource=" + changedSource + "&start=" +start + "&end=" +stop + "&function=mean&functionArg=pm25&timeInterval=5m"
+      //https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=S-A-085&sensorSource=airu&start=2019-01-20T01:08:40Z&end=2019-01-27T01:08:40Z&function=mean&functionArg=pm25&timeInterval=5m
+      console.log(url)
+      if(timeInterval > 7){
+        this.generateModelData = false;
+      }
+    } else {
+      url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + id + "&sensorSource="+this.sensorSource.toLowerCase()+"&start=" + start + "&end=" + stop + "&show=pm25";
+    }
+    // Note: sensor source must be lowercase for the API.
+
+    // WORKS: https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=S-A-085&sensorSource=airu&start=2019-01-20T01:08:40Z&end=2019-01-27T01:08:40Z&function=mean&functionArg=pm25&timeInterval=5m
+    //https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=1010&sensorSource=Purple Air&start=2019-01-20T01:08:40Z&end=2019-01-27T01:08:40Z&function=mean&functionArg=pm25&timeInterval=5m
+
+    // /api/processedDataFrom?id=1010&sensorSource=airu&start=2017-10-01T00:00:00Z&end=2017-10-02T00:00:00Z&function=mean&functionArg=pm25&timeInterval=30m
+    //let url = "air.eng.utah.edu/dbapi/api/rawDataFrom?id=S-A-085&sensorSource=airu&start=2018-03-01T00:00:00Z&end=2018-03-13T00:00:00Z&show=all"
+    //let url = "air.eng.utah.edu/dbapi/api/rawDataFrom?id=S-A-069&sensorSource=airu&start=2019-01-18T12:00:00Z&end=2019-01-20T00:00:00Z&show=pm25
+    console.log(url);
     let req = fetch(url)
 
     /* Processes sensor data and het model data */
     req.then((response) => {
+      //console.log(response.text())
         return response.text();
       })
       .then((myJSON) => {
         myJSON = JSON.parse(myJSON);
         this.individualSensorData = myJSON;
-        let modelData = this.grabModelData(selectedSensor);
+        console.log("INDIV",this.individualSensorData)
+        if(this.generateModelData){
+          let modelData = this.grabModelData(selectedSensor);
+        } else {
+          this.timeChart.update(this.individualSensorData,this.individualSensorData , selectedSensor)
+        }
       });
   }
 
@@ -211,7 +268,9 @@ class Selector {
   setSensorSource(source){
     this.sensorSource = source;
     this.populateSensorList();
-    this.grabAllSensorData(this.selectedDate);
+    if(this.rendered){
+      this.grabAllSensorData(this.selectedDate);
+    }
   }
 }
 
