@@ -158,7 +158,7 @@ class Selector {
         if(this.generateModelData){
           let modelData = this.grabModelData(selectedSensor);
         } else {
-          this.timeChart.update(this.individualSensorData,this.individualSensorData , selectedSensor)
+          this.timeChart.addData(this.individualSensorData,this.individualSensorData , selectedSensor)
         }
       });
   }
@@ -173,13 +173,13 @@ class Selector {
     let modelURL = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat=" + lat + "&location_lng=" + long + "&start=" + start + "&end=" + stop;
     let modelReq = fetch(modelURL)
 
-    /* Processes sensor data and het model data */
+    /* Processes sensor data and the model data */
     modelReq.then((response) => {
         return response.text();
       })
       .then((myJSON) => {
         this.modelDataAtSensorLocation = JSON.parse(myJSON);
-        this.timeChart.update(this.individualSensorData, this.modelDataAtSensorLocation, selectedSensor)
+        this.timeChart.addData(this.individualSensorData, this.modelDataAtSensorLocation, selectedSensor)
       });
   }
 
@@ -191,6 +191,12 @@ class Selector {
    * @param  {[type]}  time Date Time object of the time to grab sensor data from
    */
   async grabAllSensorData(time) {
+    /* Remove sensors from the map */
+    if(window.controller.sensorOverlay){
+      d3.select(window.controller.sensorOverlay.getPanes().overlayMouseTarget).selectAll("div").remove();
+    }
+
+
     /* Sets up a window of time to get pm25 values from */
     let closestStartDate = new Date(time);
     closestStartDate.setMinutes(time.getMinutes() + 10);

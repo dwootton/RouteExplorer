@@ -45,7 +45,9 @@ class ModeSelector {
                     }
                 }
                 d3.select('div #lineMap').transition().duration(500).attr('class','shown');
+                d3.select('#timeChartLegend').transition().duration(500).attr('class','hidden');
                 d3.select('#timeChart').transition().duration(500).attr('class','hidden');
+
                 //window.controller.map.refreshClick();
 
 
@@ -71,7 +73,9 @@ class ModeSelector {
                     }
                 }
                 d3.select('div #lineMap').transition().duration(500).attr('class','hidden');
+                d3.select('#timeChartLegend').transition().duration(500).attr('class','shown');
                 d3.select('#timeChart').transition().duration(500).attr('class','shown');
+
                 //window.controller.map.hideClick();
                     /*
                 myPath.changeMapNavLine(0);

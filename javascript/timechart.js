@@ -10,7 +10,7 @@ class timeChart {
 
 
 		this.margin = {top: 20, right: 5, bottom: 110, left: 30}
-		this.margin2 = {top: 370, right: 5, bottom: 30, left: 30}
+		this.margin2 = {top: 270, right: 5, bottom: 30, left: 30}
 		this.width = +this.svg.node().getBoundingClientRect().width - this.margin.left - this.margin.right
 		this.height = +this.svg.node().getBoundingClientRect().height - this.margin.top - this.margin.bottom
 		this.height2 = +this.svg.node().getBoundingClientRect().height - this.margin2.top - this.margin2.bottom;
@@ -52,7 +52,7 @@ class timeChart {
 		this.modelDatas = [];
 		this.sensorDatas = [];
 		this.sensorInfos = [];
-
+		this.legend = new timeChartLegend();
 
 	}
 
@@ -152,12 +152,17 @@ class timeChart {
 		this.stopValues = stopValues;
 		console.log(this.stopValues);
 
-    }
+  }
 
+	updateLegend(){
 
-	update(data,modelData,sensorInfo){
+			this.legend.update(this.sensorInfos);
+	}
 
-		this.refreshChart();
+	addData(data,modelData,sensorInfo){
+		if(this.sensorInfos.includes(sensorInfo)){
+			return;
+		}
 		if(data == modelData){
 			modelData = jQuery.extend(true, {}, data).data;
 			//modelData.data;
@@ -179,9 +184,6 @@ class timeChart {
 			data = data.data;
 		}
 
-
-
-
 		data = data.map(type);
 		console.log(data, modelData);
 		modelData = modelData.map(type);
@@ -189,6 +191,16 @@ class timeChart {
 		this.modelDatas.push(modelData);
 		this.sensorDatas.push(data);
 		this.sensorInfos.push(sensorInfo);
+		this.update();
+	}
+
+	update(){
+		let self = this;
+		let data = this.sensorDatas[0];
+		let modelData = this.modelDatas[0];
+		this.refreshChart();
+
+		this.updateLegend();
 		console.log(this.sensorInfos);
 
 		function brushed() {
@@ -218,6 +230,8 @@ class timeChart {
 		  self.updateSliderZoom();
 		}
 
+
+
 		/*
 	this.svg.append("linearGradient")
 	    .attr("id", "area-gradient")
@@ -235,6 +249,7 @@ class timeChart {
 
       console.log(timeBounds);
 	  this.xScale.domain(timeBounds);
+		/* TODO: FIX To make modulas*/
 
 	  let maxSensorReading = d3.max(data, function(d) { return d.pm25; });
 	  let maxModelEstimate = d3.max(modelData, function(d) { return d.pm25; });
@@ -305,7 +320,7 @@ class timeChart {
 	  	  .attr('stroke-width','2px')
 	  	  .attr('stroke','darkgrey')
 	  	  .attr('stroke-opacity',0.6)
-	  	  .attr("id","sensorPath"+this.sensorInfos[i].id);
+	  	  .attr("id","modelPath"+this.sensorInfos[i].id);
 
 	  	sensorPaths.on("mouseover",function(){
 	  		console.log("IN MOUSEOVER ON PATH!")
@@ -346,10 +361,12 @@ class timeChart {
 	      .attr("class", "axis axis--y")
 	      .call(this.yAxis);
 
-	  this.context.append("path")
+	  let newLine = this.context.append("path")
 	      .datum(data)
 	      .attr("class", "sensorLine")
 	      .attr("d", this.area2);
+
+		console.log(newLine)
 
 	  this.context.append("g")
 	      .attr("class", "axis axis--x")

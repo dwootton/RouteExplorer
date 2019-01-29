@@ -384,7 +384,12 @@ a.article:hover {
     timeChart Styles
 ----------------------------------------------------- */
 #timeChart {
-  height: 450px;
+  height: 350px;
+  width: 100%;
+}
+
+#timeChartLegend {
+  height: 80px;
   width: 100%;
 }
 

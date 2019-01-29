@@ -237,6 +237,7 @@ class AQMap {
 
   setUpSourceMenu(){
     let sensorSourceMenu = document.getElementById('mapLegend');
+    this.myMap.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(sensorSourceMenu);
     var div = document.createElement('div');
     let sourceTypes = ['AirU','Purple Air','All']
     for(var i=0 ; i < sourceTypes.length ; i++)
@@ -279,7 +280,7 @@ class AQMap {
     }
     sensorSourceMenu.appendChild(div);
 
-    this.myMap.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(sensorSourceMenu);
+    //this.myMap.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(sensorSourceMenu);
   }
 
   refreshClick() {
@@ -326,15 +327,26 @@ class AQMap {
     });
   }
 
+  selectSensor(selectedSensor){
+    if(selectedSensor){
+      this.selectedSensor =selectedSensor;
+    }
+    this.updateSensor(sensorData)
+  }
+
   updateSensor(sensorData) {
+    this.sensorData = sensorData;
     let overlay = new google.maps.OverlayView();
     let that = this;
+    window.controller.sensorOverlay = overlay;
+
 
     // Add the container when the overlay is added to the map.
     overlay.onAdd = function() {
       d3.select(this.getPanes().overlayMouseTarget).selectAll("div").remove();
       let layer = d3.select(this.getPanes().overlayMouseTarget).append("div") // floatPane as I want sensors to be on top
         .attr("class", "sensors");
+      console.log("LAYER",layer);
 
       // Draw each marker as a separate SVG element.
       // We could use a single SVG, but what size would it have?
@@ -347,6 +359,10 @@ class AQMap {
           .each(transform)
           .attr("fill", (d) => {
             return (that.colorMap(d.pm25))
+          })
+          .attr('id', (d)=> {
+            console.log(d);
+            return "marker"+d.id;
           })
 
         marker
@@ -399,8 +415,6 @@ class AQMap {
               .attr('stroke-width', '2')
               .attr('stroke', 'gold');
             let lineChartSelector = '#sensorPath' + event.id;
-            console.log(lineChartSelector);
-            console.log(d3.selectAll(lineChartSelector));
 
             if (that.lastSelected && that.lastSelected != this) {
               d3.select(that.lastSelected).attr("id", null).selectAll('circle').transition(500).attr('r', 6.5).attr('stroke-width', '1').attr('stroke', 'white');
@@ -414,9 +428,14 @@ class AQMap {
         let newMarkers = marker
           .enter().append("svg")
           .each(transform)
+          .attr('id', (d)=> {
+            console.log(d);
+            return "marker"+d.id;
+          })
           .attr("class", "marker");
-
-        marker.exit().remove();
+        console.log("SVG!!!!!!",marker)
+        console.log(newMarkers);
+        newMarkers.exit().remove();
 
         // Add a circle. May be unused?
         newMarkers.append("circle")

@@ -153,7 +153,7 @@
 				<div class="col-2">
 					<svg id="pm25Legend"> </svg>
 					<form onsubmit="return makeSearch()">
-						<input type="text" placeholder="Search.." name="search">
+						<input type="text" placeholder="Search for Sensor.." name="search">
 						<button type="submit"><i class="fa fa-search"></i></button>
 					</form>
 				</div>
@@ -166,7 +166,8 @@
 			</div>
 
 			<div class="row">
-				<div class="col-10">
+				<div class="col-10" id="timeChartGroup">
+					<svg id="timeChartLegend"> </svg>
 					<svg id="timeChart"> </svg>
 				</div>
 			</div>
@@ -179,6 +180,7 @@
 <script src="javascript/simpleShapeDrawing.js"> </script>
 
 <script src="javascript/map.js"> </script>
+<script src="javascript/timechartLegend.js"> </script>
 <script src="javascript/timechart.js"> </script>
 <script src="javascript/selector.js"> </script>
 <script src="javascript/controller.js"> </script>
