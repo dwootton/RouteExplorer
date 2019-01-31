@@ -298,8 +298,6 @@ class timeChart {
 		    .extent([[0, 0], [this.width, this.height]])
 		    .on("zoom", zoomed);
 
-	//let that = this;
-
 	  for(let i = 0; i < this.sensorDatas.length; i++){
 
 	  	let sensorPaths = this.focus.append("path")

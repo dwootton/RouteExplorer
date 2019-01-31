@@ -7,34 +7,35 @@ class timeChartLegend {
 		this.height = +this.svg.node().getBoundingClientRect().height - this.margin.top - this.margin.bottom
 
     this.plottingSVG = this.svg.append('g').attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+
   }
+  /**
+   * Updates the views for the time chart legend.
+   * @param  {[type]} info An array of sensor information
+   * @return {[type]}      [description]
+   */
   update(info){
-
-
-
     let selection = this.plottingSVG.selectAll('g')
       .data(info)
-      console.log("INFO1",info);
 
     selection
       .exit()
       .remove()
-      console.log("INFO2",info);
+
 
 
     this.sensorItems = selection
       .enter()
       .append('g')
-      console.log("INFO3",info);
 
     let barWidth = 60;
     let barHeight = 20;
-    console.log("INFO4",info);
 
+    /* Adds the background rect  */
     this.sensorItems
         .append('rect')
           .attr('x',(d,i)=>{
-            i = i%11;
+            i = i%11; // After 11 icons have been placed, wrap to the next row
             return (i)*(barWidth+20);
           })
           .attr("y", function(d,i) {
@@ -46,17 +47,21 @@ class timeChartLegend {
           })
           .attr('width',barWidth)
           .attr('height',barHeight)
+          .attr('border-radius',2)
           .attr('fill','whitesmoke')
-          console.log("INFO5",info);
+          .attr('stroke',"gray")
+          .attr('rx',5)
+          .attr('ry',5)
+          ;
 
     this.sensorItems
         .append('text')
           .attr('x',(d,i)=>{
-            i = i%11;
+            i = i%11;// After 11 icons have been placed, wrap to the next row
             return (i)*(barWidth+20)+5;
           })
           .attr("y", function(d,i) {
-            let offset = 0;
+            let offset = 2;
             if(i > 10){
               offset = 25;
             }
@@ -64,7 +69,6 @@ class timeChartLegend {
           })
           .attr("dy", ".25em")
           .text(function(d) {
-            console.log(d);
             return d.id; })
             .attr('font-size','.75em')
 
@@ -120,6 +124,9 @@ class timeChartLegend {
           .attr('stroke-width', 1)
           .attr('stroke', 'gray')
           .attr('stroke-opacity', 0.6)
+        d3.select(this)
+            .selectAll('rect')
+              .attr('fill','whitesmoke');
       })
       .on('click', (d,i)=>{
         console.log(window.controller.timeChart);
@@ -128,6 +135,11 @@ class timeChartLegend {
         let sensorInfo = window.controller.timeChart.sensorInfos.splice(i, 1);
         window.controller.timeChart.update(sensorData,modelData,sensorInfo)
       })
+      .on('mousedown',function(d,i){
+        d3.select(this)
+          .selectAll('rect')
+            .attr('fill','gray');
+      });
 
       d3.selection.prototype.moveToFront = function() {
         return this.each(function(){
