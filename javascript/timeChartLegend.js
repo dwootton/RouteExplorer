@@ -8,6 +8,20 @@ class timeChartLegend {
 
     this.plottingSVG = this.svg.append('g').attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
+    this.clsbtn1 = new d3CloseButton();
+    this.clsbtn1.size(14).isCircle(true).borderStrokeWidth(3).crossStrokeWidth(3).rx(6).ry(6);
+    let sampleData = [50,200];
+    /*var gUpper = this.plottingSVG.append("g").selectAll("g").data(sampleData).enter().append("g");
+    let size = 20;
+    gUpper.append("rect")
+            .attr("x", function(d){ return d;})
+            .attr("y", 50)
+            .attr("width", size)
+            .attr("height",size)
+            .style({"fill": "#E6F9FF", "stroke-width": 2, "stroke": "black"});
+
+            */
+
   }
   /**
    * Updates the views for the time chart legend.
@@ -15,20 +29,23 @@ class timeChartLegend {
    * @return {[type]}      [description]
    */
   update(info){
-    let selection = this.plottingSVG.selectAll('g')
+    let self = this;
+    //this.plottingSVG.selectAll('.sensorButton').remove();
+    let selection = this.plottingSVG.selectAll('.sensorButton')
       .data(info)
 
     selection
       .exit()
       .remove()
+      console.log("plotting",this.plottingSVG);
 
 
-
-    this.sensorItems = selection
+ this.sensorItems = selection
       .enter()
       .append('g')
+        .attr('class','sensorButton')
 
-    let barWidth = 60;
+    let barWidth = 75;
     let barHeight = 20;
 
     /* Adds the background rect  */
@@ -53,6 +70,26 @@ class timeChartLegend {
           .attr('rx',5)
           .attr('ry',5);
 
+    console.log("Before",this.sensorItems,selection,this.plottingSVG.selectAll('g'), info);
+
+    this.sensorItems.each(function (d,i) {
+                console.log(d);
+                console.log(d3.select(this),this);
+                var g = d3.select(this).append('g');
+                self.clsbtn1
+                  .x((i)*(barWidth+20)+(barWidth / 1.2))
+                  .y(barHeight/2)
+                  .clickEvent(function(){
+                    let sensorData = window.controller.timeChart.sensorDatas.splice(i, 1);
+                    let modelData = window.controller.timeChart.modelDatas.splice(i, 1);
+                    let sensorInfo = window.controller.timeChart.sensorInfos.splice(i, 1);
+                    window.controller.timeChart.update(sensorData,modelData,sensorInfo);
+                   });
+                g.call(self.clsbtn1);
+    })
+
+    console.log("After")
+
     this.sensorItems
         .append('text')
           .attr('x',(d,i)=>{
@@ -75,8 +112,7 @@ class timeChartLegend {
 
         let sensorID = d.id;
         console.log(this);
-        if(this.previousSelected){
-          console.log(this.previousSelected)
+        /*if(this.previousSelected){
           this.previousSelected[0]
             .transition()
             .duration(500)
@@ -90,20 +126,20 @@ class timeChartLegend {
               .attr('stroke-width', 1)
               .attr('stroke', 'gray')
               .attr('stroke-opacity', 0.6)
-        }
+        }*/
 
         let sensorSelection  = d3.select('#sensorPath' + sensorID)
         sensorSelection
           .transition()
           .duration(500)
-          .attr('stroke-width', 2)
+          .attr('stroke-width', 3)
           .attr('stroke', 'url(#temperature-gradient)')
           .attr('stroke-opacity', 1.0)
         let modelSelection  = d3.select('#modelPath' + sensorID)
         modelSelection
         .transition()
         .duration(500)
-              .attr('stroke-width', 2)
+              .attr('stroke-width', 3)
               .attr('stroke', 'black')
               .attr('stroke-opacity', 1)
 
@@ -114,30 +150,58 @@ class timeChartLegend {
 
         modelSelection.moveToFront();
     })
-      .on('mouseleave', function(d){
-
-        let sensorID = d.id;
-        let prevSelection = d3.select('#sensorPath' + sensorID)
-          .transition()
-          .duration(500)
-          .attr('stroke-width', 1)
-          .attr('stroke', 'gray')
-          .attr('stroke-opacity', 0.6)
-        d3.select(this)
-            .selectAll('rect')
-              .attr('fill','whitesmoke');
+      .on('mouseleave',(d,i,nodes)=>{
+        if(this.clickedSensor != d.id){
+          let sensorID = d.id;
+          let prevSelection = d3.select('#sensorPath' + sensorID)
+            .attr('stroke-opacity', 0.6)
+            .transition()
+              .duration(500)
+              .attr('stroke-width', 1)
+              .attr('stroke', 'gray');
+        }
       })
-      .on('click', (d,i)=>{
+      .on('click', (d,i,nodes)=>{
+        if(this.clickedSensor){
+          d3.select(this.clickedSensor.sensorButton).selectAll('rect')
+            .transition()
+              .duration(200)
+              .attr('stroke',"gray")
+              .attr('stroke-width',1);
+        }
+
+        let sensor = {
+          id: d.id,
+          sensorButton: nodes[i]
+        }
+
+        this.clickedSensor = sensor;
+        d3.select(nodes[i]).selectAll('rect')
+          .transition()
+            .duration(200)
+            .attr('stroke',"black")
+            .attr('stroke-width',4)
+
+        d3.select(nodes[i]).selectAll('rect')
+          .dispatch("mouseenter");
+        /*
         console.log(window.controller.timeChart);
-        let sensorData = window.controller.timeChart.sensorDatas.splice(i, 1);
-        let modelData = window.controller.timeChart.modelDatas.splice(i, 1);
-        let sensorInfo = window.controller.timeChart.sensorInfos.splice(i, 1);
-        window.controller.timeChart.update(sensorData,modelData,sensorInfo)
+
+        */
       })
       .on('mousedown',function(d,i){
         d3.select(this)
           .selectAll('rect')
-            .attr('fill','gray');
+            .transition()
+              .duration(100)
+              .attr('fill','gray');
+      })
+      .on('mouseup',function(d,i){
+        d3.select(this)
+          .selectAll('rect')
+            .transition()
+              .duration(200)
+              .attr('fill','whitesmoke');
       });
 
       d3.selection.prototype.moveToFront = function() {
