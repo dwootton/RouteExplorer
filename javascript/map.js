@@ -329,9 +329,9 @@ class AQMap {
 
   selectSensor(selectedSensor){
     if(selectedSensor){
-      this.selectedSensor =selectedSensor;
+      this.selectedSensor = selectedSensor;
     }
-    this.updateSensor(sensorData)
+    //this.updateSensor(sensorData)
   }
 
   updateSensor(sensorData) {
@@ -364,6 +364,7 @@ class AQMap {
             console.log(d);
             return "marker"+d.id;
           })
+
 
         marker
           .on("mouseover", function(d) {
@@ -404,6 +405,8 @@ class AQMap {
             if (that.marker) {
               that.marker.setMap(null);
             }
+            console.log(event)
+            that.selectSensor(event);
             //d3.select(this).attr('transform','translate(-30px,-30px)')
             selector.grabIndividualSensorData(event);
             d3.select(this).attr("id", "selected");
@@ -450,6 +453,14 @@ class AQMap {
             }
             return (that.colorMap(d.pm25))
           })
+
+        console.log(this.selectedSensor);
+        if(this.selectedSensor){
+          console.log(d3.select('#marker'+this.selectedSensor.id))
+          d3.select('#marker'+this.selectedSensor.id).dispatch('click');
+        }
+
+
         /*
 		          .classed("hiddenMarker", (d)=> {
 		          	if(d.pm25< 0){

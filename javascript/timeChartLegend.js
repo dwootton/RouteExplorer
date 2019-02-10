@@ -51,8 +51,7 @@ class timeChartLegend {
           .attr('fill','whitesmoke')
           .attr('stroke',"gray")
           .attr('rx',5)
-          .attr('ry',5)
-          ;
+          .attr('ry',5);
 
     this.sensorItems
         .append('text')

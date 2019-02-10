@@ -81,12 +81,17 @@ class Selector {
           };
           sensors.push(val)
         }
+
         this.sensorList = sensors;
       });
   }
 
+  /**
+   * Uses this.sensorSouce to determine what string capitaliziation
+   * is necessary for API compatability with processedData route.
+   * @return {[type]} string of the sensor source used for the API.
+   */
   changeSource(){
-
     if(this.sensorSource == "airU"){
       return "airu";
     } else if(this.sensorSource == "all") {

@@ -308,8 +308,6 @@ class timeChart {
 	      .attr('stroke','gray')
 	      .attr('stroke-opacity',0.6)
 	      .attr("id","sensorPath"+this.sensorInfos[i].id);
-	    console.log(sensorPaths);
-
 
 	    let modelPaths = this.focus.append("path")
 	  	  .datum(this.modelDatas[i])
@@ -321,7 +319,6 @@ class timeChart {
 	  	  .attr("id","modelPath"+this.sensorInfos[i].id);
 
 	  	sensorPaths.on("mouseover",function(){
-	  		console.log("IN MOUSEOVER ON PATH!")
 	  		if(that.prevSelection){
 	  			that.prevSelection.attr('stroke-width', 1)
 	  		}
@@ -341,13 +338,6 @@ class timeChart {
 	      .attr('stroke','gray')
 	      .attr('stroke-opacity',0.8);
 	  }
-
-
-
-
-
-
-
 
 
 	  this.focus.append("g")
