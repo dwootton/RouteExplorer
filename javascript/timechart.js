@@ -49,9 +49,14 @@ class timeChart {
 		    .attr("height", this.height);
 
 		this.prevMaxValue = 0;
+		this.maxReadings = [];
+		this.sensorIndex = 0;
+		this.stopValues =[];
+
 		this.modelDatas = [];
 		this.sensorDatas = [];
 		this.sensorInfos = [];
+
 		this.legend = new timeChartLegend();
 		window.controller.timeChartLegend = this.legend;
 	}
@@ -102,7 +107,7 @@ class timeChart {
     }
 
     generateColorScale(){
-    	let maxValue = this.prevMaxValue;
+    	let maxValue = this.maxReadings[this.maxReadings.length-1].sensor;
     	console.log(window.controller);
 
     	let pm25Fixed = JSON.parse(JSON.stringify(window.controller.pm25Domain))//.reverse();
@@ -110,8 +115,8 @@ class timeChart {
     	let colorScale = JSON.parse(JSON.stringify(window.controller.colorRange))//.reverse();
 
     	let index = pm25Fixed.findIndex(function(number) {
-			return number > maxValue;
-		});
+				return number > maxValue;
+			});
 
 		console.log(index)
 		console.log(pm25Fixed);
@@ -148,9 +153,10 @@ class timeChart {
 
 		}
 		console.log(this.prevMaxValue);
+		stopValues.pop(0);
+		stopValues[stopValues.length-1].offset = 1.0;
 
-		this.stopValues = stopValues;
-		console.log(this.stopValues);
+		this.stopValues.push(stopValues);
 
   }
 
@@ -194,10 +200,24 @@ class timeChart {
 		this.update();
 	}
 
+	updateGradient(index){
+		console.log(this.stopValues,index);
+		this.svg.append("linearGradient")
+		      .attr("id", "temperature-gradient")
+		      .attr("gradientUnits", "objectBoundingBox")
+		      .attr("x1", 0).attr("y1", 0)
+		      .attr("x2", 0).attr("y2", 1)
+		    .selectAll("stop")
+		      .data(this.stopValues[index])
+		    .enter().append("stop")
+		      .attr("offset", function(d) { return d.offset; })
+		      .attr("stop-color", function(d) { return d.color; });
+	}
+
 	update(){
 		let self = this;
-		let data = this.sensorDatas[0];
-		let modelData = this.modelDatas[0];
+		let data = this.sensorDatas[this.sensorDatas.length-1];
+		let modelData = this.modelDatas[this.modelDatas.length-1];
 		this.refreshChart();
 
 		this.updateLegend();
@@ -254,27 +274,15 @@ class timeChart {
 	  let maxSensorReading = d3.max(data, function(d) { return d.pm25; });
 	  let maxModelEstimate = d3.max(modelData, function(d) { return d.pm25; });
 	  console.log(maxModelEstimate);
+		this.maxReadings.push({
+			sensor:maxSensorReading,
+			model:maxModelEstimate
+		})
 
 	  this.prevMaxValue = d3.max([this.prevMaxValue,maxSensorReading,maxModelEstimate]);
 	  this.generateColorScale();
-	  this.svg.append("linearGradient")
-		      .attr("id", "temperature-gradient")
-		      .attr("gradientUnits", "objectBoundingBox")
-		      .attr("x1", 0).attr("y1", 0)
-		      .attr("x2", 0).attr("y2", 1)
-		    .selectAll("stop")
-		      .data(this.stopValues)
-		    /*	.data([
-			      {offset: "0", color: "red"},
-			      {offset: "0.1", color: "purple"},
-			      {offset: "0.2", color: "black"},
-			      {offset: "0.3", color: "yellow"},
-			      {offset: "0.5", color: "lawngreen"},
-			      {offset: "1.0", color: "lawngreen"}
-			    ])*/
-		    .enter().append("stop")
-		      .attr("offset", function(d) { return d.offset; })
-		      .attr("stop-color", function(d) { return d.color; });
+		this.updateGradient(0);
+
 
 	  this.yScale.domain([0, this.prevMaxValue]);
 	  this.x2Scale.domain(this.xScale.domain());

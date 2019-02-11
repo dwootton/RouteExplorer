@@ -197,6 +197,7 @@ class timeChartLegend {
       })
       .on('click', (d, i, nodes) => {
         this.changeMapSelectedSensor(d);
+        window.controller.timeChart.updateGradient(i);
 
 
         let prevClickedSensor;
