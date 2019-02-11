@@ -1,10 +1,10 @@
 
 window.controller = new Controller();
-
-let aqMap = new AQMap();
-window.controller.map = aqMap;
 let pm25TimeChart = new timeChart();
 window.controller.timeChart = pm25TimeChart;
+let aqMap = new AQMap();
+window.controller.map = aqMap;
+
 let selector = new Selector();
 window.controller.selector = selector;
 window.controller.map = aqMap;

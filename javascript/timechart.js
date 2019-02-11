@@ -53,7 +53,7 @@ class timeChart {
 		this.sensorDatas = [];
 		this.sensorInfos = [];
 		this.legend = new timeChartLegend();
-
+		window.controller.timeChartLegend = this.legend;
 	}
 
 

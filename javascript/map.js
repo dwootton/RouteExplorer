@@ -400,28 +400,28 @@ class AQMap {
               .attr('stroke', 'gray')
               .attr('stroke-opacity', 0.6)
           })
-          .on("click", function(event) {
+          .on("click", function(sensor) {
 
             if (that.marker) {
               that.marker.setMap(null);
             }
-            console.log(event)
-            that.selectSensor(event);
+            that.selectSensor(sensor);
             //d3.select(this).attr('transform','translate(-30px,-30px)')
-            selector.grabIndividualSensorData(event);
-            d3.select(this).attr("id", "selected");
+            selector.grabIndividualSensorData(sensor);
+            //d3.select(this).attr("id", "selected");
 
-            d3.select(this).selectAll('circle')
+            /*d3.select(this).selectAll('circle')
               //.attr('transform','translate(15px,15px)')
               .transition(500)
               .attr('r', 10)
               .attr('stroke-width', '2')
-              .attr('stroke', 'gold');
-            let lineChartSelector = '#sensorPath' + event.id;
+              .attr('stroke', 'gold');*/
+            window.controller.timeChartLegend.changeMapSelectedSensor(sensor);
+            let lineChartSelector = '#sensorPath' + sensor.id;
 
-            if (that.lastSelected && that.lastSelected != this) {
-              d3.select(that.lastSelected).attr("id", null).selectAll('circle').transition(500).attr('r', 6.5).attr('stroke-width', '1').attr('stroke', 'white');
-            }
+            /*if (that.lastSelected && that.lastSelected != this) {
+              d3.select(that.lastSelected).attr("id", "marker"+sensor.id).selectAll('circle').transition(500).attr('r', 6.5).attr('stroke-width', '1').attr('stroke', 'white');
+            }*/
 
             that.lastSelected = this;
             window.controller.sensorClicked = true;
@@ -436,8 +436,7 @@ class AQMap {
             return "marker"+d.id;
           })
           .attr("class", "marker");
-        console.log("SVG!!!!!!",marker)
-        console.log(newMarkers);
+
         newMarkers.exit().remove();
 
         // Add a circle. May be unused?
