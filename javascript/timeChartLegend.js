@@ -149,14 +149,14 @@ class timeChartLegend {
       })
       .attr('font-size', '.75em')
 
-      unHighlightAllSensorButtons(){
+      function unHighlightAllSensorButtons(){
           d3.selectAll('.sensorButton').selectAll('rect')
             .transition()
             .duration(500)
             .attr('stroke-width', 1)
             .attr('stroke', 'gray');
       }
-    highlightSensorButton(sensor){
+    function highlightSensorButton(sensor){
       this.unHighlightAllSensorButtons();
       let sensorID = sensor.id;
       let index = 0;
@@ -176,7 +176,7 @@ class timeChartLegend {
 
 
     }
-
+    /*
     highlightPathStroke(sensor,index){
       window.controller.timeChart.updateGradient(index);
 
@@ -220,7 +220,7 @@ class timeChartLegend {
         .attr('stroke-opacity', .6)
     }
 
-
+    */
     this.sensorItems.on('mouseenter', (d,i) => {
         let sensorID = d.id;
         highlightPathStroke(d,i);
