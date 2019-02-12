@@ -65,6 +65,7 @@ class timeChart {
 	initChart(){
 
 	}
+
 	refreshChart(){
 		this.svg.selectAll('g').remove();
 
@@ -107,7 +108,7 @@ class timeChart {
     }
 
     generateColorScale(){
-    	let maxValue = this.maxReadings[this.maxReadings.length-1].sensor;
+    	let maxValue = this.maxReadings[this.maxReadings.length-1];
     	console.log(window.controller);
 
     	let pm25Fixed = JSON.parse(JSON.stringify(window.controller.pm25Domain))//.reverse();
@@ -117,9 +118,6 @@ class timeChart {
     	let index = pm25Fixed.findIndex(function(number) {
 				return number > maxValue;
 			});
-
-		console.log(index)
-		console.log(pm25Fixed);
 
 		let stopValues = [];
 		for(let i = 0; i < index; i++){
@@ -133,13 +131,11 @@ class timeChart {
 		}
 
 		for(let i = index; i < pm25Fixed.length; i++){
-			console.log(colorScale[i],pm25Fixed[i],this.prevMaxValue)
-			let offset = (this.prevMaxValue*1.0 - window.controller.pm25Domain[i])/this.prevMaxValue;
+			let offset = (maxValue*1.0 - window.controller.pm25Domain[i])/maxValue;
 			if(offset < 0){
 				offset = 0;
 			}
 
-			//offset = 1 - offset;
 			let color = colorScale[i];
 
 			let stopValue = {
@@ -149,15 +145,12 @@ class timeChart {
 
 			console.log(stopValue);
 			stopValues.push(stopValue)
-			//
-
 		}
-		console.log(this.prevMaxValue);
 		stopValues.pop(0);
 		stopValues[stopValues.length-1].offset = 1.0;
 
 		this.stopValues.push(stopValues);
-
+		console.log(this.stopValues);
   }
 
 	updateLegend(){
@@ -182,7 +175,6 @@ class timeChart {
 		  return d;
 		}
 
-		console.log(data, modelData);
 		if(!data){
 			data = modelData;
 		} else {
@@ -202,16 +194,29 @@ class timeChart {
 
 	updateGradient(index){
 		console.log(this.stopValues,index);
-		this.svg.append("linearGradient")
-		      .attr("id", "temperature-gradient")
-		      .attr("gradientUnits", "objectBoundingBox")
-		      .attr("x1", 0).attr("y1", 0)
-		      .attr("x2", 0).attr("y2", 1)
-		    .selectAll("stop")
-		      .data(this.stopValues[index])
-		    .enter().append("stop")
-		      .attr("offset", function(d) { return d.offset; })
-		      .attr("stop-color", function(d) { return d.color; });
+
+		if(this.svg.selectAll("#temperature-gradient"+index.toString()).empty()){
+			this.svg.append("linearGradient")
+			      .attr("id", "temperature-gradient"+index.toString())
+			      .attr("gradientUnits", "objectBoundingBox")
+			      .attr("x1", 0).attr("y1", 0)
+			      .attr("x2", 0).attr("y2", 1)
+			    .selectAll("stop")
+			      .data(this.stopValues[index])
+			    .enter().append("stop")
+			      .attr("offset", function(d) { return d.offset; })
+			      .attr("stop-color", function(d) { return d.color; });
+		}
+	}
+
+	removeGradient(index){
+		this.svg.selectAll("linearGradient")
+			.remove();
+
+		this.stopValues.splice(index,1);
+		for(let i = 0; i < this.stopValues.length; i++){
+			this.updateGradient(i);
+		}
 	}
 
 	update(){
@@ -267,17 +272,11 @@ class timeChart {
     // Start of update
     let timeBounds = [data[0].time, data[data.length-1].time];
 
-      console.log(timeBounds);
 	  this.xScale.domain(timeBounds);
-		/* TODO: FIX To make modulas*/
 
 	  let maxSensorReading = d3.max(data, function(d) { return d.pm25; });
 	  let maxModelEstimate = d3.max(modelData, function(d) { return d.pm25; });
-	  console.log(maxModelEstimate);
-		this.maxReadings.push({
-			sensor:maxSensorReading,
-			model:maxModelEstimate
-		})
+		this.maxReadings.push(maxSensorReading)
 
 	  this.prevMaxValue = d3.max([this.prevMaxValue,maxSensorReading,maxModelEstimate]);
 	  this.generateColorScale();
@@ -382,20 +381,14 @@ class timeChart {
 	      .call(this.zoom);
 	  let that = this;
 	  overLay.on("click", function() {
-	  		// One possibility is to make this s shift click:
-	  	  //if (d3.event.shiftKey) {
-		   //     alert("Mouse+Shift pressed");
-		    //}
-
           let coords = d3.mouse(this);
-          // Normally we go from data to pixels, but here we're doing pixels to data
           let newData= {
             x: Math.round( that.xScale.invert(coords[0])),  // Takes the pixel number to convert to number
             y: Math.round( that.yScale.invert(coords[1]))
           }
           that.selectedDate = new Date(newData.x);
+					window.controller.selectedDate = that.selectedDate
           selector.selectedDate = that.selectedDate;
-          console.log(selector.selectedDate);
           selector.grabAllSensorData(selector.selectedDate);
           selector.grabAllModelData(selector.selectedDate)
           that.updateSlider(that.selectedDate)
