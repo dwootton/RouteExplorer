@@ -66,10 +66,14 @@ class Selector {
    *
    */
   async populateSensorList() {
+
     let url = "http://air.eng.utah.edu/dbapi/api/liveSensors/"+this.sensorSource;
+    if(this.sensorSource == "airu"){
+      url = "http://air.eng.utah.edu/dbapi/api/liveSensors/airU";
+    }
     //let url = "http://air.eng.utah.edu/dbapi/api/sensorsAtTime/airU&2019-01-04T22:00:00Z"
     let req = fetch(url)
-
+    console.log("INSIDE OF POPULATE!!!",this.sensorList)
     /* Adds each sensor to this.sensorList */
     req.then((response) => {
         return response.text();
@@ -87,6 +91,7 @@ class Selector {
         }
 
         this.sensorList = sensors;
+        console.log("INSIDE OF POPULATE!!!",this.sensorList)
       });
   }
 
@@ -222,12 +227,17 @@ class Selector {
     /* Obtain the most recent values for each sensor */
 		let formattedTime = time.toISOString().slice(0,-5)+'Z'
 		let url = "http://air.eng.utah.edu/dbapi/api/sensorsAtTime?sensorSource="+this.sensorSource+"&selectedTime=" + formattedTime;
-
+    if(this.sensorSource == 'airu'){
+      url = "http://air.eng.utah.edu/dbapi/api/sensorsAtTime?sensorSource=airU&selectedTime=" + formattedTime;
+    }
+    console.log("INSIDE REQUEST", time)
 		let req = fetch(url)
 			.then(function(response){
+        console.log(response);
 				return response.text();
 			})
       .then(values => {
+    console.log("INSIDE OF ACTUAL REQUES",values);
       if(window.controller.selectedDate != time){
         return;
       }
@@ -243,6 +253,7 @@ class Selector {
 					source: element['Sensor Source']
 				}
 			})
+      console.log("INSIDE OF ACTUAL REQUES",valuesFixedAttr);
 
       /* Update data and re-render map view */
 			this.allSensorsData = valuesFixedAttr;
@@ -269,7 +280,7 @@ class Selector {
       return response.text();
     }).then( (values) => {
       /* If there is a more recent selection */
-      console.log(window.controller.selectedDate,time);
+
       if(window.controller.selectedDate != time){
         return;
       }
@@ -299,7 +310,8 @@ class Selector {
 
   setSensorSource(source){
     this.sensorSource = source;
-    this.populateSensorList();
+    //this.populateSensorList();
+    console.log(this.rendered)
     if(this.rendered){
       this.grabAllSensorData(window.controller.selectedDate);
     }

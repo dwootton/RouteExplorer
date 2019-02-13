@@ -229,8 +229,8 @@ class AQMap {
     }
     */
 
-    this.shapeDrawer = new simpleShapeDrawer(this.myMap);
-    window.controller.shapeDrawer = this.shapeDrawer;
+    //this.shapeDrawer = new simpleShapeDrawer(this.myMap); END MODE REMOVAL
+    //window.controller.shapeDrawer = this.shapeDrawer;END MODE REMOVAL
     this.refreshClick()
 
   }
@@ -275,6 +275,7 @@ class AQMap {
               source = "airu";
               break;
           }
+          console.log('INSIDE OF click',source);
           window.controller.selector.setSensorSource(source);
         }
     }
@@ -286,7 +287,6 @@ class AQMap {
   refreshClick() {
     this.myMap.data.addListener('click', (event) => {
       // NOTE WORKING: var shiftKey = (event.Ua || event.Pa).shiftKey;
-      console.log(window.controller.modeSelector.mode);
       if (this.shiftKeyPressed) {
         if (this.marker) {
           this.marker.setMap(null);
@@ -299,10 +299,11 @@ class AQMap {
         selector.grabModelData(lat, lng, null);
         this.placeMarker(event.latLng);
       }
-
+      /*
       if (window.controller.modeSelector.mode === 'explore') {
         return;
       }
+      /*
 
 
       if (window.controller.sensorClicked) { // if sensor was clicked
@@ -311,7 +312,8 @@ class AQMap {
         window.controller.addLatLng(event);
       }
       console.log("sorry, no shift!")
-
+END MODE REMOVAL
+      */
 
 
       //this.myMap.setCenter(marker.getPosition());
@@ -366,6 +368,7 @@ class AQMap {
         let marker = layer.selectAll("svg")
           .data(sensorData)
           .each(transform)
+          console.log(marker)
 
         marker
           .on("mouseover", function(d) {
@@ -481,7 +484,7 @@ class AQMap {
           })
 
         if(window.controller.selectedSensor){
-          window.controller.timeChartLegend.dispatchSensorEvent(window.controller.selectedSensor.id, 'click');
+          //window.controller.timeChartLegend.dispatchSensorEvent(window.controller.selectedSensor.id, 'click');
         }
 
 

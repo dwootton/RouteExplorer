@@ -33,7 +33,7 @@
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3X5TPjGMtpRK1NnVeuDOCAwvZSKPT564&libraries=drawing"></script>
 
 	<title>
-
+		AQ Explorer
 	</title>
 </head>
 
@@ -52,7 +52,6 @@
 			</div>
 
 			<ul class="list-unstyled CTAs">
-
 				<li class="active">
 					<input type="text" name="datetimes" value="01/01/2018 - 01/15/2018" />
 				</li>
@@ -105,10 +104,12 @@
 		      </ul> -->
 
 					<!-- Mode Selection Toggle -->
+					<!---
 					<form class="navbar-form navbar-left navbar-input-group">
 
 
 					<div class="input-group">
+
 						<text id="currentMode" class="navbar-text pr-2"></text>
 						<div class="form-group checkbox navbar-btn">
 
@@ -119,6 +120,7 @@
 					  </div>
 					</div>
 					</form>
+				END MODE REMOVAL -->
 					<!--
 					<div class="collapse navbar-collapse" id="navbarSupportedContent">
 						<ul id="buttonUL">
@@ -159,11 +161,11 @@
 				</div>
 			</div>
 
-			<div class="row">
+			<!--<div class="row">
 				<div id="lineMap">
 					<svg> </svg>
 				</div>
-			</div>
+			</div> END MODE REMOVAL-->
 
 			<div class="row">
 				<div class="col-10" id="timeChartGroup">
@@ -179,15 +181,16 @@
 <script src="javascript/component/d3CloseButton.js"></script>
 
 <script src="javascript/interpolatedChart.js"> </script>
-<script src="javascript/simpleShapeDrawing.js"> </script>
+<!---<script src="javascript/simpleShapeDrawing.js"> </script>
+<script src="javascript/modeSelection.js"> </script>
+
+END MODE REMOVAL -->
 
 <script src="javascript/map.js"> </script>
 <script src="javascript/timechartLegend.js"> </script>
 <script src="javascript/timechart.js"> </script>
 <script src="javascript/selector.js"> </script>
 <script src="javascript/controller.js"> </script>
-<script src="javascript/modeSelection.js"> </script>
-
 <script src="javascript/main.js"> </script>
 
 </html>
