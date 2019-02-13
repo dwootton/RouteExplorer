@@ -50,6 +50,7 @@ class timeChart {
 
 		this.prevMaxValue = 0;
 		this.maxReadings = [];
+		this.maxModelEstimates = [];
 		this.sensorIndex = 0;
 		this.stopValues =[];
 
@@ -277,6 +278,7 @@ class timeChart {
 	  let maxSensorReading = d3.max(data, function(d) { return d.pm25; });
 	  let maxModelEstimate = d3.max(modelData, function(d) { return d.pm25; });
 		this.maxReadings.push(maxSensorReading)
+		this.maxModelEstimates.push(maxModelEstimate);
 
 	  this.prevMaxValue = d3.max([this.prevMaxValue,maxSensorReading,maxModelEstimate]);
 	  this.generateColorScale();
@@ -393,6 +395,18 @@ class timeChart {
           selector.grabAllModelData(selector.selectedDate)
           that.updateSlider(that.selectedDate)
       })
+	}
+
+	removePoint(index){
+		this.sensorDatas.splice(index, 1);
+		this.modelDatas.splice(index, 1);
+		this.sensorInfos.splice(index, 1);
+		this.maxReadings.splice(index, 1);
+		this.maxModelEstimates.splice(index, 1);
+		this.prevMaxValue = d3.max([d3.max(this.maxReadings),d3.max(this.maxModelEstimates)]);
+		console.log(this.prevMaxValue);
+		this.update();
+		this.removeGradient(i);
 	}
 
 }

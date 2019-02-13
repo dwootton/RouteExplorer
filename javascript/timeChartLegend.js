@@ -118,12 +118,8 @@ class timeChartLegend {
       d3.selectAll(".close").on('click', (d, i, nodes) => {
         this.changeMapSelectedSensor();
         console.log(d, i, nodes);
+        window.controller.timeChart.removePoint(i);
 
-        window.controller.timeChart.sensorDatas.splice(i, 1);
-        window.controller.timeChart.modelDatas.splice(i, 1);
-        window.controller.timeChart.sensorInfos.splice(i, 1);
-        window.controller.timeChart.update();
-        window.controller.timeChart.removeGradient(i);
         d3.event.stopPropagation();
       })
     })
@@ -149,88 +145,23 @@ class timeChartLegend {
       })
       .attr('font-size', '.75em')
 
-      function unHighlightAllSensorButtons(){
-          d3.selectAll('.sensorButton').selectAll('rect')
-            .transition()
-            .duration(500)
-            .attr('stroke-width', 1)
-            .attr('stroke', 'gray');
-      }
-    function highlightSensorButton(sensor){
-      this.unHighlightAllSensorButtons();
-      let sensorID = sensor.id;
-      let index = 0;
-      let buttonSelection = this.sensorItems
-        .filter((d,i)=>{
-          if(id == d.id){
-            index = i;
-          }
-          return id == d.id;
-        })
-      buttonSelection.selectAll('rect')
-      .transition()
-      .duration(500)
-      .attr('stroke-width', 3)
-      .attr('stroke', 'black');
-      this.highlightPathStroke(sensor,i);
 
 
-    }
-    /*
-    highlightPathStroke(sensor,index){
-      window.controller.timeChart.updateGradient(index);
 
 
-      let sensorSelection = d3.select('#sensorPath' + sensorID)
-      sensorSelection
-        .attr('stroke', 'url(#temperature-gradient'+i.toString()+')')
-        .transition()
-        .duration(500)
-        .attr('stroke-width', 5)
-        .attr('stroke-opacity', 1.0)
+    //}
 
-      let modelSelection = d3.select('#modelPath' + sensorID)
-      modelSelection
-        .transition()
-        .duration(500)
-        .attr('stroke-width', 5)
-        .attr('stroke', 'black')
-        .attr('stroke-opacity', 1)
-        sensorSelection.moveToFront();
-
-        modelSelection.moveToFront();
-    }
-
-    unHighlightPathStroke(d, i, nodes){
-      let sensorID = d.id;
-      let sensorSel = d3.select('#sensorPath' + sensorID);
-      d3.select('#sensorPath' + sensorID)
-        .attr('stroke-opacity', 0.6)
-        .transition()
-        .duration(500)
-        .attr('stroke-width', 1)
-        .attr('stroke', 'gray');
-      console.log(sensorSel.attr('stroke'))
-      let modelSelection = d3.select('#modelPath' + sensorID)
-      modelSelection
-        .transition()
-        .duration(500)
-        .attr('stroke-width', 1)
-        .attr('stroke', 'gray')
-        .attr('stroke-opacity', .6)
-    }
-
-    */
     this.sensorItems.on('mouseenter', (d,i) => {
+        console.log("IN MOUSE ENTER",d,i);
         let sensorID = d.id;
-        highlightPathStroke(d,i);
+        this.highlightPathStroke(d,i);
 
       })
       .on('mouseleave', (d, i, nodes) => {
         if (this.clickedSensor && (this.clickedSensor.id == d.id)) {
           return;
         }
-        this.unHighlightPathStroke();
+        this.unHighlightPathStroke(d,i,nodes);
 
       })
       .on('click', (d, i, nodes) => {
@@ -365,6 +296,78 @@ class timeChartLegend {
     return true;
   }
 
+  unHighlightAllSensorButtons(){
+      d3.selectAll('.sensorButton').selectAll('rect')
+        .transition()
+        .duration(500)
+        .attr('stroke-width', 1)
+        .attr('stroke', 'gray');
+  }
+ highlightSensorButton(sensor){
+  this.unHighlightAllSensorButtons();
+  let sensorID = sensor.id;
+  let index = 0;
+  let buttonSelection = this.sensorItems
+    .filter((d,i)=>{
+      if(id == d.id){
+        index = i;
+      }
+      return id == d.id;
+    })
+  buttonSelection.selectAll('rect')
+    .transition()
+    .duration(500)
+    .attr('stroke-width', 3)
+    .attr('stroke', 'black');
+    this.highlightPathStroke(sensor,i);
+  }
+
+  highlightPathStroke(sensor,index){
+    console.log(sensor,index);
+    window.controller.timeChart.updateGradient(index);
+    let sensorID = sensor.id;
+
+    let sensorSelection = d3.select('#sensorPath' + sensorID)
+    sensorSelection
+      .attr('stroke', 'url(#temperature-gradient'+index.toString()+')')
+      .transition()
+      .duration(500)
+      .attr('stroke-width', 5)
+      .attr('stroke-opacity', 1.0)
+
+    let modelSelection = d3.select('#modelPath' + sensorID)
+    modelSelection
+      .transition()
+      .duration(500)
+      .attr('stroke-width', 5)
+      .attr('stroke', 'black')
+      .attr('stroke-opacity', 1)
+      sensorSelection.moveToFront();
+
+      modelSelection.moveToFront();
+  }
+
+  unHighlightPathStroke(d, i, nodes){
+    for(let i = 0; i < nodes.length; i++){
+
+    }
+    let sensorID = d.id;
+    let sensorSel = d3.select('#sensorPath' + sensorID);
+    d3.select('#sensorPath' + sensorID)
+      .attr('stroke-opacity', 0.6)
+      .transition()
+      .duration(500)
+      .attr('stroke-width', 1)
+      .attr('stroke', 'gray');
+    console.log(sensorSel.attr('stroke'))
+    let modelSelection = d3.select('#modelPath' + sensorID)
+    modelSelection
+      .transition()
+      .duration(500)
+      .attr('stroke-width', 1)
+      .attr('stroke', 'gray')
+      .attr('stroke-opacity', .6)
+  }
 
   changeMapSelectedSensor(d) {
     d3.selectAll("#selected")
