@@ -263,7 +263,7 @@ class AQMap {
         sensorSourceMenu.appendChild(innerDiv);
         innerDiv.onclick = (e)=>{
           let source = e.toElement.value;
-
+          console.log(source)
           switch(source){
             case "Purple Air":
               source = "purpleAir";
@@ -274,6 +274,7 @@ class AQMap {
             case "AirU":
               source = "airu";
               break;
+
           }
           console.log('INSIDE OF click',source);
           window.controller.selector.setSensorSource(source);

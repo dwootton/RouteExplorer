@@ -126,9 +126,9 @@ class Selector {
    * @return {[type]} string of the sensor source used for the API.
    */
   changeSource(){
-    if(this.sensorSource == "airU"){
+    if(this.sensorSource == "airU" || this.sensorSource == "airu"){
       return "airu";
-    } else if(this.sensorSource == "all") {
+    } else if(this.sensorSource == "all" ) {
       if(window.controller.selectedSensor.id[0]=="S"){ //if AirU sensor was selected
         return "airu"
       } else {
@@ -174,7 +174,7 @@ class Selector {
     this.generateModelData = true;
 
     if(timeInterval > 2){ // if time difference is
-      console.log(timeInterval)
+      console.log(timeInterval);
       let changedSource = this.changeSource();
       url = "https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=" + id + "&sensorSource=" + changedSource + "&start=" +start + "&end=" +stop + "&function=mean&functionArg=pm25&timeInterval=5m"
       //https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=S-A-085&sensorSource=airu&start=2019-01-20T01:08:40Z&end=2019-01-27T01:08:40Z&function=mean&functionArg=pm25&timeInterval=5m
