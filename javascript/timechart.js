@@ -63,8 +63,17 @@ class timeChart {
 	}
 
 
-	initChart(){
+	initNewChart(){
+		this.prevMaxValue = 0;
+		this.maxReadings = [];
+		this.maxModelEstimates = [];
+		this.sensorIndex = 0;
+		this.stopValues =[];
 
+		this.modelDatas = [];
+		this.sensorDatas = [];
+		this.sensorInfos = [];
+		this.refreshChart()
 	}
 
 	refreshChart(){
@@ -86,8 +95,8 @@ class timeChart {
 	  console.log(this.xScale(this.selectedDate))
 	  console.log(this.x2Scale(this.selectedDate));
       this.slider
-        //.transition()
-        //.duration(500)
+        .transition()
+        .duration(500)
         .attr('x1', this.xScale(this.selectedDate))
         .attr('y1', 0)
         .attr('x2', this.xScale(this.selectedDate))
@@ -163,6 +172,7 @@ class timeChart {
 		if(this.sensorInfos.includes(sensorInfo)){
 			return;
 		}
+
 		if(data == modelData){
 			modelData = jQuery.extend(true, {}, data).data;
 			//modelData.data;
@@ -253,7 +263,7 @@ class timeChart {
 		this.refreshChart();
 
 		this.updateLegend();
-		
+
 		this.slider = this.focus.append("line");
 		console.log(this.slider);
 
@@ -369,10 +379,13 @@ class timeChart {
 	      .call(this.yAxis);
 
 				/* Append onto the context menu */
-				let newLine = this.context.append("path")
-			      .datum(this.sensorDatas[this.sensorDatas.length-1])
-			      .attr("class", "sensorLine")
-			      .attr("d", this.area2);
+		if(this.sensorDatas.length != 0){
+			let newLine = this.context.append("path")
+					.datum(this.sensorDatas[this.sensorDatas.length-1])
+					.attr("class", "sensorLine")
+					.attr("d", this.area2);
+		}
+
 
 	  this.context.append("g")
 	      .attr("class", "axis axis--x")
@@ -390,6 +403,7 @@ class timeChart {
 	      .attr("height", this.height)
 	      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 	      .call(this.zoom);
+
 	  let that = this;
 	  overLay.on("click", function() {
           let coords = d3.mouse(this);
@@ -418,6 +432,10 @@ class timeChart {
 		this.prevMaxValue = d3.max([d3.max(this.maxReadings),d3.max(this.maxModelEstimates)]);
 		console.log(this.prevMaxValue);
 
+		if(this.sensorDatas==[]){
+
+			return;
+		}
 
 		this.removeGradient(index);
 		this.update();

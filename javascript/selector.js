@@ -25,6 +25,12 @@ class Selector {
 
       /* Callback for when dates are selected on the picker */
       let callback = (start, end) => {
+        // remove previously selected sensor from map
+        if(!d3.selectAll('#selected').empty()){
+          window.controller.timeChartLegend.changeMapSelectedSensor();
+          window.controller.selectedSensor = null;
+        }
+
         // Update timechart label
         $('#reportrange span').html(start.format('D MMMM YYYY') + ' - ' + end.format('D MMMM YYYY'));
 
@@ -45,6 +51,25 @@ class Selector {
         this.grabAllSensorData(window.controller.selectedDate);
         this.modelData = this.grabAllModelData(window.controller.selectedDate, 10, 10);
         this.rendered = true;
+        console.log(d3.selectAll('.close'));
+        while(!d3.select('.close').empty()){
+          d3.select('.close').dispatch('click');
+        }
+        //let prevSelectedSensor = [];
+        if(this.selectedSensors){
+          this.selectedSensors = [];
+          window.controller.timeChart.initNewChart();
+          /*this.selectedSensors.forEach(sensorID=>{
+            //prevSelectedSensor.append(sensorID)
+            console.log("Prev Clicked Element", sensorID);
+
+            // remove the sensor from selectedSensors
+            this.selectedSensors =  this.selectedSensors.filter(e => e !== sensorID);
+
+          });*/
+        }
+
+
       };
 
       /* Set up the time selector UI */

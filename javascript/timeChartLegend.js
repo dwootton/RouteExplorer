@@ -71,9 +71,19 @@ class timeChartLegend {
       })
       .attr('width', barWidth)
       .attr('height', barHeight)
-      .attr('border-radius', 2)
+      .attr('border-radius', (d)=> {
+        if(this.clickedSensor && (d.id == this.clickedSensor.id)){
+          return 4;
+        }
+        return 2
+      })
+      .attr('stroke', (d)=> {
+        if(this.clickedSensor && (d.id == this.clickedSensor.id)){
+          return "black";
+        }
+        return "gray";
+      })
       .attr('fill', 'whitesmoke')
-      .attr('stroke', "gray")
       .attr('rx', 5)
       .attr('ry', 5);
 
@@ -116,8 +126,12 @@ class timeChartLegend {
 
 
       d3.selectAll(".close").on('click', (d, i, nodes) => {
-        this.changeMapSelectedSensor();
-        console.log(d, i, nodes);
+        console.log(d);
+        console.log(nodes[i]);
+        if(this.clickedSensor && (d.id == this.clickedSensor.id)){
+          this.changeMapSelectedSensor();
+        }
+        window.controller.selector.selectedSensors = window.controller.selector.selectedSensors.filter(e=>e !== d.id);
         window.controller.timeChart.removePoint(i);
 
         d3.event.stopPropagation();
@@ -172,8 +186,11 @@ class timeChartLegend {
           this.unHighlightAllSensorButtons()
           this.clickedSensor = null;
           window.controller.selectedSensor = null;
-          //this.unHighlightPathStroke();
+          this.unHighlightPathStroke(d);
           return;
+        }
+        if(this.clickedSensor){
+          this.unHighlightPathStroke(this.clickedSensor);
         }
 
         this.clickedSensor = d;
@@ -317,20 +334,16 @@ class timeChartLegend {
   }
 
   unHighlightPathStroke(d, i, nodes){
-    for(let i = 0; i < nodes.length; i++){
 
-    }
     let sensorID = d.id;
-    let sensorSel = d3.select('#sensorPath' + sensorID);
     d3.select('#sensorPath' + sensorID)
       .attr('stroke-opacity', 0.6)
       .transition()
       .duration(500)
       .attr('stroke-width', 1)
       .attr('stroke', 'gray');
-    console.log(sensorSel.attr('stroke'))
-    let modelSelection = d3.select('#modelPath' + sensorID)
-    modelSelection
+
+    d3.select('#modelPath' + sensorID)
       .transition()
       .duration(500)
       .attr('stroke-width', 1)
@@ -339,6 +352,7 @@ class timeChartLegend {
   }
 
   changeMapSelectedSensor(d) {
+    // unselect previous marker
     d3.selectAll("#selected")
       .attr("id", function(dataPoint) {
         return "marker" + dataPoint.id;
@@ -353,6 +367,8 @@ class timeChartLegend {
     if(d == null){
       return;
     }
+
+    // select new marker and highlight it on map
     d3.selectAll('#marker' + d.id)
       .attr('id', 'selected')
       .selectAll('circle')
