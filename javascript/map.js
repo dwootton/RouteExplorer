@@ -650,7 +650,7 @@ END MODE REMOVAL
         fillColor: color,
         strokeWeight: 0,
         fillOpacity: 0.6,
-        zIndex: 10 //0.04,
+        zIndex: 10
       });
     });
 
@@ -697,7 +697,9 @@ END MODE REMOVAL
     });
 
     // Add to the map's overlay collection
+    this.myMap.overlayMapTypes.clear();
     let labelsMap = this.myMap.overlayMapTypes.push(labelsMapType);
+
     // Select the just created highway labels and bring it to the front.
     d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index', 1000000).style('opacity', 0.5);
 

@@ -174,6 +174,7 @@ class Selector {
     this.generateModelData = true;
 
     if(timeInterval > 2){ // if time difference is
+      console.log(timeInterval)
       let changedSource = this.changeSource();
       url = "https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=" + id + "&sensorSource=" + changedSource + "&start=" +start + "&end=" +stop + "&function=mean&functionArg=pm25&timeInterval=5m"
       //https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=S-A-085&sensorSource=airu&start=2019-01-20T01:08:40Z&end=2019-01-27T01:08:40Z&function=mean&functionArg=pm25&timeInterval=5m
@@ -184,6 +185,7 @@ class Selector {
     } else {
       url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + id + "&sensorSource="+this.sensorSource.toLowerCase()+"&start=" + start + "&end=" + stop + "&show=pm25";
     }
+    console.log(url)
     // Note: sensor source must be lowercase for the API.
 
     // WORKS: https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=S-A-085&sensorSource=airu&start=2019-01-20T01:08:40Z&end=2019-01-27T01:08:40Z&function=mean&functionArg=pm25&timeInterval=5m
@@ -335,6 +337,7 @@ class Selector {
   }
 
   setSensorSource(source){
+    console.log(source);
     this.sensorSource = source;
     //this.populateSensorList();
     console.log(this.rendered)
