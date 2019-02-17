@@ -154,10 +154,11 @@ class timeChartLegend {
     this.sensorItems.on('mouseenter', (d,i) => {
         console.log("IN MOUSE ENTER",d,i);
         let sensorID = d.id;
-        this.highlightPathStroke(d,i);
+        this.highlightPathStroke(sensorID,i);
 
       })
       .on('mouseleave', (d, i, nodes) => {
+        console.log(this.clickedSensor, d.id);
         if (this.clickedSensor && (this.clickedSensor.id == d.id)) {
           return;
         }
@@ -165,6 +166,7 @@ class timeChartLegend {
 
       })
       .on('click', (d, i, nodes) => {
+        // if sensor is already selected, un select.
         if(this.clickedSensor && this.clickedSensor.id == d.id){
           this.changeMapSelectedSensor();
           this.unHighlightAllSensorButtons()
@@ -173,44 +175,12 @@ class timeChartLegend {
           //this.unHighlightPathStroke();
           return;
         }
-        //TODO: Continue to change events into more descriptive (highlight/unhighlight)
 
+        this.clickedSensor = d;
         this.changeMapSelectedSensor(d);
-        window.controller.selectedSensor = d.id;
+        window.controller.selectedSensor = d;
+        this.highlightSensorButton(d.id);
 
-        let prevClickedSensor;
-        let sensor = {
-          id: d.id,
-          sensorButton: nodes[i]
-        }
-
-        if (this.clickedSensor) {
-          prevClickedSensor = this.clickedSensor.sensorButton;
-          this.clickedSensor = sensor;
-          d3.select(prevClickedSensor).selectAll('rect')
-            .transition()
-            .duration(500)
-            .attr('stroke-width', 1)
-            .attr('stroke', 'gray');
-            window.controller.clickedSensor = this.clickedSensor;
-
-            d3.select(prevClickedSensor).dispatch('mouseleave');
-        }
-        window.controller.clickedSensor = this.clickedSensor;
-
-        this.clickedSensor = sensor;
-
-
-
-        d3.select(nodes[i]).selectAll('rect')
-          .transition()
-          .duration(200)
-          .attr('stroke', "black")
-          .attr('stroke-width', 4);
-
-          console.log("about mouse enter!",d3.select(nodes[i]))
-        d3.select(nodes[i])
-          .dispatch("mouseenter");
       })
       /*.on('mousedown', function(d, i) {
         d3.select(this)
@@ -303,29 +273,28 @@ class timeChartLegend {
         .attr('stroke-width', 1)
         .attr('stroke', 'gray');
   }
- highlightSensorButton(sensor){
+ highlightSensorButton(sensorID){
   this.unHighlightAllSensorButtons();
-  let sensorID = sensor.id;
-  let index = 0;
+  let index = 999;
+  console.log(this.sensorItems);
   let buttonSelection = this.sensorItems
     .filter((d,i)=>{
-      if(id == d.id){
+      console.log(sensorID,d.id)
+      if(sensorID == d.id){
         index = i;
       }
-      return id == d.id;
+      return sensorID == d.id;
     })
   buttonSelection.selectAll('rect')
     .transition()
     .duration(500)
     .attr('stroke-width', 3)
     .attr('stroke', 'black');
-    this.highlightPathStroke(sensor,i);
+  this.highlightPathStroke(sensorID,index);
   }
 
-  highlightPathStroke(sensor,index){
-    console.log(sensor,index);
+  highlightPathStroke(sensorID,index){
     window.controller.timeChart.updateGradient(index);
-    let sensorID = sensor.id;
 
     let sensorSelection = d3.select('#sensorPath' + sensorID)
     sensorSelection

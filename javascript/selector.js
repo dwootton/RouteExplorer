@@ -104,7 +104,7 @@ class Selector {
     if(this.sensorSource == "airU"){
       return "airu";
     } else if(this.sensorSource == "all") {
-      if(window.controller.selectedSensor[0]=="S"){ //if AirU sensor was selected
+      if(window.controller.selectedSensor.id[0]=="S"){ //if AirU sensor was selected
         return "airu"
       } else {
         return "Purple Air";
@@ -133,6 +133,7 @@ class Selector {
     window.controller.selectedSensor = selectedSensor;
     if(this.selectedSensors.includes(id)){
       console.log(id);
+      window.controller.timeChartLegend.highlightSensorButton(id);
       //window.controller.timeChartLegend.dispatchEvent(id,'click');
       return;
     }

@@ -416,7 +416,17 @@ END MODE REMOVAL
             }
 
             window.controller.selectedSensor = sensor;
-
+            console.log(d3.selectAll('#selected'));
+            d3.selectAll('#selected')
+              .attr('id', (d)=> {
+                return "marker"+d.id;
+              })
+              .selectAll('circle')
+                .transition()
+                .duration(200)
+                .attr('r',6.5)
+                .attr('stroke-width',1)
+                .attr('stroke','white');
             that.selectSensor(sensor);
             //d3.select(this).attr('transform','translate(-30px,-30px)')
             selector.grabIndividualSensorData(sensor);
@@ -444,7 +454,6 @@ END MODE REMOVAL
           .enter().append("svg")
           .each(transform)
           .attr('id', (d)=> {
-            console.log(d);
             return "marker"+d.id;
           })
           .attr("class", "marker");
@@ -454,6 +463,7 @@ END MODE REMOVAL
         newMarkers.append("circle")
           .attr("r", 2)
           .attr('stroke', (d)=>{
+            console.log(window.controller.selectedSensor, d.id);
             if(window.controller.selectedSensor && d.id==window.controller.selectedSensor.id){
               return "gold";
             }
