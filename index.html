@@ -146,20 +146,25 @@
 		<script src="javascript/sidebar.js"> </script>
 
 
-		<div class="container custom-container">
+		<!--  <div class="container custom-container">-->
 			<div class="row">
 				<div class="col-10">
 					<div width='500' height='500' id="map"> </div>
 					<div id="mapLegend"> </div>
 				</div>
 				<div class="col-2">
+					<img
+				    src="/Designs/ColorLegend.svg"
+				    alt="PM 2.5 Color Scale."
+				    height="500px"
+				    width="167px" />
 					<svg id="pm25Legend"> </svg>
 					<form onsubmit="return makeSearch()">
 						<input type="text" placeholder="Search for Sensor.." name="search">
 						<button type="submit"><i class="fa fa-search"></i></button>
 					</form>
 				</div>
-			</div>
+			<!-- </div>-->
 
 			<!--<div class="row">
 				<div id="lineMap">

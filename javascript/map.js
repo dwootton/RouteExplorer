@@ -193,7 +193,7 @@ class AQMap {
       .style("opacity", 0);
     this.sensorWidth = 11;
 
-    /* Create legend */
+    /* Create legend
     let legendColorMap = d3.scaleThreshold()
       .domain(this.pm25Domain.reverse())
       .range(this.colorRange.reverse());
@@ -215,6 +215,7 @@ class AQMap {
       .append("g")
       // .attr("transform", "translate(10, 10)")
       .call(colorLegend);
+      */
     this.setUpSourceMenu();
 
 
