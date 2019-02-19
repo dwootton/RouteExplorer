@@ -4,9 +4,11 @@ class timeChart {
 	constructor(){
 		console.log("timechart created!")
 
-
-
-	this.svg = d3.select("#timeChart");
+	let boundingWidth = document.getElementById('map').offsetWidth;
+	this.svg = d3.select("#timeChart")
+	.attr("preserveAspectRatio", "xMinYMin meet")
+	/*.attr("viewBox", "0 0 " +boundingWidth+" 350");*/
+		this.svg.attr('height',350).attr('width',boundingWidth);
 
 
 		this.margin = {top: 20, right: 5, bottom: 110, left: 30}
@@ -219,9 +221,7 @@ class timeChart {
 		//this.updateGradient(0);
 
 
-	  this.yScale.domain([0, this.prevMaxValue]);
-	  this.x2Scale.domain(this.xScale.domain());
-	  this.y2Scale.domain(this.yScale.domain());
+
 
 
 
@@ -257,6 +257,10 @@ class timeChart {
 	}
 
 	update(){
+		this.yScale.domain([0, this.prevMaxValue]);
+		this.x2Scale.domain(this.xScale.domain());
+		this.y2Scale.domain(this.yScale.domain());
+		
 		console.log(this.maxReadings,this.maxModelEstimates,this.stopValues);
 		let self = this;
 

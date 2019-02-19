@@ -186,6 +186,7 @@ class AQMap {
       },
       styles: myStyles,
       streetViewControl: false,
+
     });
 
     this.toolTip = d3.select("body").append("div")
@@ -237,7 +238,7 @@ class AQMap {
   }
 
   setUpSourceMenu(){
-    let sensorSourceMenu = document.getElementById('mapLegend');
+    let sensorSourceMenu = document.getElementById('radioButton');
     this.myMap.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(sensorSourceMenu);
     var div = document.createElement('div');
     let sourceTypes = ['AirU','Purple Air','All']

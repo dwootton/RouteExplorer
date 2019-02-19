@@ -32,7 +32,7 @@ class Selector {
         }
 
         // Update timechart label
-        $('#reportrange span').html(start.format('D MMMM YYYY') + ' - ' + end.format('D MMMM YYYY'));
+        /*$('#reportrange span').html(start.format('D MMMM YYYY') + ' - ' + end.format('D MMMM YYYY'));*/
 
         this.startDate = new Date(start.format());
         this.endDate = new Date(end.format());
@@ -43,10 +43,10 @@ class Selector {
         // select the middle timepoint as default render
         window.controller.selectedDate = new Date((this.startDate.getTime() + this.endDate.getTime()) / 2);
 
-        /* Update the date display in the navBar */
+        /* Update the date display in the navBar
         document.getElementById("dateDisplay").textContent = "to";
         document.getElementById("startDate").textContent = formatDate(this.startDate)
-        document.getElementById("stopDate").textContent =  formatDate(this.endDate);
+        document.getElementById("stopDate").textContent =  formatDate(this.endDate);*/
 
         this.grabAllSensorData(window.controller.selectedDate);
         this.modelData = this.grabAllModelData(window.controller.selectedDate, 10, 10);

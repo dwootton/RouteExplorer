@@ -1,31 +1,28 @@
 class timeChartLegend {
   constructor() {
-    this.svg = d3.select('#timeChartLegend');
+    let boundingWidth = document.getElementById('map').offsetWidth;
+    this.svg = d3.select('#timeChartLegend')
+
+
+    this.svg.attr('height',35).attr('width',boundingWidth);
 
     this.margin = {
-      top: 10,
+      top: 5,
       right: 10,
       bottom: 10,
       left: 10
     }
+
     this.width = +this.svg.node().getBoundingClientRect().width - this.margin.left - this.margin.right
     this.height = +this.svg.node().getBoundingClientRect().height - this.margin.top - this.margin.bottom
 
+    this.svg
+      .attr("viewBox", [0, 0, (this.width + this.margin.right + this.margin.left),
+                        (this.height + this.margin.top + this.margin.bottom)].join(' '))
+
+
+    console.log("YOURE WIDTH IS: ",document.getElementById('map').offsetWidth);
     this.plottingSVG = this.svg.append('g').attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-
-    this.clsbtn1 = new d3CloseButton();
-    this.clsbtn1.size(14).isCircle(true).borderStrokeWidth(3).crossStrokeWidth(3).rx(6).ry(6);
-    let sampleData = [50, 200];
-    /*var gUpper = this.plottingSVG.append("g").selectAll("g").data(sampleData).enter().append("g");
-    let size = 20;
-    gUpper.append("rect")
-            .attr("x", function(d){ return d;})
-            .attr("y", 50)
-            .attr("width", size)
-            .attr("height",size)
-            .style({"fill": "#E6F9FF", "stroke-width": 2, "stroke": "black"});
-
-            */
 
   }
   /**
