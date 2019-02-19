@@ -4,7 +4,7 @@ class timeChartLegend {
     this.svg = d3.select('#timeChartLegend')
 
 
-    this.svg.attr('height',35).attr('width',boundingWidth);
+    this.svg.attr('height',35);
 
     this.margin = {
       top: 5,
@@ -16,9 +16,9 @@ class timeChartLegend {
     this.width = +this.svg.node().getBoundingClientRect().width - this.margin.left - this.margin.right
     this.height = +this.svg.node().getBoundingClientRect().height - this.margin.top - this.margin.bottom
 
-    this.svg
+    /*this.svg
       .attr("viewBox", [0, 0, (this.width + this.margin.right + this.margin.left),
-                        (this.height + this.margin.top + this.margin.bottom)].join(' '))
+                        (this.height + this.margin.top + this.margin.bottom)].join(' '))*/
 
 
     console.log("YOURE WIDTH IS: ",document.getElementById('map').offsetWidth);

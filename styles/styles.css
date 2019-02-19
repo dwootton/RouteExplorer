@@ -94,7 +94,7 @@ input:checked+.slider:before {
 
 body {
   font-family: 'Poppins', sans-serif;
-  background: #fafafa;
+  background: #F5F5F5;
 }
 
 p {
@@ -423,10 +423,14 @@ a.article:hover {
 /* ---------------------------------------------------
     timeChart Styles
 ----------------------------------------------------- */
-
+#timeChartGroup{
+  vertical-align: top;
+  position: relative;
+  
+}
 
 .svg-container {
-    display: inline-block;
+    position: relative;
     position: relative;
     width: 100%;
     padding-bottom: 100%; /* aspect ratio*/
