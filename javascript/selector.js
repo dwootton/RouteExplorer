@@ -47,6 +47,7 @@ class Selector {
         document.getElementById("dateDisplay").textContent = "to";
         document.getElementById("startDate").textContent = formatDate(this.startDate)
         document.getElementById("stopDate").textContent =  formatDate(this.endDate);*/
+        this.newTime = true;
 
         this.grabAllSensorData(window.controller.selectedDate);
         this.modelData = this.grabAllModelData(window.controller.selectedDate, 10, 10);
@@ -177,15 +178,15 @@ class Selector {
       console.log(timeInterval);
       let changedSource = this.changeSource();
       url = "https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=" + id + "&sensorSource=" + changedSource + "&start=" +start + "&end=" +stop + "&function=mean&functionArg=pm25&timeInterval=5m"
-      //https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=S-A-085&sensorSource=airu&start=2019-01-20T01:08:40Z&end=2019-01-27T01:08:40Z&function=mean&functionArg=pm25&timeInterval=5m
-      console.log(url)
+
       if(timeInterval > 7){
         this.generateModelData = false;
       }
     } else {
+      this.generateModelData = true;
       url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + id + "&sensorSource="+this.sensorSource.toLowerCase()+"&start=" + start + "&end=" + stop + "&show=pm25";
     }
-    console.log(url)
+
     // Note: sensor source must be lowercase for the API.
 
     // WORKS: https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=S-A-085&sensorSource=airu&start=2019-01-20T01:08:40Z&end=2019-01-27T01:08:40Z&function=mean&functionArg=pm25&timeInterval=5m
@@ -197,7 +198,7 @@ class Selector {
     console.log(url);
     let req = fetch(url)
 
-    /* Processes sensor data and het model data */
+    /* Processes sensor data and the model data */
     req.then((response) => {
       //console.log(response.text())
         return response.text();
@@ -247,7 +248,6 @@ class Selector {
       window.controller.map.blackenSensors();
     }
 
-
     /* Sets up a window of time to get pm25 values from */
     let closestStartDate = new Date(time);
     closestStartDate.setMinutes(time.getMinutes() + 10);
@@ -265,7 +265,6 @@ class Selector {
 				return response.text();
 			})
       .then(values => {
-    console.log("INSIDE OF ACTUAL REQUES",values);
       if(window.controller.selectedDate != time){
         return;
       }
@@ -286,6 +285,15 @@ class Selector {
       /* Update data and re-render map view */
 			this.allSensorsData = valuesFixedAttr;
 			this.updateSensorView();
+
+      if(this.newTime){
+        this.newTime = false;
+        if(window.controller.spikeDetector){
+          window.controller.spikeDetector.destory();
+        }
+        window.controller.spikeDetector = new SpikeDetector(valuesFixedAttr);
+
+      }
 		});
   }
 

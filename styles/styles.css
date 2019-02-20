@@ -419,6 +419,17 @@ a.article:hover {
   margin-left: -20px;
   font-size: .9em;
 }
+/* ---------------------------------------------------
+    Spike Selector Styles
+----------------------------------------------------- */
+.spike-selector
+{
+    height: 500px;
+    width: 200px;
+    overflow: scroll;
+    border: 1px solid lightgray;
+    display:inline-block;
+}
 
 /* ---------------------------------------------------
     timeChart Styles
@@ -426,7 +437,7 @@ a.article:hover {
 #timeChartGroup{
   vertical-align: top;
   position: relative;
-  
+
 }
 
 .svg-container {
