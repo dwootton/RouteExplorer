@@ -431,6 +431,27 @@ a.article:hover {
     display:inline-block;
 }
 
+.spikes {
+      height: 30px;
+      width: 180px;
+      margin: 10 auto;
+      padding-right: 10px;
+  }
+
+
+.spikes rect {
+  cursor: pointer;
+  fill: #fff;
+  fill-opacity: 0.5;
+  stroke: #3182bd;
+  stroke-width: 1.5px;
+}
+
+.spikes text {
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+
 /* ---------------------------------------------------
     timeChart Styles
 ----------------------------------------------------- */
