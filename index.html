@@ -137,34 +137,47 @@
 		<!--  <div class="container custom-container">-->
 			<div class="row">
 				<div class="col-8">
-					<div  height='500' id="map"> </div>
+					<div  height='500' width = '600' id="map"> </div>
 				</div>
+				<div id="radioButton"></div>
+				<div id="mapLegend">
+					<img
+						src="/Designs/ColorLegend.svg"
+						alt="PM 2.5 Color Scale."
+						height="280px"
+						width="94px" />
+				</div>
+				<!--
 				<div class="col-2">
 					<div id="radioButton"></div>
-					<img
-				    src="/Designs/ColorLegend.svg"
-				    alt="PM 2.5 Color Scale."
-				    height="500px"
-				    width="167px" />
-					<!--<svg id="pm25Legend"> </svg>-->
+					<div id="mapLegend">
+						<img
+					    src="/Designs/ColorLegend.svg"
+					    alt="PM 2.5 Color Scale."
+					    height="250px"
+					    width="84px" />
+					</div>
+
+
 					<form onsubmit="return makeSearch()">
 						<input type="text" placeholder="Search for Sensor.." name="search">
 						<button type="submit"><i class="fa fa-search"></i></button>
 					</form>
 				</div>
-				<div class="col-2 spike-selector">
+				-->
+				<div height='500' width = '133'>
 						<span>Select an AQ Event: </span></div>
 				</div>
 			</div>
 
-			<!--<div class="row">
+			<!--<div class="row">class="col-2 spike-selector"
 				<div id="lineMap">
 					<svg> </svg>
 				</div>
 			</div> END MODE REMOVAL-->
 
 			<div class="row">
-				<div class="col-10" id="timeChartGroup">
+				<div height='500' width = '1000' id="timeChartGroup">
 					<svg id="timeChartLegend"> </svg>
 					<svg id="timeChart"> </svg>
 				</div>

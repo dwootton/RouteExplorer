@@ -315,10 +315,14 @@ a.article:hover {
 #map {
   margin:none;
   height: 500px;
-  width: 100%;
+  width: 1200px;
   display: inline-block;
 }
-
+.gm-style-cc { display:none; }
+#radioButton{
+  padding:10px;
+  background: rgba(240, 240, 240, 0.5);
+}
 
 #mapLegend {
   font-family: Arial, sans-serif;
@@ -481,12 +485,12 @@ a.article:hover {
 
 #timeChart {
   height: 350px;
-  width: 100%;
+  width: 1700px;
 }
 
 #timeChartLegend {
   height: 35px;
-  width: 100%;
+  width: 1700px;
 }
 
 .zoom {

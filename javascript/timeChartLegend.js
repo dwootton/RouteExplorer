@@ -1,7 +1,8 @@
 class timeChartLegend {
   constructor() {
     let boundingWidth = document.getElementById('map').offsetWidth;
-    this.svg = d3.select('#timeChartLegend')
+    this.svg = d3.select('#timeChartLegend');
+    this.svg.attr('width',1000);
 
 
     this.svg.attr('height',35);

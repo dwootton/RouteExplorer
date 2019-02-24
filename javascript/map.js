@@ -186,6 +186,7 @@ class AQMap {
       },
       styles: myStyles,
       streetViewControl: false,
+      fullscreenControl: false
 
     });
 
@@ -238,9 +239,12 @@ class AQMap {
   }
 
   setUpSourceMenu(){
+    let mapLegend = document.getElementById('mapLegend');
+    this.myMap.controls[google.maps.ControlPosition.TOP_RIGHT].push(mapLegend);
     let sensorSourceMenu = document.getElementById('radioButton');
     this.myMap.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(sensorSourceMenu);
-    var div = document.createElement('div');
+    let div = document.createElement('div');
+
     let sourceTypes = ['AirU','Purple Air','All']
     for(var i=0 ; i < sourceTypes.length ; i++)
     {

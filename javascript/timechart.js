@@ -6,6 +6,10 @@ class timeChart {
 
 	let boundingWidth = document.getElementById('map').offsetWidth;
 	this.svg = d3.select("#timeChart")
+	this.svg.attr('width',1000);
+
+
+	this.svg.attr('height',500);
 
 		//this.svg.attr('height',350).attr('width',100%);
 
