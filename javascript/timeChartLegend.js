@@ -1,18 +1,18 @@
 class timeChartLegend {
   constructor() {
     let boundingWidth = document.getElementById('map').offsetWidth;
-    this.svg = d3.select('#timeChartLegend');
-    this.svg.attr('width',1000);
-
-
-    this.svg.attr('height',35);
-
     this.margin = {
-      top: 5,
+      top: 0,
       right: 10,
       bottom: 10,
-      left: 10
+      left: 35
     }
+    this.svg = d3.select('#timeChartLegend').append('g').attr('transform','translate('+this.margin.left+','+this.margin.top+')');
+
+    d3.select('#timeChartLegend').attr('height',50);
+    this.svg.attr('height',50);
+
+
 
     this.width = +this.svg.node().getBoundingClientRect().width - this.margin.left - this.margin.right
     this.height = +this.svg.node().getBoundingClientRect().height - this.margin.top - this.margin.bottom
@@ -32,7 +32,16 @@ class timeChartLegend {
    * @return {[type]}      [description]
    */
   update(info) {
+    let newRowNumber = (info.length / this.itemsPerRow) >> 0;
+    d3.select('#timeChartLegend').transition(2000).attr('height',50+30*newRowNumber);//
+    this.width = +this.svg.node().getBoundingClientRect().width - this.margin.left - this.margin.right
+    this.height = 50+30*newRowNumber - this.margin.top - this.margin.bottom
 
+    if((info.length%this.itemsPerRow) == 0){
+      console.log(this.svg.node().getBoundingClientRect().height)
+    }
+
+    this.sensorItems
     let self = this;
     this.plottingSVG.selectAll('.sensorButton').remove();
     let selection = this.plottingSVG.selectAll('.sensorButton')
@@ -52,19 +61,23 @@ class timeChartLegend {
 
     let barWidth = 75;
     let barHeight = 20;
-
+    this.itemsPerRow = 17;
     /* Adds the background rect  */
     this.sensorItems
       .append('rect')
       .attr('x', (d, i) => {
-        i = i % 11; // After 11 icons have been placed, wrap to the next row
+        i = i%this.itemsPerRow
         return (i) * (barWidth + 20);
       })
-      .attr("y", function(d, i) {
-        let offset = 0;
-        if (i > 10) {
-          offset = 25;
-        }
+      .attr("y", (d, i) => {
+
+        let rowNumber = (i / this.itemsPerRow) >> 0;
+        console.log(rowNumber,this.itemsPerRow)
+        i = i%this.itemsPerRow
+        let offset = 10 + 25*rowNumber;
+        /*if (i == this.itemsPerRow-1) {
+
+        }*/
         return offset;
       })
       .attr('width', barWidth)
@@ -87,15 +100,16 @@ class timeChartLegend {
 
 
     this.sensorItems.each((d, i, nodes) => {
+      let column = i%this.itemsPerRow;
+      let row = (i / this.itemsPerRow) >> 0;
+      let g = d3.select(nodes[i]).append('g').attr('class','close')
 
-      let g = d3.select(nodes[i]).append('g')
-        .attr('class', 'close');
 
       let size = 14;
       let r = size / 2,
         ofs = size / 6,
-        x = (i) * (barWidth + 20) + (barWidth / 1.2),
-        y = barHeight / 2,
+        x = (column) * (barWidth + 20) + (barWidth / 1.2),
+        y = 20 + 25*row,
         cross = g.append("g");
 
       g.append("circle")
@@ -141,15 +155,20 @@ class timeChartLegend {
     this.sensorItems
       .append('text')
       .attr('x', (d, i) => {
-        i = i % 11; // After 11 icons have been placed, wrap to the next row
-        return (i) * (barWidth + 20) + 5;
+        i = i%this.itemsPerRow
+        console.log(i);
+        return (i) * (barWidth + 20)+5;
       })
-      .attr("y", function(d, i) {
-        let offset = 2;
-        if (i > 10) {
-          offset = 25;
-        }
-        return offset + barHeight / 2
+      .attr("y", (d, i) => {
+
+        let rowNumber = (i / this.itemsPerRow) >> 0;
+        console.log(rowNumber,this.itemsPerRow)
+        i = i%this.itemsPerRow
+        let offset = 22 + 25*rowNumber;
+        /*if (i == this.itemsPerRow-1) {
+
+        }*/
+        return offset;
       })
       .attr("dy", ".25em")
       .text(function(d) {

@@ -5,8 +5,14 @@ class timeChart {
 		console.log("timechart created!")
 
 	let boundingWidth = document.getElementById('map').offsetWidth;
-	this.svg = d3.select("#timeChart")
+	this.margin = {top: 5, right: 5, bottom: 110, left: 30}
+	this.margin2 = {top: 270, right: 5, bottom: 30, left: 30}
+
+	this.svg = d3.select("#timeChart").attr('transform','translate('+this.margin.left+','+this.margin.top+')');
 	this.svg.attr('width',1000);
+
+	//this.svg = d3.select('#timeChartLegend')
+
 
 
 	this.svg.attr('height',500);
@@ -14,8 +20,6 @@ class timeChart {
 		//this.svg.attr('height',350).attr('width',100%);
 
 
-		this.margin = {top: 20, right: 5, bottom: 110, left: 30}
-		this.margin2 = {top: 270, right: 5, bottom: 30, left: 30}
 		this.width = +this.svg.node().getBoundingClientRect().width - this.margin.left - this.margin.right
 		this.height = +this.svg.node().getBoundingClientRect().height - this.margin.top - this.margin.bottom
 		this.height2 = +this.svg.node().getBoundingClientRect().height - this.margin2.top - this.margin2.bottom;

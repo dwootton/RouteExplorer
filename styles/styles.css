@@ -314,14 +314,14 @@ a.article:hover {
 ----------------------------------------------------- */
 #map {
   margin:none;
-  height: 500px;
+  height: 650px;
   width: 1200px;
   display: inline-block;
 }
 .gm-style-cc { display:none; }
 #radioButton{
   padding:10px;
-  background: rgba(240, 240, 240, 0.5);
+  background: rgba(240, 240, 240, 0.8);
 }
 
 #mapLegend {
@@ -489,7 +489,7 @@ a.article:hover {
 }
 
 #timeChartLegend {
-  height: 35px;
+  /*height: 35px;*/
   width: 1700px;
 }
 

@@ -1,7 +1,7 @@
 class SpikeDetector {
   constructor(sensors) {
 
-    this.spikeSelectDiv = d3.select(".spike-selector").append('svg') /*.append('g')*/ .attr('id', 'spikeSVG')
+    this.spikeSelectDiv = d3.select(".spike-selector").append('svg') /*.append('g')*/ .attr('id', 'spikeSVG').attr('border','5px solid red')
       //.attr('transform', 'translate(0,15)');
 
     this.sensorList = sensors;
