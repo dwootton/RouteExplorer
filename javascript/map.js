@@ -282,6 +282,7 @@ class AQMap {
               break;
 
           }
+          window.controller.selector.newTime = true;
           console.log('INSIDE OF click',source);
           window.controller.selector.setSensorSource(source);
         }
@@ -406,7 +407,7 @@ END MODE REMOVAL
               .style("opacity", 0);
             let sensorID = d.id;
             console.log(d3.selectAll('#sensorPath' + sensorID))
-            window.controller.timeChartLegend.dispatchSensorEvent(sensorID,'mouseleave')
+            //window.controller.timeChartLegend.dispatchSensorEvent(sensorID,'mouseleave')
             /*
             let prevSelection = d3.select('#sensorPath' + sensorID)
               .transition()
@@ -417,7 +418,7 @@ END MODE REMOVAL
               */
           })
           .on("click", function(sensor) {
-
+            console.log(sensor,"CLICKED!!")
             if (that.marker) {
               that.marker.setMap(null);
             }

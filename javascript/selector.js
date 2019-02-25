@@ -289,7 +289,9 @@ class Selector {
       if(this.newTime){
         this.newTime = false;
         if(window.controller.spikeDetector){
-          window.controller.spikeDetector.destory();
+          console.log(window.controller.spikeDetector);
+          window.controller.spikeDetector.removeSVG();
+          window.controller.spikeDetector = null;
         }
         window.controller.spikeDetector = new SpikeDetector(valuesFixedAttr);
 

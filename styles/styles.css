@@ -93,12 +93,12 @@ input:checked+.slider:before {
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: sans-serif;
   background: #F5F5F5;
 }
 
 p {
-  font-family: 'Poppins', sans-serif;
+  font-family:  sans-serif;
   font-size: 1.1em;
   font-weight: 300;
   line-height: 1.7em;
@@ -320,12 +320,13 @@ a.article:hover {
 }
 .gm-style-cc { display:none; }
 #radioButton{
+  font: sans-serif
   padding:10px;
   background: rgba(240, 240, 240, 0.8);
 }
 
 #mapLegend {
-  font-family: Arial, sans-serif;
+  font-family:  sans-serif;
   background: #fff;
   /*padding: 10px;
   margin: 10px;*/
@@ -428,8 +429,8 @@ a.article:hover {
 ----------------------------------------------------- */
 .spike-selector
 {
-    height: 500px;
-    width: 200px;
+    height: 650px;
+    width: 150px;
     overflow: scroll;
     border: 1px solid lightgray;
     display:inline-block;
@@ -437,7 +438,7 @@ a.article:hover {
 
 .spikes {
       height: 30px;
-      width: 180px;
+      width: 140px;
       margin: 10 auto;
       padding-right: 10px;
   }
@@ -447,15 +448,19 @@ a.article:hover {
   cursor: pointer;
   fill: #fff;
   fill-opacity: 0.5;
-  stroke: #3182bd;
+  stroke: #aaa;
   stroke-width: 1.5px;
 }
 
-.spikes text {
-  font: 10px sans-serif;
+.spikes .primarytext {
+  font: 14px sans-serif;
   pointer-events: none;
 }
 
+.spikes .secondarytext  {
+  font: 10px sans-serif;
+  color: darkgrey;
+}
 /* ---------------------------------------------------
     timeChart Styles
 ----------------------------------------------------- */

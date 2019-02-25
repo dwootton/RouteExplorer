@@ -17,6 +17,7 @@ function makeSearch() {
 	let sensor = window.controller.allSensorsData.find(function(element){
 		return element.id === sensorName;
 	})
+	
 
 
   	window.controller.selector.grabIndividualSensorData(sensor)

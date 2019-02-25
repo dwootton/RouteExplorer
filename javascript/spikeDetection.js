@@ -1,8 +1,9 @@
 class SpikeDetector {
   constructor(sensors) {
 
-    this.spikeSelectDiv = d3.select(".spike-selector").append('svg') /*.append('g')*/ .attr('id', 'spikeSVG').attr('border','5px solid red')
-      //.attr('transform', 'translate(0,15)');
+    this.spikeSelectDiv = d3.select(".spike-selector").append('svg') /*.append('g')*/ .attr('id', 'spikeSVG').attr('border','5px solid red').append('g')
+    this.spikeSelectDiv
+      .attr('transform', 'translate(0,15)');
 
     this.sensorList = sensors;
     this.allSensorsData = this.gatherAllSensorData();
@@ -10,15 +11,11 @@ class SpikeDetector {
     //runs the signal detection code on the data
     //let processedData = performSignalDetection();
     console.log("IN SPIKE DETECTOR")
-this.i = 0;
+    this.i = 0;
 
   }
 
-  destroy() {
-    this.spikeSelectDiv.remove();
-    this.allSensorData = null;
 
-  }
 
   /**
    * Requires that sensorList has been populated.
@@ -76,6 +73,12 @@ this.i = 0;
       this.drawDetectedElements();
       return values;
     });
+  }
+
+  removeSVG() {
+    d3.select(".spike-selector").select('svg').remove('*');
+    this.allSensorData = null;
+
   }
 
   gatherModelData(sensor, start, end) {
@@ -166,7 +169,7 @@ this.i = 0;
 
           spikes.push({
             monitor: monitor.id ,
-            id: monitor.id + counter.toString(),
+            id: monitor.id + "|"+counter.toString(),
             measurements: vals, // offset by 60 as the lag offsets the dates/times
             reading: [monitor.signalDetection.signals[i], monitor.pm25[i]],
             signal: monitor.signalDetection.signals.slice(sliceStart, sliceEnd),
@@ -259,7 +262,7 @@ this.i = 0;
       let collapsedNode = "#c9c9c9";
       return node._children ?  collapsedNode : node.children ? uncollapsedNode : leaf;
     }
-        // Compute the flattened node list.
+    // Compute the flattened node list.
     var nodes = this.root.descendants();
     console.log(nodes);
     var height = Math.max(500, nodes.length * barHeight + margin.top + margin.bottom);
@@ -303,16 +306,48 @@ this.i = 0;
       .attr("height", barHeight)
       .attr("width", barWidth)
       .style("fill", color)
-      .on("click", this.click);
+      .on("click", (d)=>{
+        console.log(d);
+        if(d.depth==2){ //if a spike is clicked
+          return this.clickSpike(d);
+        }
+        return this.click(d);
+      });
 
     nodeEnter.append("text")
-      .attr("dy", 3.5)
+      .attr('class','primarytext')
+      .attr("dy", 0)
       .attr("dx", 5.5)
-      .attr("font", "14px")
+      .attr("font", "20px")
       .text(function(d) {
         console.log(d);
-        return d.data.id.slice(0,7);
+        let index = d.data.id.indexOf('|');
+        if(index > 0){
+          return d.data.id.substr(0, index);
+        }
+        return d.data.id;
       });
+
+    //secondary text
+    nodeEnter.append("text")
+        .attr('class','secondarytext')
+        .attr("dy", 11)
+        .attr("dx", 5.5)
+        .attr("font", "12px")
+        .text(function(d) {
+          console.log(d);
+          if(d.depth == 1 && d.children){ // If sensor
+
+              return d.children.length.toString() + " spikes detected."
+
+
+          } else if(d.depth == 2){ // If spike
+              let newText = d.data.reading[1].pm25.toString() +" "+ d.data.reading[1].time
+              console.log(d, newText);
+              return newText;
+          }
+          return "";
+        });
 
     // Transition nodes to their new position.
     nodeEnter.transition()
@@ -513,7 +548,21 @@ this.i = 0;
     }
     return true;
   }
+
   click(d) {
+    console.log(d.data.monitor);
+    if(d.data.monitor){
+      console.log(d3.selectAll('#marker'+d.data.monitor))
+      console.log('#marker'+d.data.monitor);
+      d3.select('#marker'+d.data.monitor)
+        .dispatch("click");
+    } else {
+      console.log(d3.selectAll('#marker'+d.data.id))
+      console.log('#marker'+d.data.id);
+      d3.select('#marker'+d.data.id)
+        .dispatch("click");
+    }
+
     if (d.children) {
       d._children = d.children;
       d.children = null;
@@ -522,5 +571,11 @@ this.i = 0;
       d._children = null;
     }
     window.controller.spikeDetector.drawSpikes(d);
+  }
+
+  clickSpike(d){
+
+    // find the sensor on map and click
+    this.click(d);
   }
 }

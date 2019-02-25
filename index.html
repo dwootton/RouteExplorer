@@ -166,7 +166,11 @@
 				</div>
 				-->
 				<div class="spike-selector" height='500' width = '133'>
-						<span>Select an AQ Event: </span></div>
+						<!--<span>Select an AQ Event: </span></div>-->
+						<form onsubmit="return makeSearch()">
+							<input type="text" placeholder="Search for Sensor.." name="search">
+							<button type="submit"><i class="fa fa-search"></i></button>
+						</form>
 				</div>
 				<!--</div> -->
 			</div>
