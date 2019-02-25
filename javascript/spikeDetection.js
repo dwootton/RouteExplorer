@@ -9,8 +9,8 @@ class SpikeDetector {
 
     //runs the signal detection code on the data
     //let processedData = performSignalDetection();
-
-
+    console.log("IN SPIKE DETECTOR")
+this.i = 0;
 
   }
 
@@ -141,8 +141,9 @@ class SpikeDetector {
 
 
   drawDetectedElements() {
+    console.log("DRAWING ELEMENETS")
     let spikes = [];
-
+    let counter = 1;
     this.allSensorsData.forEach(monitor => { // for each air quality monitor
       if (this.isEmpty(monitor.signalDetection) || !monitor.signalDetection) { //if it doesn't have any recordings, skip
         return;
@@ -164,18 +165,20 @@ class SpikeDetector {
           console.log(vals);
 
           spikes.push({
-            id: monitor.id,
+            monitor: monitor.id ,
+            id: monitor.id + counter.toString(),
             measurements: vals, // offset by 60 as the lag offsets the dates/times
             reading: [monitor.signalDetection.signals[i], monitor.pm25[i]],
             signal: monitor.signalDetection.signals.slice(sliceStart, sliceEnd),
           });
+          counter++;
         }
       }
     })
-
+    console.log(spikes)
     this.spikeData = this.findMaxSpikesOnInterval(spikes, 15);
     this.sensorDict = {};
-
+    console.log(this.spikeData);
     /* Init each */
     this.sensorList.forEach(sensor => {
       this.sensorDict[sensor.id] = {
@@ -183,11 +186,11 @@ class SpikeDetector {
         children: []
       };
     })
-
+    console.log(this.sensorDict);
     /* Add each spike to parent */
     this.spikeData.forEach(spike => {
       console.log(spike);
-      this.sensorDict[spike.id].children.push(spike);
+      this.sensorDict[spike.monitor].children.push(spike);
     })
 
 
@@ -247,10 +250,15 @@ class SpikeDetector {
         left: 10
       },
       width = 200,
-      barHeight = 30,
-      barWidth = (width - margin.left - margin.right) * 0.8;
+      barHeight = 35,
+      barWidth = (width - margin.left - margin.right);
 
-    let color = 'green';
+    let color = node => {
+      let leaf = "#f5f5f5";
+      let uncollapsedNode  = "#a9a9a9";
+      let collapsedNode = "#c9c9c9";
+      return node._children ?  collapsedNode : node.children ? uncollapsedNode : leaf;
+    }
         // Compute the flattened node list.
     var nodes = this.root.descendants();
     console.log(nodes);
@@ -266,9 +274,9 @@ class SpikeDetector {
 
     var index = -1;
 
-    this.root.eachBefore(function(n) {
-      n.x = ++index * barHeight;
-      n.y = 0;
+    this.root.eachBefore(function(node) {
+      node.x = ++index * barHeight;
+      node.y = node.depth*10;
     });
 
     source.x0 = 0;
@@ -276,7 +284,7 @@ class SpikeDetector {
 
     // Update the nodes…
     let node = this.spikeSelectDiv.selectAll(".spikes")
-      .data(nodes);
+      .data(nodes, (d)=> {return d.id || (d.id = this.i++); });
 
     var nodeEnter = node.enter().append("g")
       .attr("class", "spikes")
@@ -287,35 +295,23 @@ class SpikeDetector {
 
     let self = this;
 
-    function click(d) {
-      if (d.children) {
-        d._children = d.children;
-        d.children = null;
-      } else {
-        d.children = d._children;
-        d._children = null;
-      }
-      self.drawSpikes(d);
-    }
+
 
     // Enter any new nodes at the parent's previous position.
     nodeEnter.append("rect")
-      .attr("y", function(d){
-        return (-barHeight / 2)*(1/(d.depth+1));
-      })
-      .attr("height", function(d){
-        return barHeight*(1/(d.depth+1));
-      })
+      .attr("y", -barHeight/2)
+      .attr("height", barHeight)
       .attr("width", barWidth)
       .style("fill", color)
-      .on("click", click);
+      .on("click", this.click);
 
     nodeEnter.append("text")
       .attr("dy", 3.5)
       .attr("dx", 5.5)
+      .attr("font", "14px")
       .text(function(d) {
         console.log(d);
-        return d.data.id;
+        return d.data.id.slice(0,7);
       });
 
     // Transition nodes to their new position.
@@ -516,5 +512,15 @@ class SpikeDetector {
         return false;
     }
     return true;
+  }
+  click(d) {
+    if (d.children) {
+      d._children = d.children;
+      d.children = null;
+    } else {
+      d.children = d._children;
+      d._children = null;
+    }
+    window.controller.spikeDetector.drawSpikes(d);
   }
 }
