@@ -130,6 +130,7 @@ class Selector {
     if(this.sensorSource == "airU" || this.sensorSource == "airu"){
       return "airu";
     } else if(this.sensorSource == "all" ) {
+      console.log(window.controller.selectedSensor);
       if(window.controller.selectedSensor.id[0]=="S"){ //if AirU sensor was selected
         return "airu"
       } else {
@@ -173,10 +174,10 @@ class Selector {
     let url;
     let timeInterval = numDaysBetween(this.startDate,this.endDate);
     this.generateModelData = true;
-
+    let changedSource = this.changeSource();
     if(timeInterval > 2){ // if time difference is
       console.log(timeInterval);
-      let changedSource = this.changeSource();
+
       url = "https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=" + id + "&sensorSource=" + changedSource + "&start=" +start + "&end=" +stop + "&function=mean&functionArg=pm25&timeInterval=5m"
 
       if(timeInterval > 7){
@@ -184,8 +185,9 @@ class Selector {
       }
     } else {
       this.generateModelData = true;
-      url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + id + "&sensorSource="+this.sensorSource.toLowerCase()+"&start=" + start + "&end=" + stop + "&show=pm25";
+      url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + id + "&sensorSource="+changedSource+"&start=" + start + "&end=" + stop + "&show=pm25";
     }
+
 
     // Note: sensor source must be lowercase for the API.
 
