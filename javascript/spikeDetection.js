@@ -1,6 +1,6 @@
 class SpikeDetector {
   constructor(sensors) {
-
+    d3.selectAll('#spikeSVG').remove();
     this.spikeSelectDiv = d3.select(".spike-selector").append('svg') /*.append('g')*/ .attr('id', 'spikeSVG').attr('border','5px solid red').append('g')
     this.spikeSelectDiv
       .attr('transform', 'translate(0,15)');
@@ -14,8 +14,19 @@ class SpikeDetector {
     this.i = 0;
 
   }
+// https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat=40.78756024557722&location_lng=-111.84837341308594&start=2018-07-08T15:26:05Z&end=2018-07-09T15:26:05Z
+// https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat=41.721147&location_lng=-112.182112&start=2019-02-24T22:00:00Z&end=2019-02-25T20:00:00Z
+  getSensorSource(id){
+    if(id){
+      console.log(id.slice(0,3));
+      if(id.length > 4 && id.slice(0,3)=="S-A-"){ //if AirU sensor was selected
+          return "airu"
+      } else {
+        return "Purple Air";
+      }
+    }
 
-
+  }
 
   /**
    * Requires that sensorList has been populated.
@@ -28,8 +39,8 @@ class SpikeDetector {
       let sensorID = this.sensorList[i].id;
       let sensorLat = this.sensorList[i].lat;
       let sensorLong = this.sensorList[i].long;
-
-      let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + sensorID + "&sensorSource=airu&start=" + window.controller.startDate.toISOString() + "&end=" + window.controller.endDate.toISOString() + "&show=pm25"
+      let source = this.getSensorSource(sensorID);
+      let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + sensorID + "&sensorSource="+source+"&start=" + window.controller.startDate.toISOString() + "&end=" + window.controller.endDate.toISOString() + "&show=pm25"
       console.log(url);
       promises[i] = fetch(url).then(function(response) {
         return response.text();
@@ -67,7 +78,7 @@ class SpikeDetector {
         }
       }
       this.allSensorsData = parsedVals;
-
+      console.log(this.allSensorsData);
       this.processedData = this.performSignalDetection();
       //this.gatherModelData();
       this.drawDetectedElements();
@@ -223,12 +234,15 @@ class SpikeDetector {
     let result = []
     console.log(spikes)
     for (let i = 0; i < spikes.length; i++) { // starting at 1 so not to index at spike[-1], No increment as you only want to advance to the next spike in the while loop
+      if(spikes[i].measurements[60] == undefined){
+        continue;
+      }
       let encounteredTime = new Date(spikes[i].measurements[60].time)
       encounteredTime = encounteredTime.getTime()
       let hourList = [];
       console.log(spikes[i]);
       while (i < spikes.length && (Math.abs(encounteredTime - new Date(spikes[i].measurements[60].time).getTime()) < interval * 60 * 1000)) { // while the new spike is still in the same hour
-        console.log(encounteredTime - new Date(spikes[i].measurements[60].date).getTime())
+        console.log(encounteredTime - new Date(spikes[i].measurements[60].time).getTime())
         hourList.push(spikes[i]);
         i++;
       }

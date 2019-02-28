@@ -424,6 +424,10 @@ END MODE REMOVAL
             }
 
             window.controller.selectedSensor = sensor;
+            console.log(window.controller.map.myMap);
+            let myLatlng = new google.maps.LatLng(+sensor.lat, +sensor.long);
+            console.log(myLatlng);
+            window.controller.map.myMap.panTo(myLatlng);
             console.log(d3.selectAll('#selected'));
             d3.selectAll('#selected')
               .attr('id', (d)=> {
@@ -462,6 +466,9 @@ END MODE REMOVAL
           .enter().append("svg")
           .each(transform)
           .attr('id', (d)=> {
+            if(window.controller.selectedSensor && d.id==window.controller.selectedSensor.id){
+              return "selected";
+            }
             return "marker"+d.id;
           })
           .attr("class", "marker");
