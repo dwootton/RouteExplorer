@@ -234,22 +234,22 @@ class SpikeDetector {
     let result = []
     console.log(spikes)
     for (let i = 0; i < spikes.length; i++) { // starting at 1 so not to index at spike[-1], No increment as you only want to advance to the next spike in the while loop
-      if(spikes[i].measurements[60] == undefined){
+      if(!spikes[i].reading || !spikes[i].reading[1]){
         continue;
       }
-      let encounteredTime = new Date(spikes[i].measurements[60].time)
+      let encounteredTime = new Date(spikes[i].reading[1].time)
       encounteredTime = encounteredTime.getTime()
       let hourList = [];
       console.log(spikes[i]);
-      while (i < spikes.length && (Math.abs(encounteredTime - new Date(spikes[i].measurements[60].time).getTime()) < interval * 60 * 1000)) { // while the new spike is still in the same hour
-        console.log(encounteredTime - new Date(spikes[i].measurements[60].time).getTime())
+      while (i < spikes.length && (Math.abs(encounteredTime - new Date(spikes[i].reading[1].time).getTime()) < interval * 60 * 1000)) { // while the new spike is still in the same hour
+        console.log(encounteredTime - new Date(spikes[i].reading[1].time).getTime())
         hourList.push(spikes[i]);
         i++;
       }
       console.log(hourList);
 
       let max = hourList.reduce(function(prev, current) {
-        return (prev.measurements[60].value > current.measurements[60].value) ? prev : current
+        return (prev.reading[1].pm25 > current.reading[1].pm25) ? prev : current
       });
 
       result.push(max);
