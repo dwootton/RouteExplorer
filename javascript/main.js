@@ -7,6 +7,7 @@ window.controller.map = aqMap;
 
 let selector = new Selector();
 window.controller.selector = selector;
+window.controller.slider = new Slider();
 window.controller.map = aqMap;
 //let mode = new ModeSelector(); END MODE REMOVAL
 //window.controller.modeSelector = mode;
@@ -17,7 +18,7 @@ function makeSearch() {
 	let sensor = window.controller.allSensorsData.find(function(element){
 		return element.id === sensorName;
 	})
-	
+
 
 
   	window.controller.selector.grabIndividualSensorData(sensor)

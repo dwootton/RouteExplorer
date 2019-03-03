@@ -52,6 +52,7 @@ class Selector {
         this.grabAllSensorData(window.controller.selectedDate);
         this.modelData = this.grabAllModelData(window.controller.selectedDate, 10, 10);
         this.rendered = true;
+        this.grabModelDataForEntireRange();
         console.log(d3.selectAll('.close'));
         while(!d3.select('.close').empty()){
           d3.select('.close').dispatch('click');
@@ -298,22 +299,66 @@ class Selector {
           window.controller.spikeDetector = null;
         }
         window.controller.spikeDetector = new SpikeDetector(valuesFixedAttr);
+        /*let sensorList = this.convertToSensorList(valuesFixedAttr); */
+        console.log(valuesFixedAttr);
+        this.gatherSensorDataForEntireTime(valuesFixedAttr);
 
       }
 		});
   }
+  gatherSensorDataForEntireTime(sensorList){
+    
+
+  }
+  /*
+  convertToSensorList(values){
+    this.sensorList = sensors;
+  } */
 
   /**
-   * Gets all of the data values
+   * Gets all of the data values for the heatmap and updates view.
+   * @param  {[type]}  time [description]
+   * @return {Promise}      [description]
+   */
+  async grabModelDataForEntireRange(time) {
+    /* Sets up time interval to grab model data from */
+    let start = window.controller.startDate.toISOString().slice(0, -5) + "Z";
+    let stop = window.controller.endDate.toISOString().slice(0, -5) + "Z";
+
+    let url = "https://air.eng.utah.edu/dbapi/api/getGridEstimates?start=" + start + "&end=" + stop;
+    let entireModelData;
+    let timeStart = new Date();
+    /* Obtains model grid estimates and re-render map view */
+    let modelReq = fetch(url).then( (response)=> {
+      return response.text();
+    }).then( (values) => {
+      /* If there is a more recent selection */
+
+      /*if(window.controller.selectedDate != time){
+        return;
+      } */
+
+      entireModelData = JSON.parse(values);
+      console.log(entireModelData);
+      let timeStop = new Date();
+      console.log(timeStop.getTime()-timeStart.getTime());
+      /*for (time in allModelData) {
+        this.entireModelData = allModelData[time].pm25;
+      }
+      this.updateModelView(); */
+    })
+  }
+  /**
+   * Gets all of the data values for the heatmap and updates view.
    * @param  {[type]}  time [description]
    * @return {Promise}      [description]
    */
   async grabAllModelData(time) {
     /* Sets up time interval to grab model data from */
-    let start = time.toISOString().slice(0, -5) + "Z";
+    let start = window.controller.startDate.toISOString().slice(0, -5) + "Z";
     let closestStartDate = new Date(time);
     closestStartDate.setMinutes(time.getMinutes() + 5);
-    let stop = closestStartDate.toISOString().slice(0, -5) + "Z";
+    let stop = window.controller.endDate.toISOString().slice(0, -5) + "Z";
 
     let url = "https://air.eng.utah.edu/dbapi/api/getGridEstimates?start=" + start + "&end=" + stop;
 
