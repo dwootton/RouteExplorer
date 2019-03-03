@@ -298,6 +298,7 @@ class Selector {
           window.controller.spikeDetector.removeSVG();
           window.controller.spikeDetector = null;
         }
+        console.log(valuesFixedAttr);
         window.controller.spikeDetector = new SpikeDetector(valuesFixedAttr);
         /*let sensorList = this.convertToSensorList(valuesFixedAttr); */
         console.log(valuesFixedAttr);
@@ -306,9 +307,80 @@ class Selector {
       }
 		});
   }
-  gatherSensorDataForEntireTime(sensorList){
-    
 
+  /**
+   * Gets the sensor source depending on the sensor's id.
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
+  getSensorSource(id){
+    if(id){
+      console.log(id.slice(0,3));
+      if(id.length > 4 && id.slice(0,3)=="S-A"){ //if AirU sensor was selected
+          return "airu"
+      } else {
+        return "Purple Air";
+      }
+    }
+  }
+
+  /**
+   * Requires that sensorList has been populated.
+   * @return {[type]} [description]
+   */
+  gatherSensorDataForEntireTime(sensorList) {
+    console.log(sensorList)
+    this.sensorList = sensorList;
+    let promises = [];
+    for (let i = 0; i < this.sensorList.length; i++) {
+      let sensorID = this.sensorList[i].id;
+      let sensorLat = this.sensorList[i].lat;
+      let sensorLong = this.sensorList[i].long;
+      let source = this.getSensorSource(sensorID);
+      let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + sensorID + "&sensorSource="+source+"&start=" + window.controller.startDate.toISOString() + "&end=" + window.controller.endDate.toISOString() + "&show=pm25"
+      console.log(url);
+      promises[i] = fetch(url).then(function(response) {
+        return response.text();
+      }).catch((err) => {
+        console.log(err);
+      });
+
+
+    }
+    Promise.all(promises.map(p => p.catch(() => undefined)))
+
+    Promise.all(promises).then(values => {
+      let parsedVals = [];
+      for (let i = 0; i < values.length; i++) {
+        let sensorID = this.sensorList[i].id;
+        let sensorLat = this.sensorList[i].lat;
+        let sensorLong = this.sensorList[i].long;
+        let readings = JSON.parse(values[i]).data
+        console.log(JSON.parse(values[i]));
+        if (readings[0]) {
+          let obj = {
+            id: sensorID,
+            lat: sensorLat,
+            long: sensorLong,
+            pm25: readings
+          };
+          parsedVals.push(obj)
+        } else {
+          let obj = {
+            id: sensorID,
+            lat: sensorLat,
+            long: sensorLong,
+            pm25: []
+          };
+          parsedVals.push(obj)
+        }
+      }
+      console.log(parsedVals);
+      window.controller.spikeDetector.addData(parsedVals);
+      window.controller.spikeDetector.performSignalDetection();
+      window.controller.spikeDetector.drawDetectedElements();
+      return values;
+    });
   }
   /*
   convertToSensorList(values){

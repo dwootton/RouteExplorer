@@ -6,7 +6,7 @@ class SpikeDetector {
       .attr('transform', 'translate(0,15)');
 
     this.sensorList = sensors;
-    this.allSensorsData = this.gatherAllSensorData();
+    //this.allSensorsData = window.controller.selector.gatherSensorDataForEntireTime(sensors);
 
     //runs the signal detection code on the data
     //let processedData = performSignalDetection();
@@ -14,6 +14,11 @@ class SpikeDetector {
     this.i = 0;
 
   }
+
+  addData(sensorData){
+    this.allSensorsData = sensorData;
+  }
+
 // https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat=40.78756024557722&location_lng=-111.84837341308594&start=2018-07-08T15:26:05Z&end=2018-07-09T15:26:05Z
 // https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat=41.721147&location_lng=-112.182112&start=2019-02-24T22:00:00Z&end=2019-02-25T20:00:00Z
   getSensorSource(id){
@@ -28,63 +33,7 @@ class SpikeDetector {
 
   }
 
-  /**
-   * Requires that sensorList has been populated.
-   * @return {[type]} [description]
-   */
-  gatherAllSensorData() {
-    console.log(this.sensorList);
-    let promises = [];
-    for (let i = 0; i < this.sensorList.length; i++) {
-      let sensorID = this.sensorList[i].id;
-      let sensorLat = this.sensorList[i].lat;
-      let sensorLong = this.sensorList[i].long;
-      let source = this.getSensorSource(sensorID);
-      let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + sensorID + "&sensorSource="+source+"&start=" + window.controller.startDate.toISOString() + "&end=" + window.controller.endDate.toISOString() + "&show=pm25"
-      console.log(url);
-      promises[i] = fetch(url).then(function(response) {
-        return response.text();
-      }).catch((err) => {
-        console.log(err);
-      });
 
-
-    }
-    Promise.all(promises.map(p => p.catch(() => undefined)))
-
-    Promise.all(promises).then(values => {
-      let parsedVals = [];
-      for (let i = 0; i < values.length; i++) {
-        let sensorID = this.sensorList[i].id;
-        let sensorLat = this.sensorList[i].lat;
-        let sensorLong = this.sensorList[i].long;
-        let readings = JSON.parse(values[i]).data
-        if (readings[0]) {
-          let obj = {
-            id: sensorID,
-            lat: sensorLat,
-            long: sensorLong,
-            pm25: readings
-          };
-          parsedVals.push(obj)
-        } else {
-          let obj = {
-            id: sensorID,
-            lat: sensorLat,
-            long: sensorLong,
-            pm25: []
-          };
-          parsedVals.push(obj)
-        }
-      }
-      this.allSensorsData = parsedVals;
-      console.log(this.allSensorsData);
-      this.processedData = this.performSignalDetection();
-      //this.gatherModelData();
-      this.drawDetectedElements();
-      return values;
-    });
-  }
 
   removeSVG() {
     d3.select(".spike-selector").select('svg').remove('*');
@@ -146,7 +95,6 @@ class SpikeDetector {
       this.allSensorsData = parsedVals;
       console.log(this.allSensorsData);
       this.processedData = this.performSignalDetection();
-      console.log(this.processedData);
       //this.gatherAllModelData();
       this.drawDetectedElements();
       return values;
@@ -159,6 +107,7 @@ class SpikeDetector {
     let spikes = [];
     let counter = 1;
     this.allSensorsData.forEach(monitor => { // for each air quality monitor
+      console.log(monitor);
       if (this.isEmpty(monitor.signalDetection) || !monitor.signalDetection) { //if it doesn't have any recordings, skip
         return;
       }
@@ -431,10 +380,12 @@ class SpikeDetector {
    */
   performSignalDetection() {
     let data = [];
+    console.log(this.allSensorsData);
     this.allSensorsData.forEach((monitor) => {
       let SIG_LAG = 60;
       let SIG_THRESH = 5;
       let SIG_INF = .001;
+      console.log(monitor);
       //monitor.signalDetection = smoothedZScore(monitor.values,SIG_LAG, SIG_THRESH,SIG_INF);
       monitor.signalDetection = this.smoothedZScore2(monitor.pm25, SIG_LAG, SIG_THRESH, SIG_INF);
     }) //end data.forEach
