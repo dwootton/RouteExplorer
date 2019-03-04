@@ -49,10 +49,11 @@ class Selector {
         document.getElementById("stopDate").textContent =  formatDate(this.endDate);*/
         this.newTime = true;
 
-        this.grabAllSensorData(window.controller.selectedDate);
-        this.modelData = this.grabAllModelData(window.controller.selectedDate, 10, 10);
+        this.grabAllSensorDataOld(window.controller.selectedDate);
+        this.newTime = true;
+        this.grabAllModelDataOld(window.controller.selectedDate);
         this.rendered = true;
-        this.grabModelDataForEntireRange();
+        //this.grabModelDataForEntireRange();
         console.log(d3.selectAll('.close'));
         while(!d3.select('.close').empty()){
           d3.select('.close').dispatch('click');
@@ -142,18 +143,48 @@ class Selector {
     }
   }
 
+grabIndividualSensorData(selectedSensor){
+  if (!selectedSensor.id) {
+    return;
+  }
+  if(!this.entireSensorData){
+    this.grabIndividualSensorDataOld(selectedSensor);
+  }
 
+  let sensor = this.entireSensorData.find((element)=>{
+    return element.id == selectedSensor.id;
+  })
+  let id = sensor.id
+  window.controller.selectedSensor = selectedSensor;
+  if(this.selectedSensors.includes(id)){
+    console.log(id);
+    window.controller.timeChartLegend.highlightSensorButton(id);
+    //window.controller.timeChartLegend.dispatchEvent(id,'click');
+    return;
+  }
+  this.selectedSensors.push(id);
+  this.generateModelData = true;
+  console.log(sensor)
+  this.individualSensorData = {
+    data:sensor.pm25,
+  }
+
+
+  let modelData = this.grabModelData(selectedSensor);
+
+}
 
   /**
    * Grabs a individuals sensors pm25 data for the time inbetween startDate and
    * endDate. Updates this.sensorData and calls this.grabModelData.
    * @param  {[type]}  selectedSensor The sensor object to fetch data from.
    */
-  async grabIndividualSensorData(selectedSensor) {
+  async grabIndividualSensorDataOld(selectedSensor) {
     //let id = "S-A-085";// Ex id: S-A-085
     if (!selectedSensor.id) {
       return;
     }
+
 
     let start = this.startDate.toISOString().slice(0, -5) + "Z";
     let stop = this.endDate.toISOString().slice(0, -5) + "Z";
@@ -236,11 +267,45 @@ class Selector {
       })
       .then((myJSON) => {
         this.modelDataAtSensorLocation = JSON.parse(myJSON);
+        console.log(this.individualSensorData);
         this.timeChart.addData(this.individualSensorData, this.modelDataAtSensorLocation, selectedSensor)
       });
   }
   dispAllData(){
     console.log(this.entireModelData,this.entireSensorData);
+  }
+
+
+
+  grabAllSensorData(time){
+    if(this.newTime){
+      this.grabAllSensorDataOld(time);
+    }
+
+
+    let compareTime = new Date(time).getTime();
+    let newSensorData = [];
+    this.entireSensorData.forEach((sensor)=>{
+      console.log(sensor);
+      // find the sensor reading closest to selected time (past)
+      let pmIndex = sensor.pm25.findIndex((element)=>{
+        return new Date(element.time).getTime() > compareTime;
+      });
+      console.log(pmIndex);
+      console.lo
+      newSensorData.push({
+        id:sensor.id,
+        pm25:sensor.pm25[pmIndex].pm25,
+        lat:sensor.lat,
+        long:sensor.long,
+      })
+    })
+    console.log(newSensorData);
+    this.allSensorsData = newSensorData;
+    console.log(this.allSensorsData);
+    this.updateSensorView();
+
+
   }
 
   /**
@@ -249,7 +314,8 @@ class Selector {
    *
    * @param  {[type]}  time Date Time object of the time to grab sensor data from
    */
-  async grabAllSensorData(time) {
+  async grabAllSensorDataOld(time) {
+
     /* Remove sensors from the map */
     if(window.controller.sensorOverlay){
       window.controller.map.blackenSensors();
@@ -292,7 +358,7 @@ class Selector {
       /* Update data and re-render map view */
 			this.allSensorsData = valuesFixedAttr;
 			this.updateSensorView();
-
+      console.log(this.newTime);
       if(this.newTime){
         this.newTime = false;
         if(window.controller.spikeDetector){
@@ -302,10 +368,8 @@ class Selector {
         }
         console.log(valuesFixedAttr);
         window.controller.spikeDetector = new SpikeDetector(valuesFixedAttr);
-        /*let sensorList = this.convertToSensorList(valuesFixedAttr); */
         console.log(valuesFixedAttr);
         this.gatherSensorDataForEntireTime(valuesFixedAttr);
-
       }
 		});
   }
@@ -331,6 +395,7 @@ class Selector {
    * @return {[type]} [description]
    */
   gatherSensorDataForEntireTime(sensorList) {
+    this.grabModelDataForEntireRange();
     console.log(sensorList)
     this.sensorList = sensorList;
     let promises = [];
@@ -395,13 +460,13 @@ class Selector {
    * @param  {[type]}  time [description]
    * @return {Promise}      [description]
    */
-  async grabModelDataForEntireRange(time) {
+  async grabModelDataForEntireRange() {
     /* Sets up time interval to grab model data from */
     let start = window.controller.startDate.toISOString().slice(0, -5) + "Z";
     let stop = window.controller.endDate.toISOString().slice(0, -5) + "Z";
 
     let url = "https://air.eng.utah.edu/dbapi/api/getGridEstimates?start=" + start + "&end=" + stop;
-    this.entireModelData
+    console.log(url);
     let timeStart = new Date();
     /* Obtains model grid estimates and re-render map view */
     let modelReq = fetch(url).then( (response)=> {
@@ -412,8 +477,27 @@ class Selector {
       /*if(window.controller.selectedDate != time){
         return;
       } */
+      console.log(values);
+      let organizedModelDataCollection = [];
+      let parsedModelData = JSON.parse(values);
+      console.log(parsedModelData)
+      parsedModelData.shift();
+      parsedModelData.forEach( (element) => {
+        console.log(element);
+        let date = Object.keys(element);
+        console.log(date);
 
-      this.entireModelData = JSON.parse(values);
+        console.log(element[0]);
+        organizedModelDataCollection.push({
+          time: new Date(date),
+          data: element[date].pm25
+        })
+
+      })
+      console.log(organizedModelDataCollection);
+
+      this.entireModelData = organizedModelDataCollection;
+      console.log(this.entireModelData)
       let timeStop = new Date();
       console.log(timeStop.getTime()-timeStart.getTime());
       /*for (time in allModelData) {
@@ -434,12 +518,26 @@ class Selector {
     console.log(closest);
   }
 
+  grabAllModelData(time){
+    let requestedTime = new Date(time).getTime();
+    if(typeof this.entireModelData == 'undefined'){
+      this.grabAllModelDataOld(time);
+    }
+    console.log(this.entireModelData);
+    let slice = this.entireModelData.find((estimate)=>{
+      return new Date(estimate.time).getTime() > requestedTime;
+    })
+    console.log(slice);
+    this.allModelData = slice;
+    this.updateModelView();
+
+  }
   /**
    * Gets all of the data values for the heatmap and updates view.
    * @param  {[type]}  time [description]
    * @return {Promise}      [description]
    */
-  async grabAllModelData(time) {
+  async grabAllModelDataOld(time) {
     /* Sets up time interval to grab model data from */
     let start = time.toISOString().slice(0, -5) + "Z";
     let closestStartDate = new Date(time);
@@ -478,6 +576,7 @@ class Selector {
    */
   updateSensorView() {
     window.controller.allSensorsData = this.allSensorsData;
+    console.log(this.allSensorsData);
     this.dataMap.updateSensor(this.allSensorsData)
   }
 

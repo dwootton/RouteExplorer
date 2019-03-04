@@ -39,8 +39,9 @@ class Slider {
               that.selectedDate = new Date(newData);
     					window.controller.selectedDate = that.selectedDate
               selector.selectedDate = that.selectedDate;
-              selector.grabAllSensorData(that.selectedDate);
-              selector.grabAllModelData(that.selectedDate);
+              /*selector.grabAllSensorData(that.selectedDate);
+              selector.grabAllModelData(that.selectedDate);*/
+              window.controller.map.getDataAtTime(that.selectedDate);
             }));
 
     slider.insert("g", ".track-overlay")
