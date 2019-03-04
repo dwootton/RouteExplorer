@@ -587,11 +587,109 @@ END MODE REMOVAL
   }
 
   getDataAtTime(time){
-    // get correct model slice
-    window.controller.selector.grabAllModelData(time);
+    // get correct model slice after 50 ms (time to load)
+    if(!this.prevModelCall ){
+      this.prevModelCall = new Date();
+      window.controller.selector.grabAllModelContour(time);
+    }
+    if(new Date().getTime() - this.prevModelCall.getTime() > 500){
+      this.prevModelCall = new Date();
+      window.controller.selector.grabAllModelContour(time);
+    }
+
     window.controller.selector.grabAllSensorData(time)
     // get correct time slice for each sensor
   }
+
+  updateModelContour(contour){
+
+    if (this.lastData) {
+
+      this.myMap.data.forEach((feature) => {
+        this.myMap.data.remove(feature);
+      })
+
+    }
+
+    this.lastData = contour.contour;
+    let that = this;
+    let startDate = new Date();
+    let startStamp = startDate.getTime()
+    this.myMap.data.addGeoJson(contour.contour)
+
+
+
+    this.myMap.data.setStyle(function(feature) {
+      var color = 'gray';
+
+      if (feature.getProperty('value')) {
+        color = that.colorMap(feature.getProperty('value'));
+      }
+      return /** @type {!google.maps.Data.StyleOptions} */ ({
+        fillColor: color,
+        strokeWeight: 0,
+        fillOpacity: 0.6,
+        zIndex: 10
+      });
+    });
+    let stopDate = new Date();
+    let stopStamp = startDate.getTime()
+    console.log("d3 contour time: ", (stopStamp - startStamp))
+
+    //let stopDate = new Date();
+    //let stopStamp = stopDate.getTime()
+    /*
+    let labelsMapType = new google.maps.StyledMapType([{
+      // Hide all map features by default
+      stylers: [{
+        visibility: 'off'
+      }]
+    }, {
+      featureType: 'road.highway',
+      stylers: [{
+        visibility: 'on'
+      }]
+    }, {
+      featureType: 'road.arterial',
+      stylers: [{
+        visibility: 'on',
+        color: '#444444'
+      }]
+    }, {
+      featureType: 'administrative',
+      stylers: [{
+        visibility: 'on'
+      }]
+    }, {
+      "featureType": "road",
+      "elementType": "labels",
+      "stylers": [{
+        "visibility": "off"
+      }]
+    }, {
+      "elementType": "geometry",
+      "stylers": [{
+        "color": "#f5f5f5"
+      }]
+    }], {
+      name: 'Labels',
+      id: "MyLabels"
+    });
+
+    // Add to the map's overlay collection
+    this.myMap.overlayMapTypes.clear();
+    let labelsMap = this.myMap.overlayMapTypes.push(labelsMapType);
+
+    // Select the just created highway labels and bring it to the front.
+    d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index', 1000000).style('opacity', 0.5);
+    */
+
+
+  }
+
+
+
+
 
   updateModel(modelData) {
     if(modelData.data){
@@ -730,135 +828,6 @@ END MODE REMOVAL
 
     // Select the just created highway labels and bring it to the front.
     d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index', 1000000).style('opacity', 0.5);
-
-
-    /*
-		let heatLayer = L.geoJSON(geojson.features);
-		heatLayer.addTo(this.myMap);
-*/
-
-    /*
-    		L.geoJSON(geojson.features, {
-                style: function (feature) {
-                	console.log(feature);
-                	if(feature.properties.value < 15){
-                		return {weight: 1, color: "#00ff00", "fill-opacity": 0.2}
-                	}
-                	return {weight: 1, color: "#ff0000", "fill-opacity": 0.2}
-
-                }
-            }).addTo(this.myMap);
-
-    */
-
-    /*
-		 svg = d3.select("#map").select("svg");
-		let g = d3.select("#map").select("svg").select('g');
-			g.attr("class", "leaflet-zoom-hide");
-
-	    svg.selectAll("path").remove();
-	    this.polygons = d3.contours()
-		        .size([this.modelWidth,this.modelHeight]) // NOTE: Make this a param
-		        .thresholds(d3.range(0, d3.max(modelData), 1))
-	      	(modelData);
-	     console.log("before",this.polygons)
-
-	    //let p1 = d3.geom.polygon(this.polygons);
-
-		let longScale = d3.scaleLinear([0,10]).range([-112.001349000000,-111.713403000000])
-		  let latScale = d3.scaleLinear([0,10]).range([40.81048,40.59885])
-		  console.log(longScale(1))
-
-		  for(let multiPolygon of this.polygons){
-		    console.log(multiPolygon)
-		    let coordinatesArr = [];
-
-		    if(multiPolygon.coordinates.length != 0){
-		      console.log(multiPolygon.coordinates)
-		      coordinatesArr = multiPolygon.coordinates[0][0];
-		    } else {
-		      break;
-		    }
-
-
-		    for( let coordinate of coordinatesArr){
-		      //console.log("[0][0]",coordinate[0][0])
-
-		      coordinate[0] = longScale(parseFloat(coordinate[0]));
-		      coordinate[1] = latScale(parseFloat(coordinate[1]));
-		      //console.log(parseInt(coordinate[0]))
-		      //console.log("[0]",latScale(parseInt(coordinate[0])))
-		    }
-		  }
-
-		  console.log("after",this.polygons)
-
-		//L.geoJSON(this.polygons).addTo(this.myMap);
-		let that = this;
-		/*
-		let that = this;
-		new L.GeoJSON(this.polygons, {
-			  style: function(feature) {
-			      return feature.properties.style
-			  }
-			}).addTo(this.myMap);
-
-		function projectPoint(x, y) {
-		  var point = that.myMap.latLngToLayerPoint(new L.latLng(y, x));
-		  this.stream.point(point.x, point.y);
-		}
-
-
-		let transform = d3.geoTransform({point: projectPoint});
-		let lineGenerator = d3.geoPath().projection(transform);
-
-		let contours = svg.append('g').attr('class','heatMap').selectAll("path")
-	    	.data(this.polygons);
-
-		let heatMap = contours
-	    .enter().append("path")
-	      .attr("d", lineGenerator)//d3.geoPath(d3.geoIdentity().scale(this.width / this.modelWidth))
-	      .attr("fill", (d) => { return this.colorMap(d.value)})
-	      .attr("fill-opacity",0.8);
-
-	    // Now because D3 is not generic leaflet, we have to defien what should happen to the SVG when
-        // a user scrolls or zooms. So on "viewreset" the function "reset" is called
-            this.myMap.on("viewreset", reset);
-
-            // On first load, the user will not have paned or zoomed, but the SVG still needs to be put in the
-            // right place, so the function reset is called.
-            reset();
-
-            // This function places the SVG at the right position, even after zoom and/or pan
-            function reset() {
-
-                // Get the bounding Box
-                let boundsKreis = [[40.598850,-112.001349],[40.810476,-111.713403]]
-
-                // save top left and bottom right corner coordinates in variables
-                var topLeft = boundsKreis[0],
-                        bottomRight = boundsKreis[1];
-
-                // reposition and rescale SVG element
-                svg.attr("width", bottomRight[0] - topLeft[0])
-                        .attr("height", bottomRight[1] - topLeft[1])
-                        .style("left", topLeft[0] + "px")
-                        .style("top", topLeft[1] + "px");
-
-                // reposition all geometries in SVG
-                svg.selectAll("g.heatMap").attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
-                heatMap.attr("d", lineGenerator);
-            }
-
-		/*
-
-
-
-	    l
-
-	    d3.geoIdentity()
-  			.fitExtent([[left,top],[right,bottom]], geojsonObject); });
-  			*/
 
 
     // consult this for d3 on top of leaflet: http://www.sydneyurbanlab.com/Tutorial7/tutorial7.html

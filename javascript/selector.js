@@ -497,6 +497,17 @@ grabIndividualSensorData(selectedSensor){
       console.log(organizedModelDataCollection);
 
       this.entireModelData = organizedModelDataCollection;
+      this.contours = [];
+      this.entireModelData.forEach((modelSlice)=>{
+        console.log(modelSlice)
+        let contour = this.computeContours(modelSlice);
+        console.log(contour);
+        this.contours.push({
+          contour:contour,
+          time:modelSlice.time
+        })
+      })
+      console.log(this.contours);
       console.log(this.entireModelData)
       let timeStop = new Date();
       console.log(timeStop.getTime()-timeStart.getTime());
@@ -505,17 +516,6 @@ grabIndividualSensorData(selectedSensor){
       }
       this.updateModelView(); */
     })
-  }
-
-  getClosestValue(data){
-    var counts = [4, 9, 15, 6, 2],
-    goal = 5;
-
-    var closest = counts.reduce(function(prev, curr) {
-      return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
-    });
-
-    console.log(closest);
   }
 
   grabAllModelData(time){
@@ -531,6 +531,21 @@ grabIndividualSensorData(selectedSensor){
     this.allModelData = slice;
     this.updateModelView();
 
+  }
+
+  grabAllModelContour(time){
+    let requestedTime = new Date(time).getTime();
+    if(typeof this.entireModelData == 'undefined'){
+      this.grabAllModelDataOld(time);
+    }
+    console.log(this.entireModelData);
+    let contour = this.contours.find((estimate)=>{
+      return new Date(estimate.time).getTime() > requestedTime;
+    })
+    console.log(contour);
+
+    this.allModelContour = contour;
+    this.updateModelContourView();
   }
   /**
    * Gets all of the data values for the heatmap and updates view.
@@ -569,6 +584,86 @@ grabIndividualSensorData(selectedSensor){
   updateModelView() {
     this.dataMap.updateModel(this.allModelData);
 
+  }
+
+  /**
+   * Updates model heatmap
+   */
+  updateModelContourView() {
+    this.dataMap.updateModelContour(this.allModelContour);
+
+  }
+
+
+  computeContours(modelData) {
+    if(modelData.data){
+      modelData = modelData.data;
+    }
+
+    this.modelData = modelData;
+
+    // MODEL CODE:
+    let startDate = new Date();
+    let startStamp = startDate.getTime()
+    let polygons = d3.contours()
+      .size([36, 49])
+      .thresholds(d3.range(0, d3.max(modelData), 1))
+      (modelData);
+
+
+    var geojson = {
+      type: 'FeatureCollection',
+      features: []
+    };
+
+    for (let polygon of polygons) {
+      if (polygon.coordinates.length === 0) continue;
+      let coords = convertCoords(polygon.coordinates);
+
+      geojson.features.push({
+        type: 'Feature',
+        properties: {
+          value: polygon.value
+        },
+        geometry: {
+          type: polygon.type,
+          coordinates: coords
+        }
+      })
+    }
+
+    function convertCoords(coords) {
+      // NOTE: Work through flipping coordiantes
+      var maxLng = -111.713403000000;
+      var minLng = -112.001349000000;
+      var minLat = 40.810475;
+      var maxLat = 40.59885;
+
+      var result = [];
+      for (let poly of coords) {
+        var newPoly = [];
+        for (let ring of poly) {
+          if (ring.length < 4) continue;
+          var newRing = [];
+          for (let p of ring) {
+            newRing.push([
+              minLng + (maxLng - minLng) * (p[0] / 36),
+              maxLat - (maxLat - minLat) * (p[1] / 49)
+            ]);
+          }
+          newPoly.push(newRing);
+        }
+        result.push(newPoly);
+      }
+      return result;
+    }
+    let options = {tolerance: 0.01, highQuality: false};
+    let simpl = turf.simplify(geojson, options);
+    console.log(simpl, geojson);
+    let stopDate = new Date();
+    let stopStamp = stopDate.getTime()
+    console.log("d3 contour time: ", (stopStamp - startStamp))
+    return simpl;
   }
 
   /**
