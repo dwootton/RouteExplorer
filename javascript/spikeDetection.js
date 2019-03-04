@@ -111,6 +111,7 @@ class SpikeDetector {
       if (this.isEmpty(monitor.signalDetection) || !monitor.signalDetection) { //if it doesn't have any recordings, skip
         return;
       }
+      
       for (let i = 0; i < monitor.signalDetection.signals.length - 2; i++) { //for each measurment in the monitor
 
         if (monitor.pm25[i].pm25 > 60) { // monitor.signalDetection.signals[i][1] === 1 && parseInt(monitor.pm25[i].pm25) > 50 &&  && monitor.signalDetection.signals[i][1] === 1 ) { //if the signal value is 1 (ie there is a peak), signals is not offset at there is no

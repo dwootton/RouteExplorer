@@ -239,7 +239,9 @@ class Selector {
         this.timeChart.addData(this.individualSensorData, this.modelDataAtSensorLocation, selectedSensor)
       });
   }
-
+  dispAllData(){
+    console.log(this.entireModelData,this.entireSensorData);
+  }
 
   /**
    * Obtains 1 pm25 reading from every sensor and re-renders the updates sensors
@@ -376,6 +378,7 @@ class Selector {
         }
       }
       console.log(parsedVals);
+      this.entireSensorData = parsedVals;
       window.controller.spikeDetector.addData(parsedVals);
       window.controller.spikeDetector.performSignalDetection();
       window.controller.spikeDetector.drawDetectedElements();
@@ -398,7 +401,7 @@ class Selector {
     let stop = window.controller.endDate.toISOString().slice(0, -5) + "Z";
 
     let url = "https://air.eng.utah.edu/dbapi/api/getGridEstimates?start=" + start + "&end=" + stop;
-    let entireModelData;
+    this.entireModelData
     let timeStart = new Date();
     /* Obtains model grid estimates and re-render map view */
     let modelReq = fetch(url).then( (response)=> {
@@ -410,8 +413,7 @@ class Selector {
         return;
       } */
 
-      entireModelData = JSON.parse(values);
-      console.log(entireModelData);
+      this.entireModelData = JSON.parse(values);
       let timeStop = new Date();
       console.log(timeStop.getTime()-timeStart.getTime());
       /*for (time in allModelData) {
@@ -420,6 +422,18 @@ class Selector {
       this.updateModelView(); */
     })
   }
+
+  getClosestValue(data){
+    var counts = [4, 9, 15, 6, 2],
+    goal = 5;
+
+    var closest = counts.reduce(function(prev, curr) {
+      return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+    });
+
+    console.log(closest);
+  }
+
   /**
    * Gets all of the data values for the heatmap and updates view.
    * @param  {[type]}  time [description]
@@ -427,10 +441,10 @@ class Selector {
    */
   async grabAllModelData(time) {
     /* Sets up time interval to grab model data from */
-    let start = window.controller.startDate.toISOString().slice(0, -5) + "Z";
+    let start = time.toISOString().slice(0, -5) + "Z";
     let closestStartDate = new Date(time);
     closestStartDate.setMinutes(time.getMinutes() + 5);
-    let stop = window.controller.endDate.toISOString().slice(0, -5) + "Z";
+    let stop = closestStartDate.toISOString().slice(0, -5) + "Z";
 
     let url = "https://air.eng.utah.edu/dbapi/api/getGridEstimates?start=" + start + "&end=" + stop;
 
