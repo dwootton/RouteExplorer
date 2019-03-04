@@ -523,11 +523,9 @@ grabIndividualSensorData(selectedSensor){
     if(typeof this.entireModelData == 'undefined'){
       this.grabAllModelDataOld(time);
     }
-    console.log(this.entireModelData);
     let slice = this.entireModelData.find((estimate)=>{
       return new Date(estimate.time).getTime() > requestedTime;
     })
-    console.log(slice);
     this.allModelData = slice;
     this.updateModelView();
 
@@ -538,11 +536,9 @@ grabIndividualSensorData(selectedSensor){
     if(typeof this.entireModelData == 'undefined'){
       this.grabAllModelDataOld(time);
     }
-    console.log(this.entireModelData);
     let contour = this.contours.find((estimate)=>{
       return new Date(estimate.time).getTime() > requestedTime;
     })
-    console.log(contour);
 
     this.allModelContour = contour;
     this.updateModelContourView();
@@ -568,9 +564,11 @@ grabIndividualSensorData(selectedSensor){
       /* If there is a more recent selection */
 
       if(window.controller.selectedDate != time){
+        console.log("MORE RECENT!!!")
         return;
       }
-      let allModelData = JSON.parse(values)[1];
+      let allModelData = JSON.parse(values)[1]; //Note: Currently broken?
+      console.log(allModelData);
       for (time in allModelData) {
         this.allModelData = allModelData[time].pm25;
       }

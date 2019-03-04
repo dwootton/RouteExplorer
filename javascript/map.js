@@ -259,7 +259,7 @@ class AQMap {
           button.checked = true;
         }
         //item.innerHTML= '<input type="checkbox" name="item[]" value="'+label+'>';
-        console.log(button);
+
         //let item = label + newBox;
         let label = document.createElement('label');
         label.innerHTML = sourceTypes[i];
@@ -269,7 +269,7 @@ class AQMap {
         sensorSourceMenu.appendChild(innerDiv);
         innerDiv.onclick = (e)=>{
           let source = e.toElement.value;
-          console.log(source)
+
           switch(source){
             case "Purple Air":
               source = "purpleAir";
@@ -283,7 +283,7 @@ class AQMap {
 
           }
           window.controller.selector.newTime = true;
-          console.log('INSIDE OF click',source);
+
           window.controller.selector.setSensorSource(source);
         }
     }
@@ -354,7 +354,6 @@ END MODE REMOVAL
   }
 
   updateSensor(sensorData) {
-    console.log(sensorData);
     this.sensorData = sensorData;
     let overlay = new google.maps.OverlayView();
     let that = this;
@@ -367,7 +366,6 @@ END MODE REMOVAL
 
       let layer = d3.select(this.getPanes().overlayMouseTarget).append("div") // floatPane as I want sensors to be on top
         .attr("class", "sensors");
-      console.log("LAYER",layer);
 
       // Draw each marker as a separate SVG element.
       overlay.draw = function() {
@@ -377,11 +375,9 @@ END MODE REMOVAL
         let marker = layer.selectAll("svg")
           .data(sensorData)
           .each(transform)
-          console.log(marker)
 
         marker
           .on("mouseover", function(d) {
-            console.log(d3.select(this).attr("cx") + that.sensorWidth);
             let matrix = this.getScreenCTM()
               .translate(+this.getAttribute("cx"), +this.getAttribute("cy"));
 
@@ -407,7 +403,6 @@ END MODE REMOVAL
               .duration(500)
               .style("opacity", 0);
             let sensorID = d.id;
-            console.log(d3.selectAll('#sensorPath' + sensorID))
             //window.controller.timeChartLegend.dispatchSensorEvent(sensorID,'mouseleave')
             /*
             let prevSelection = d3.select('#sensorPath' + sensorID)
@@ -419,17 +414,13 @@ END MODE REMOVAL
               */
           })
           .on("click", function(sensor) {
-            console.log(sensor,"CLICKED!!")
             if (that.marker) {
               that.marker.setMap(null);
             }
 
             window.controller.selectedSensor = sensor;
-            console.log(window.controller.map.myMap);
             let myLatlng = new google.maps.LatLng(+sensor.lat, +sensor.long);
-            console.log(myLatlng);
             window.controller.map.myMap.panTo(myLatlng);
-            console.log(d3.selectAll('#selected'));
             d3.selectAll('#selected')
               .attr('id', (d)=> {
                 return "marker"+d.id;
@@ -479,7 +470,6 @@ END MODE REMOVAL
         newMarkers.append("circle")
           /*.attr("r", 2)*/
           .attr('stroke', (d)=>{
-            console.log(window.controller.selectedSensor, d.id);
             if(window.controller.selectedSensor && d.id==window.controller.selectedSensor.id){
               return "gold";
             }
@@ -588,14 +578,15 @@ END MODE REMOVAL
 
   getDataAtTime(time){
     // get correct model slice after 50 ms (time to load)
-    if(!this.prevModelCall ){
+    /*if(!this.prevModelCall ){
       this.prevModelCall = new Date();
       window.controller.selector.grabAllModelContour(time);
     }
-    if(new Date().getTime() - this.prevModelCall.getTime() > 500){
+
+    if(new Date().getTime() - this.prevModelCall.getTime() > 50){
       this.prevModelCall = new Date();
       window.controller.selector.grabAllModelContour(time);
-    }
+    }*/
 
     window.controller.selector.grabAllSensorData(time)
     // get correct time slice for each sensor
@@ -758,7 +749,6 @@ END MODE REMOVAL
 
     if (this.lastData) {
       this.myMap.data.forEach((feature) => {
-        console.log(feature)
         this.myMap.data.remove(feature);
       })
     }
