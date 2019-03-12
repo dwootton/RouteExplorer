@@ -94,7 +94,9 @@ class Slider {
       .attr('fill', d => (d.year === selected ? '#bad80a' : '#e0e0e0'));
     console.log(selected);
     that.selectedDate = new Date(roundToInterval(new Date(selected),60));
+    console.log(that.selectedDate,that.renderedDate)
     if(that.renderedDate && that.selectedDate == that.renderedDate){
+      console.log("Same hour!")
       return;
     }
     that.renderedDate = that.selectedDate;

@@ -623,14 +623,15 @@ END MODE REMOVAL
 
     this.myMap.data.setStyle(function(feature) {
       var color = 'gray';
-
+      var opacity = 0;
       if (feature.getProperty('value')) {
         color = that.colorMap(feature.getProperty('value'));
+        opacity = 0.6;
       }
       return /** @type {!google.maps.Data.StyleOptions} */ ({
         fillColor: color,
         strokeWeight: 0,
-        fillOpacity: 0.6,
+        fillOpacity: opacity,
         zIndex: 10
       });
     });
