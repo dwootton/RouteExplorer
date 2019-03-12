@@ -190,6 +190,11 @@ class AQMap {
 
     });
 
+    google.maps.event.addListener(this.myMap, 'idle', ()=>{
+      this.loadedTiles = true;
+      console.log("Loaded Tiles:", this.loadedTiles);
+    });
+
     this.toolTip = d3.select("body").append("div")
       .attr("class", "mapTooltip")
       .style("opacity", 0);
@@ -578,17 +583,19 @@ END MODE REMOVAL
 
   getDataAtTime(time){
     // get correct model slice after 50 ms (time to load)
-    /*if(!this.prevModelCall ){
+    if(!this.prevModelCall ){
       this.prevModelCall = new Date();
       window.controller.selector.grabAllModelContour(time);
     }
 
-    if(new Date().getTime() - this.prevModelCall.getTime() > 50){
+    //if(this.loadedTiles){
       this.prevModelCall = new Date();
       window.controller.selector.grabAllModelContour(time);
-    }*/
+      window.controller.selector.grabAllSensorData(time)
+      this.loadedTiles = false;
+    //}
 
-    window.controller.selector.grabAllSensorData(time)
+
     // get correct time slice for each sensor
   }
 
@@ -606,8 +613,12 @@ END MODE REMOVAL
     let that = this;
     let startDate = new Date();
     let startStamp = startDate.getTime()
-    this.myMap.data.addGeoJson(contour.contour)
-
+    let imported = this.myMap.data.addGeoJson(contour.contour)
+    console.log(imported);
+    if(imported != null){
+      this.loadedTiles = true;
+      console.log(imported);
+    }
 
 
     this.myMap.data.setStyle(function(feature) {

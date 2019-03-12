@@ -655,9 +655,11 @@ grabIndividualSensorData(selectedSensor){
       }
       return result;
     }
-    let options = {tolerance: 0.01, highQuality: false};
+    let options = {tolerance: .001, highQuality: true};
+
     let simpl = turf.simplify(geojson, options);
     console.log(simpl, geojson);
+
     let stopDate = new Date();
     let stopStamp = stopDate.getTime()
     console.log("d3 contour time: ", (stopStamp - startStamp))

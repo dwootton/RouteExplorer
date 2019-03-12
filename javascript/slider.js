@@ -12,25 +12,29 @@ class Slider {
       .domain(timeBounds)
       .clamp(true);
 
-  var dataNewYorkTimes = d3.range(0, width).map(d => ({
+  let dataNewYorkTimes = d3.range(0, width).map(d => {
+    console.log(d);
+    return {
     year: this.xScale(d),
-    value: 5
-  }));
+    value: 5 // change this value to be the averaged pm 25 pollution
+    }
+  }
+    );
 
-  var svg = d3
+  let svg = d3
     .select('#slider')
     .attr('width', width)
     .attr('height', height);
 
-  var padding = 0.1;
+  let padding = 0.1;
 
-  var xBand = d3
+  let xBand = d3
     .scaleBand()
     .domain(timeBounds)
     .range([margin.left, width - margin.right])
     .padding(padding);
 
-  var xLinear = this.xScale
+  let xLinear = this.xScale
     .range([
       margin.left + xBand.bandwidth() / 2 + xBand.step() * padding - 0.5,
       width -
@@ -45,7 +49,7 @@ class Slider {
     .domain([0, d3.max(dataNewYorkTimes, d => d.value)])
     .nice()
     .range([height - margin.bottom, margin.top]);
-  let parseDate = d3.timeFormat("%Y-%m-%d")
+  //let parseDate = d3.timeFormat("%Y-%m-%d")
 
   var yAxis = g =>
     g
@@ -83,15 +87,35 @@ class Slider {
 
   svg.append('g').call(yAxis);
   svg.append('g').call(slider);
-
+  let that = this;
   var draw = selected => {
     barsEnter
       .merge(bars)
       .attr('fill', d => (d.year === selected ? '#bad80a' : '#e0e0e0'));
+    console.log(selected);
+    that.selectedDate = new Date(roundToInterval(new Date(selected),60));
+    if(that.renderedDate && that.selectedDate == that.renderedDate){
+      return;
+    }
+    that.renderedDate = that.selectedDate;
+    let m = that.selectedDate;
+    var dateString =
+        m.getUTCFullYear() + "/" +
+        ("0" + (m.getUTCMonth()+1)).slice(-2) + "/" +
+        ("0" + m.getUTCDate()).slice(-2) + " " +
+        ("0" + m.getUTCHours()).slice(-2) + ":" +
+        ("0" + m.getUTCMinutes()).slice(-2) + ":" +
+        ("0" + m.getUTCSeconds()).slice(-2);
 
+    console.log(dateString);
     d3.select('p#value-new-york-times').text(
-      d3.format(parseDate)(dataNewYorkTimes[3].value)
+      dateString
+      //d3.format(parseDate)(dataNewYorkTimes[3].value)
     );
+    window.controller.selector.selectedDate = that.selectedDate;
+    //window.controller.selector.grabAllSensorData(that.selectedDate);
+    //window.controller.selector.grabAllModelData(that.selectedDate);
+    window.controller.map.getDataAtTime(that.selectedDate);
   }
   draw(new Date(new Date().getTime - 5*60*60*1000))
     /*
@@ -219,7 +243,8 @@ class Slider {
 
 
  */
- function roundToHour(date) {
-   p = 60 * 60 * 1000; // milliseconds in an hour
+/* Date = datetime obejct. Interval = number of minutes (number)*/
+ function roundToInterval(date, interval) {
+   p = interval * 60 * 1000; // milliseconds in an hour
    return new Date(Math.round(date.getTime() / p ) * p);
  }

@@ -67,15 +67,19 @@ class ModeSelector {
                     .text('Data Exploration ');
                 console.log(window.controller.map)
                 window.controller.polyline.setMap(null);
+                //
                 if(window.controller.pathNodes){
                     for(let i = 0; i < window.controller.pathNodes.length; i++){
                         window.controller.pathNodes[i].setMap(null);
                     }
                 }
+                // Transition the other nodes from their previous condiitions.
+                
+                d3.selectAll("lineMaps").attr('WTFYRUStillHere_Like_This_should_be_free');
                 d3.select('div #lineMap').transition().duration(500).attr('class','hidden');
                 d3.select('#timeChartLegend').transition().duration(500).attr('class','shown');
                 d3.select('#timeChart').transition().duration(500).attr('class','shown');
-
+                ///
                 //window.controller.map.hideClick();
                     /*
                 myPath.changeMapNavLine(0);
