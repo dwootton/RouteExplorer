@@ -12,14 +12,15 @@ class Slider {
       .domain(timeBounds)
       .clamp(true);
 
+  //this.updateData(data);
+
   let dataNewYorkTimes = d3.range(0, width).map(d => {
     console.log(d);
     return {
-    year: this.xScale(d),
-    value: 5 // change this value to be the averaged pm 25 pollution
+    timePoint: this.xScale(d),
+    value: 1 // change this value to be the averaged pm 25 pollution
     }
-  }
-    );
+  });
 
   let svg = d3
     .select('#slider')
@@ -46,7 +47,7 @@ class Slider {
 
   var y = d3
     .scaleLinear()
-    .domain([0, d3.max(dataNewYorkTimes, d => d.value)])
+    .domain([0, 75])
     .nice()
     .range([height - margin.bottom, margin.top]);
   //let parseDate = d3.timeFormat("%Y-%m-%d")
@@ -80,10 +81,10 @@ class Slider {
   var barsEnter = bars
     .enter()
     .append('rect')
-    .attr('x', d => xBand(d.year))
+    .attr('x', d => xBand(d.timePoint))
     .attr('y', d => y(d.value))
     .attr('height', d => y(0) - y(d.value))
-    .attr('width', xBand.bandwidth());
+    .attr('width', 5); //xBand.bandwidth()
 
   svg.append('g').call(yAxis);
   svg.append('g').call(slider);
@@ -91,11 +92,19 @@ class Slider {
   var draw = selected => {
     barsEnter
       .merge(bars)
-      .attr('fill', d => (d.year === selected ? '#bad80a' : '#e0e0e0'));
+      .attr('fill', d => (d.timePoint === selected ? '#bad80a' : '#e0e0e0'));
     console.log(selected);
-    that.selectedDate = new Date(roundToInterval(new Date(selected),60));
-    console.log(that.selectedDate,that.renderedDate)
-    if(that.renderedDate && that.selectedDate == that.renderedDate){
+    if(isNaN(selected.getTime())){
+      selected = timeBounds[0];
+    }
+    that.selectedDate = new Date(roundToInterval(new Date(selected),15));
+    if(that.renderedDate == null){
+      that.renderedDate = new Date();
+    }
+    console.log(that.selectedDate.toISOString(),that.renderedDate.toISOString());
+    console.log(that.selectedDate.toISOString() == that.renderedDate.toISOString());
+    console.log(that.renderedDate != null);
+    if(that.selectedDate.toISOString() == that.renderedDate.toISOString()){
       console.log("Same hour!")
       return;
     }
