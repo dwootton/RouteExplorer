@@ -624,7 +624,9 @@ END MODE REMOVAL
     this.myMap.data.setStyle(function(feature) {
       var color = 'gray';
       var opacity = 0;
+      let value = 0;
       if (feature.getProperty('value')) {
+        value = feature.getProperty('value');
         color = that.colorMap(feature.getProperty('value'));
         opacity = 0.6;
       }
@@ -632,7 +634,7 @@ END MODE REMOVAL
         fillColor: color,
         strokeWeight: 0,
         fillOpacity: opacity,
-        zIndex: 10
+        zIndex: value
       });
     });
     let stopDate = new Date();
