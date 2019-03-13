@@ -105,6 +105,7 @@ class timeChart {
 	}
 
 	updateSlider(date){
+		window.controller.selector.setSelectedDate(date,'timeChart');
 	  this.selectedDate = date;
 	  console.log(this.xScale(this.selectedDate))
 	  console.log(this.x2Scale(this.selectedDate));
@@ -284,7 +285,12 @@ class timeChart {
 		console.log(this.slider);
 
 		console.log(selector.selectedDate);
-		this.updateSlider(selector.selectedDate);
+		if(selector.selectedDate != undefined){
+			//window.controller.selector.setSelectedDate(selector.selectedDate,'timeChart');
+			this.updateSlider(selector.selectedDate);
+		}
+
+
 
 
 		function brushed() {

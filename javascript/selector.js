@@ -695,6 +695,17 @@ grabIndividualSensorData(selectedSensor){
       this.grabAllSensorData(window.controller.selectedDate);
     }
   }
+  setSelectedDate(selectedDate,caller){
+    console.log(selectedDate,caller);
+    window.controller.selectedDate = selectedDate;
+    if(caller == "timeChart"){
+      console.log(window.controller.slider.slider);
+      window.controller.slider.slider.value(selectedDate);
+    } else {
+      window.controller.timeChart.updateSlider(selectedDate);
+    }
+
+  }
 }
 
 /**

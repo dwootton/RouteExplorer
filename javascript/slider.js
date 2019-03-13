@@ -77,14 +77,15 @@ class Slider {
       )
       .call(g => g.select('.domain').remove());
 
-  var slider = g =>
-    g.attr('transform', `translate(0,${height - margin.bottom})`).call(
-      d3
+  this.slider = d3
         .sliderBottom(xLinear)
         .ticks(6)
         .default(9)
         .on('onchange', value => draw(value))
-        .displayFormat(d3.timeFormat("%m-%d \n %H:%M %p")));
+        .displayFormat(d3.timeFormat("%m-%d \n %H:%M %p"));
+  console.log(this.slider);
+  var slider = g =>
+    g.attr('transform', `translate(0,${height - margin.bottom})`).call(this.slider);
 
   var bars = svg
     .append('g')
@@ -158,7 +159,7 @@ class Slider {
     );
     d3.select('.parameter').property("value", dateString);
 
-    window.controller.selector.selectedDate = that.selectedDate;
+    window.controller.selector.setSelectedDate(that.selectedDate,"slider");
     //window.controller.selector.grabAllSensorData(that.selectedDate);
     //window.controller.selector.grabAllModelData(that.selectedDate);
     window.controller.map.getDataAtTime(that.selectedDate);
