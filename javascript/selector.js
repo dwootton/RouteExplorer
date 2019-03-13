@@ -292,9 +292,10 @@ grabIndividualSensorData(selectedSensor){
       console.log(sensor);
       // find the sensor reading closest to selected time (past)
       //closestTime(sensor.pm25,new Date(time));
-      let pmIndex = sensor.pm25.findIndex((element)=>{
+      let pmIndex = closestTime(sensor.pm25,new Date(time));
+      /*sensor.pm25.findIndex((element)=>{
         return new Date(element.time).getTime() > compareTime;
-      });
+      });*/
       console.log(pmIndex);
       if(sensor.pm25 && sensor.pm25[pmIndex] && sensor.pm25[pmIndex].pm25){
         newSensorData.push({
