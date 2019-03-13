@@ -18,9 +18,7 @@ class Slider {
   //this.updateData(data);
   let xBandStarts = []
   let dataNewYorkTimes = times.map(d => {
-    console.log(d);
     xBandStarts.push(this.xScale(d));
-    console.log(this.xScale(d));
     return {
     timePoint: this.xScale(d),
     value: 20 // change this value to be the averaged pm 25 pollution
@@ -84,7 +82,7 @@ class Slider {
         .ticks(6)
         .default(9)
         .on('onchange', value => draw(value))
-    );
+        .displayFormat(d3.timeFormat("%m-%d \n %H:%M %p")));
 
   var bars = svg
     .append('g')
@@ -94,6 +92,7 @@ class Slider {
   var barsEnter = bars
     .enter()
     .append('rect')
+    .attr('class','sliderBars')
     .attr('x', d =>
     { console.log(xBand((d.timePoint)));
       return xBand(d.timePoint)})
@@ -105,11 +104,8 @@ class Slider {
   svg.append('g').call(slider);
   let that = this;
   var draw = selected => {
-    console.log(this.xScale.domain()[0], new Date(selected));
     let xPosition = this.xScale(new Date(selected));
-    console.log(this.xScale(this.xScale.domain()[0]));
-    console.log(xPosition);
-    console.log(xBandVals)
+
     let closestBarLocation = indexOfClosest(xBandVals,xPosition);
     /*xBandStarts.reduce(function(prev,curr){
       prev = prev + xBand.bandwidth()/2;
@@ -131,7 +127,6 @@ class Slider {
         console.log(i,closestBarLocation);
         return (i === closestBarLocation ? '#bad80a' : '#e0e0e0')
       });
-    console.log(selected);
 
     if(isNaN(selected.getTime())){
       selected = timeBounds[0];
@@ -140,9 +135,6 @@ class Slider {
     if(that.renderedDate == null){
       that.renderedDate = new Date();
     }
-    console.log(that.selectedDate.toISOString(),that.renderedDate.toISOString());
-    console.log(that.selectedDate.toISOString() == that.renderedDate.toISOString());
-    console.log(that.renderedDate != null);
     if(that.selectedDate.toISOString() == that.renderedDate.toISOString()){
       console.log("Same hour!")
       return;
@@ -162,9 +154,8 @@ class Slider {
       dateString
       //d3.format(parseDate)(dataNewYorkTimes[3].value)
     );
-    d3.select('.parameter-value').selectAll('text').text(
-      dateString
-    )
+    d3.select('.parameter').property("value", dateString);
+
     window.controller.selector.selectedDate = that.selectedDate;
     //window.controller.selector.grabAllSensorData(that.selectedDate);
     //window.controller.selector.grabAllModelData(that.selectedDate);
@@ -250,6 +241,8 @@ class Slider {
   }
 
   changeData(){
+    let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
+    let interval = 15;
     // check if time bounds changed?
     let times = generateNewTimes(timeBounds[0],timeBounds[1],interval);
     console.log( times);
@@ -265,17 +258,22 @@ class Slider {
       value: 50 // change this value to be the averaged pm 25 pollution
       }
     });
+    console.log(dataNewYorkTimes);
 
 
     var bars = this.svg
-      .selectAll('g')
-      .selectAll('rect')
+      .selectAll('.sliderBars')
       .data(dataNewYorkTimes);
+      console.log(bars);
+    let yscale = this.yScale;
     bars
       .enter()
-      .merge(bars)
-      .transition(500)
-      .attr('height',(d)=>(this.yScale(d)));
+      //.merge(bars)
+      //.transition(500)
+      .attr('height', (d)=>{
+        console.log(d);
+        return yscale(d.value);
+      });
 
   }
 
