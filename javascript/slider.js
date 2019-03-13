@@ -243,6 +243,181 @@ class Slider {
     }*/
   }
 
+  changeDates(){
+    this.removeSVG();
+
+    var margin = { top: 10, right: 50, bottom: 50, left: 40 },//{ top: 10, right: 50, bottom: 50, left: 40 }
+      width = 1500 - margin.left - margin.right,
+      height = 100;
+
+    let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
+
+    let interval = 15;
+    this.times = generateNewTimes(timeBounds[0],timeBounds[1],interval);
+    let times = this.times;
+
+    console.log(times);
+    this.xScale = d3.scaleTime().range([0, width])
+        .domain(timeBounds)
+        .clamp(true);
+
+    //this.updateData(data);
+    let xBandStarts = []
+    let dataNewYorkTimes = times.map(d => {
+      xBandStarts.push(this.xScale(d));
+      return {
+      timePoint: this.xScale(d),
+      value: 20 // change this value to be the averaged pm 25 pollution
+      }
+    });
+
+    let svg = d3
+      .select('#slider')
+      .attr('width', width)
+      .attr('height', height);
+    this.svg =svg;
+    let padding = 0.1;
+
+    let xBand = d3
+      .scaleBand()
+      .domain(xBandStarts)
+      .range([margin.left, width - margin.right])
+      .padding(padding);
+
+    let xLinear = this.xScale
+      .range([
+        margin.left + xBand.bandwidth() / 2 + xBand.step() * padding - 0.5,
+        width -
+          margin.right -
+          xBand.bandwidth() / 2 -
+          xBand.step() * padding -
+          0.5,
+      ]);
+
+    let xBandVals = []
+    times.map(d => {
+      console.log(d);
+      xBandVals.push(xLinear(d));
+      console.log(xLinear(d));
+    });
+
+
+
+    var y = d3
+      .scaleLinear()
+      .domain([0, 75])
+      .nice()
+      .range([height - margin.bottom, margin.top]);
+    //let parseDate = d3.timeFormat("%Y-%m-%d")
+    this.yScale =y;
+    var yAxis = g =>
+      g
+        .attr('transform', `translate(${width - margin.right},0)`)
+        .call(
+          d3
+            .axisRight(y)
+            .tickValues([1e4])
+            .tickFormat(d3.format('($.2s'))
+        )
+        .call(g => g.select('.domain').remove());
+
+    this.slider = d3
+          .sliderBottom(xLinear)
+          .ticks(6)
+          .default(9)
+          .on('onchange', value => draw(value))
+          .displayFormat(d3.timeFormat("%m-%d \n %H:%M %p"));
+    console.log(this.slider);
+    var slider = g =>
+      g.attr('transform', `translate(0,${height - margin.bottom})`).call(this.slider);
+
+    var bars = svg
+      .append('g')
+      .selectAll('rect')
+      .data(dataNewYorkTimes);
+    console.log(xBand);
+    var barsEnter = bars
+      .enter()
+      .append('rect')
+      .attr('class','sliderBars')
+      .attr('x', d =>
+      { console.log(xBand((d.timePoint)));
+        return xBand(d.timePoint)})
+      .attr('y', d => y(d.value))
+      .attr('height', d => y(0) - y(d.value))
+      .attr('width', xBand.bandwidth()); //
+
+    svg.append('g').call(yAxis);
+    svg.append('g').call(slider);
+    let that = this;
+    var draw = selected => {
+      let xPosition = this.xScale(new Date(selected));
+
+      let closestBarLocation = indexOfClosest(xBandVals,xPosition);
+      /*xBandStarts.reduce(function(prev,curr){
+        prev = prev + xBand.bandwidth()/2;
+        curr = curr + xBand.bandwidth()/2;
+        return (Math.abs(curr - xPosition) < Math.abs(prev - xPosition) ? curr : prev);
+      })*/
+
+      barsEnter
+        .merge(bars)
+        .attr('fill', (d,i) => {
+          /*
+          console.log(d.timePoint,);
+          if(d.timePoint < this.xScale(roundToInterval(new Date(selected),interval))){ // if greater
+            if(d.timePoint + 17 > this.xScale(roundToInterval(new Date(selected),interval))){
+              return '#bad80a';
+            }
+          }
+          return '#e0e0e0'*/
+          console.log(i,closestBarLocation);
+          return (i === closestBarLocation ? '#bad80a' : '#e0e0e0')
+        });
+
+      if(isNaN(selected.getTime())){
+        selected = timeBounds[0];
+      }
+      that.selectedDate = new Date(roundToInterval(new Date(selected),15));
+      if(that.renderedDate == null){
+        that.renderedDate = new Date();
+      }
+      if(that.selectedDate.toISOString() == that.renderedDate.toISOString()){
+        console.log("Same hour!")
+        return;
+      }
+      that.renderedDate = that.selectedDate;
+      let m = that.selectedDate;
+      var dateString =
+          m.getUTCFullYear() + "/" +
+          ("0" + (m.getUTCMonth()+1)).slice(-2) + "/" +
+          ("0" + m.getUTCDate()).slice(-2) + " " +
+          ("0" + m.getUTCHours()).slice(-2) + ":" +
+          ("0" + m.getUTCMinutes()).slice(-2) + ":" +
+          ("0" + m.getUTCSeconds()).slice(-2);
+
+      console.log(dateString);
+      d3.select('p#value-new-york-times').text(
+        dateString
+        //d3.format(parseDate)(dataNewYorkTimes[3].value)
+      );
+      d3.select('.parameter').property("value", dateString);
+
+      window.controller.selector.setSelectedDate(that.selectedDate,"slider");
+      //window.controller.selector.grabAllSensorData(that.selectedDate);
+      //window.controller.selector.grabAllModelData(that.selectedDate);
+      window.controller.map.getDataAtTime(that.selectedDate);
+    }
+    console.log("BeforeDraw")
+    //draw(new Date(new Date().getTime - 5*60*60*1000));
+    console.log("Finsihed slider")
+
+
+  }
+  removeSVG(){
+    this.svg.selectAll('*').remove();
+  }
+
   changeData(data){
 
 

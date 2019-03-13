@@ -38,12 +38,14 @@ class Selector {
         this.startDate = new Date(start.format());
         this.endDate = new Date(end.format());
 
+        document.getElementById("overlay").style.display = "block";
+
         window.controller.startDate = new Date(start.format());
         window.controller.endDate = new Date(end.format());
 
         // select the middle timepoint as default render
         window.controller.selectedDate = new Date((this.startDate.getTime() + this.endDate.getTime()) / 2);
-
+        window.controller.slider.changeDates();
         /* Update the date display in the navBar
         document.getElementById("dateDisplay").textContent = "to";
         document.getElementById("startDate").textContent = formatDate(this.startDate)
@@ -519,6 +521,7 @@ grabIndividualSensorData(selectedSensor){
       let timeStop = new Date();
       console.log(timeStop.getTime()-timeStart.getTime());
       window.controller.slider.changeData(this.averagedPM25);
+      document.getElementById("overlay").style.display = "none";
       /*for (time in allModelData) {
         this.entireModelData = allModelData[time].pm25;
       }
@@ -702,7 +705,13 @@ grabIndividualSensorData(selectedSensor){
       console.log(window.controller.slider.slider);
       window.controller.slider.slider.value(selectedDate);
     } else {
-      window.controller.timeChart.updateSlider(selectedDate);
+      try{
+        window.controller.timeChart.updateSlider(selectedDate);
+      }
+      catch(error){
+        console.log(error);
+      }
+
     }
 
   }
