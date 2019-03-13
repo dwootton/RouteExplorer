@@ -620,23 +620,41 @@ END MODE REMOVAL
       console.log(imported);
     }
 
-
-    this.myMap.data.setStyle(function(feature) {
+    this.myMap.data.setStyle(styleContour);
+    /*this.myMap.data.setStyle(function(feature) {
       var color = 'gray';
       var opacity = 0;
-      let value = 0;
+      let value = 10;
       if (feature.getProperty('value')) {
-        value = feature.getProperty('value');
+        value = feature.getProperty('value')+10;
         color = that.colorMap(feature.getProperty('value'));
         opacity = 0.6;
+        console.log(value);
       }
-      return /** @type {!google.maps.Data.StyleOptions} */ ({
+      return /** @type {!google.maps.Data.StyleOptions}  ({{
         fillColor: color,
         strokeWeight: 0,
         fillOpacity: opacity,
-        zIndex: value
-      });
-    });
+
+      },zIndex: value);
+    });*/
+    function styleContour(feature) {
+      var color = 'gray';
+      var opacity = 0;
+      let zIndex = 10;
+      if (feature.getProperty('value')) {
+        zIndex = feature.getProperty('value')*10+10;
+        color = that.colorMap(feature.getProperty('value'));
+        opacity = 0.6;
+        console.log(zIndex);
+      }
+       return {
+              fillColor: color,
+              strokeWeight: 0,
+              fillOpacity: opacity,
+              zIndex:zIndex
+        };
+    }
     let stopDate = new Date();
     let stopStamp = startDate.getTime()
     console.log("d3 contour time: ", (stopStamp - startStamp))
