@@ -2,23 +2,28 @@ class Slider {
   constructor(){
 
 
-  var margin = { top: 10, right: 50, bottom: 50, left: 40 },
-    width = 1700 - margin.left - margin.right,
+  var margin = { top: 10, right: 50, bottom: 50, left: 40 },//{ top: 10, right: 50, bottom: 50, left: 40 }
+    width = 1500 - margin.left - margin.right,
     height = 100;
 
   let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
 
+  let interval = 15;
+  let times = generateNewTimes(timeBounds[0],timeBounds[1],interval);
+  console.log( times);
   this.xScale = d3.scaleTime().range([0, width])
       .domain(timeBounds)
       .clamp(true);
 
   //this.updateData(data);
-
-  let dataNewYorkTimes = d3.range(0, width).map(d => {
+  let xBandStarts = []
+  let dataNewYorkTimes = times.map(d => {
     console.log(d);
+    xBandStarts.push(this.xScale(d));
+    console.log(this.xScale(d));
     return {
     timePoint: this.xScale(d),
-    value: 1 // change this value to be the averaged pm 25 pollution
+    value: 20 // change this value to be the averaged pm 25 pollution
     }
   });
 
@@ -31,7 +36,7 @@ class Slider {
 
   let xBand = d3
     .scaleBand()
-    .domain(timeBounds)
+    .domain(xBandStarts)
     .range([margin.left, width - margin.right])
     .padding(padding);
 
@@ -44,6 +49,15 @@ class Slider {
         xBand.step() * padding -
         0.5,
     ]);
+
+  let xBandVals = []
+  times.map(d => {
+    console.log(d);
+    xBandVals.push(xLinear(d));
+    console.log(xLinear(d));
+  });
+
+
 
   var y = d3
     .scaleLinear()
@@ -77,23 +91,49 @@ class Slider {
     .append('g')
     .selectAll('rect')
     .data(dataNewYorkTimes);
-
+  console.log(xBand);
   var barsEnter = bars
     .enter()
     .append('rect')
-    .attr('x', d => xBand(d.timePoint))
+    .attr('x', d =>
+    { console.log(xBand((d.timePoint)));
+      return xBand(d.timePoint)})
     .attr('y', d => y(d.value))
     .attr('height', d => y(0) - y(d.value))
-    .attr('width', 5); //xBand.bandwidth()
+    .attr('width', xBand.bandwidth()); //
 
   svg.append('g').call(yAxis);
   svg.append('g').call(slider);
   let that = this;
   var draw = selected => {
+    console.log(this.xScale.domain()[0], new Date(selected));
+    let xPosition = this.xScale(new Date(selected));
+    console.log(this.xScale(this.xScale.domain()[0]));
+    console.log(xPosition);
+    console.log(xBandVals)
+    let closestBarLocation = indexOfClosest(xBandVals,xPosition);
+    /*xBandStarts.reduce(function(prev,curr){
+      prev = prev + xBand.bandwidth()/2;
+      curr = curr + xBand.bandwidth()/2;
+      return (Math.abs(curr - xPosition) < Math.abs(prev - xPosition) ? curr : prev);
+    })*/
+
     barsEnter
       .merge(bars)
-      .attr('fill', d => (d.timePoint === selected ? '#bad80a' : '#e0e0e0'));
+      .attr('fill', (d,i) => {
+        /*
+        console.log(d.timePoint,);
+        if(d.timePoint < this.xScale(roundToInterval(new Date(selected),interval))){ // if greater
+          if(d.timePoint + 17 > this.xScale(roundToInterval(new Date(selected),interval))){
+            return '#bad80a';
+          }
+        }
+        return '#e0e0e0'*/
+        console.log(i,closestBarLocation);
+        return (i === closestBarLocation ? '#bad80a' : '#e0e0e0')
+      });
     console.log(selected);
+
     if(isNaN(selected.getTime())){
       selected = timeBounds[0];
     }
@@ -259,3 +299,35 @@ class Slider {
    p = interval * 60 * 1000; // milliseconds in an hour
    return new Date(Math.round(date.getTime() / p ) * p);
  }
+
+ function generateNewTimes(startDate, endDate, interval){
+   var dates = [],
+      currentDate = startDate,
+      addTime = function(newInterval) {
+        var date = new Date(this.valueOf());
+        date.setTime(date.getTime() + newInterval*60*1000);
+        return date;
+      };
+  while (currentDate <= endDate) {
+    dates.push(currentDate);
+    currentDate = addTime.call(currentDate, interval);
+  }
+  return dates;
+
+ }
+
+ function indexOfClosest(nums, target) {
+  let closest = Number.MAX_SAFE_INTEGER;
+  let index = 0;
+
+  nums.forEach((num, i) => {
+    let dist = Math.abs(target - num);
+
+    if (dist < closest) {
+      index = i;
+      closest = dist;
+    }
+  });
+
+  return index;
+}
