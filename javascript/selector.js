@@ -291,6 +291,7 @@ grabIndividualSensorData(selectedSensor){
     this.entireSensorData.forEach((sensor)=>{
       console.log(sensor);
       // find the sensor reading closest to selected time (past)
+      //closestTime(sensor.pm25,new Date(time));
       let pmIndex = sensor.pm25.findIndex((element)=>{
         return new Date(element.time).getTime() > compareTime;
       });
@@ -735,4 +736,41 @@ function formatDate(date) {
   var year = date.getFullYear();
 
   return day + ' ' + monthNames[monthIndex] + ' ' + year;
+}
+
+/**
+ * Performs a binary search on the array using the given accessor and returns the index
+ * corresponding to the closest time in the array. Note: Requires a sorted array.
+ * @param  {[type]} arr [description]
+ * @param  {[type]} x   [description]
+ * @return {[type]}     [description]
+ */
+function closestTime (arr, x) {
+    //abs(x);
+  //sensor.pm25.findIndex((element)=>{
+    //return new Date(element.time).getTime()
+    x = x.getTime();
+    /* lb is the lower bound and ub the upper bound defining a subarray or arr. */
+    var lb = 0,
+        ub = arr.length - 1 ;
+    /* We loop as long as x is in inside our subarray and the length of our subarray is greater than 0 (lb < ub). */
+    while (ub - lb > 1) {
+        var m = parseInt((ub - lb + 1) / 2) ; // The middle value
+        /* Depending on the middle value of our subarray, we update the bound. */
+        if (new Date(arr[lb + m].time).getTime() > x) {
+            ub = lb + m ;
+        }
+        else if (new Date(arr[lb + m].time).getTime() < x) {
+            lb = lb + m ;
+        }
+        else {
+            ub = lb + m ; lb = lb + m ;
+        }
+    }
+    /* After the loop, we know that the closest value is either the one at the lower or upper bound (may be the same if x is in arr). */
+    var clst = lb ;
+    if (Math.abs(arr[lb] - x) > Math.abs(arr[ub] - x)) {
+        clst = ub ;
+    }
+    return clst ; // If you want the value instead of the index, return arr[clst]
 }

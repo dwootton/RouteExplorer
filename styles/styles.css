@@ -539,7 +539,7 @@ a.article:hover {
 .spike-selector
 {
     height: 650px;
-    width: 150px;
+    width: 300px;
     overflow: scroll;
     border: 1px solid lightgray;
     display:inline-block;
@@ -547,7 +547,7 @@ a.article:hover {
 
 .spikes {
       height: 30px;
-      width: 140px;
+      width: 200px;
       margin: 10 auto;
       padding-right: 10px;
   }
@@ -557,6 +557,7 @@ a.article:hover {
   cursor: pointer;
   fill: #fff;
   fill-opacity: 0.5;
+  width: 200px;
   stroke: #aaa;
   stroke-width: 1.5px;
 }

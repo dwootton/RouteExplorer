@@ -3,7 +3,7 @@ class Slider {
 
 
   var margin = { top: 10, right: 50, bottom: 50, left: 40 },//{ top: 10, right: 50, bottom: 50, left: 40 }
-    width = 1500 - margin.left - margin.right,
+    width = 1700 - margin.left - margin.right,
     height = 100;
 
   let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
