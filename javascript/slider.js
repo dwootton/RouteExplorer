@@ -31,7 +31,7 @@ class Slider {
     .select('#slider')
     .attr('width', width)
     .attr('height', height);
-
+  this.svg =svg;
   let padding = 0.1;
 
   let xBand = d3
@@ -65,7 +65,7 @@ class Slider {
     .nice()
     .range([height - margin.bottom, margin.top]);
   //let parseDate = d3.timeFormat("%Y-%m-%d")
-
+  this.yScale =y;
   var yAxis = g =>
     g
       .attr('transform', `translate(${width - margin.right},0)`)
@@ -81,8 +81,7 @@ class Slider {
     g.attr('transform', `translate(0,${height - margin.bottom})`).call(
       d3
         .sliderBottom(xLinear)
-        .step(1)
-        .ticks(4)
+        .ticks(6)
         .default(9)
         .on('onchange', value => draw(value))
     );
@@ -163,12 +162,17 @@ class Slider {
       dateString
       //d3.format(parseDate)(dataNewYorkTimes[3].value)
     );
+    d3.select('.parameter-value').selectAll('text').text(
+      dateString
+    )
     window.controller.selector.selectedDate = that.selectedDate;
     //window.controller.selector.grabAllSensorData(that.selectedDate);
     //window.controller.selector.grabAllModelData(that.selectedDate);
     window.controller.map.getDataAtTime(that.selectedDate);
   }
-  draw(new Date(new Date().getTime - 5*60*60*1000))
+  console.log("BeforeDraw")
+  //draw(new Date(new Date().getTime - 5*60*60*1000));
+  console.log("Finsihed slider")
     /*
     var svg = d3.select("#slider"),
         margin = {right: 50, left: 50},
@@ -243,6 +247,36 @@ class Slider {
       svg.style("background-color", d3.hsl(h, 0.8, 0.8));
 
     }*/
+  }
+
+  changeData(){
+    // check if time bounds changed?
+    let times = generateNewTimes(timeBounds[0],timeBounds[1],interval);
+    console.log( times);
+
+    //this.updateData(data);
+    let xBandStarts = []
+    let dataNewYorkTimes = times.map(d => {
+      console.log(d);
+      xBandStarts.push(this.xScale(d));
+      console.log(this.xScale(d));
+      return {
+      timePoint: this.xScale(d),
+      value: 50 // change this value to be the averaged pm 25 pollution
+      }
+    });
+
+
+    var bars = this.svg
+      .selectAll('g')
+      .selectAll('rect')
+      .data(dataNewYorkTimes);
+    bars
+      .enter()
+      .merge(bars)
+      .transition(500)
+      .attr('height',(d)=>(this.yScale(d)));
+
   }
 
 }

@@ -292,13 +292,15 @@ grabIndividualSensorData(selectedSensor){
         return new Date(element.time).getTime() > compareTime;
       });
       console.log(pmIndex);
-      console.lo
-      newSensorData.push({
-        id:sensor.id,
-        pm25:sensor.pm25[pmIndex].pm25,
-        lat:sensor.lat,
-        long:sensor.long,
-      })
+      if(sensor.pm25 && sensor.pm25[pmIndex] && sensor.pm25[pmIndex].pm25){
+        newSensorData.push({
+          id:sensor.id,
+          pm25:sensor.pm25[pmIndex].pm25,
+          lat:sensor.lat,
+          long:sensor.long,
+        })
+      }
+
     })
     console.log(newSensorData);
     this.allSensorsData = newSensorData;
