@@ -484,6 +484,7 @@ grabIndividualSensorData(selectedSensor){
       /*if(window.controller.selectedDate != time){
         return;
       } */
+      this.averagedPM25 = [];
       console.log(values);
       let organizedModelDataCollection = [];
       let parsedModelData = JSON.parse(values);
@@ -700,6 +701,11 @@ grabIndividualSensorData(selectedSensor){
       this.grabAllSensorData(window.controller.selectedDate);
     }
   }
+  /**
+   * [setSelectedDate description]
+   * @param {[type]} selectedDate A datetime object
+   * @param {[type]} caller       [description]
+   */
   setSelectedDate(selectedDate,caller){
     console.log(selectedDate,caller);
     window.controller.selectedDate = selectedDate;
@@ -713,9 +719,22 @@ grabIndividualSensorData(selectedSensor){
       catch(error){
         console.log(error);
       }
-
     }
-
+  }
+  /**
+   * [setSelectedDate description]
+   * @param {[type]} selectedDate A datetime object
+   * @param {[type]} caller       [description]
+   */
+  setSelectedDateBoth(selectedDate){
+    window.controller.selectedDate = selectedDate;
+    window.controller.slider.slider.value(selectedDate);
+    try{
+      window.controller.timeChart.updateSlider(selectedDate);
+    }
+    catch(error){
+      console.error(error);
+    }
   }
 }
 
@@ -747,8 +766,7 @@ function formatDate(date) {
  * @return {[type]}     [description]
  */
 function closestTime (arr, x) {
-    //abs(x);
-  //sensor.pm25.findIndex((element)=>{
+    //sensor.pm25.findIndex((element)=>{
     //return new Date(element.time).getTime()
     x = x.getTime();
     /* lb is the lower bound and ub the upper bound defining a subarray or arr. */

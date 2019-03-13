@@ -163,6 +163,26 @@ class Slider {
     //window.controller.selector.grabAllSensorData(that.selectedDate);
     //window.controller.selector.grabAllModelData(that.selectedDate);
     window.controller.map.getDataAtTime(that.selectedDate);
+
+    /*Attach a  global listener for keys*/
+    $(document).keydown(function(e) {
+      console.log(e.which);
+      switch(e.which) {
+
+          case 37: // left
+          draw(that.selectedDate.getTime()-5*60*1000);
+          break;
+
+          case 39: // right
+          draw(that.selectedDate.getTime()+5*60*1000);
+          break;
+
+          default: return; // exit this handler for other keys
+      }
+    e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
+
+
   }
   console.log("BeforeDraw")
   //draw(new Date(new Date().getTime - 5*60*60*1000));
@@ -241,6 +261,13 @@ class Slider {
       svg.style("background-color", d3.hsl(h, 0.8, 0.8));
 
     }*/
+  }
+  moveSlider(offset){
+    if(window.controller.selectedDate.getTime()+offset > window.controller.selector.endDate.getTime() || window.controller.selectedDate.getTime()+offset < window.controller.selector.startDate.getTime()){
+      return; // as it would be outside of the slider
+    }
+    //set both timechart and slider
+    window.controller.selector.setSelectedDateBoth(new Date(window.controller.selectedDate.getTime()+offset));
   }
 
   changeDates(){
@@ -406,7 +433,7 @@ class Slider {
       window.controller.selector.setSelectedDate(that.selectedDate,"slider");
       //window.controller.selector.grabAllSensorData(that.selectedDate);
       //window.controller.selector.grabAllModelData(that.selectedDate);
-      window.controller.map.getDataAtTime(that.selectedDate);
+      window.controller.map.getDataAtTime(window.controller.selectedDate);
     }
     console.log("BeforeDraw")
     //draw(new Date(new Date().getTime - 5*60*60*1000));
@@ -414,13 +441,12 @@ class Slider {
 
 
   }
+
   removeSVG(){
     this.svg.selectAll('*').remove();
   }
 
   changeData(data){
-
-
 
     let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
     let interval = 15;

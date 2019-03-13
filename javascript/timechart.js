@@ -74,6 +74,7 @@ class timeChart {
 
 		this.legend = new timeChartLegend();
 		window.controller.timeChartLegend = this.legend;
+		this.update();
 	}
 
 
@@ -284,10 +285,10 @@ class timeChart {
 		this.slider = this.focus.append("line");
 		console.log(this.slider);
 
-		console.log(selector.selectedDate);
-		if(selector.selectedDate != undefined){
+		console.log(window.controller.selectedDate);
+		if(window.controller.selectedDate != undefined){
 			//window.controller.selector.setSelectedDate(selector.selectedDate,'timeChart');
-			this.updateSlider(selector.selectedDate);
+			this.updateSlider(window.controller.selectedDate);
 		}
 
 
@@ -435,9 +436,8 @@ class timeChart {
           }
           that.selectedDate = new Date(newData.x);
 					window.controller.selectedDate = that.selectedDate
-          selector.selectedDate = that.selectedDate;
-          selector.grabAllSensorData(selector.selectedDate);
-          selector.grabAllModelData(selector.selectedDate)
+          selector.grabAllSensorData(window.controller.selectedDate);
+          selector.grabAllModelData(window.controller.selectedDate);
           that.updateSlider(that.selectedDate)
       })
 	}

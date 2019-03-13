@@ -18,6 +18,14 @@ class AQMap {
     this.shiftKeyPressed = false;
 
     window.onkeydown = (e) => {
+      console.log(e);
+      if(e.key == "ArrowLeft"){
+        window.controller.slider.moveSlider(-5*60*1000);// move left by 5 minutes
+        e.preventDefault();
+      } else if(e.key == "ArrowRight"){
+        window.controller.slider.moveSlider(5*60*1000);// move right by 5 minutes
+        e.preventDefault();
+      }
       this.shiftKeyPressed = ((e.keyIdentifier == 'Shift') || (e.shiftKey == true));
     }
 
