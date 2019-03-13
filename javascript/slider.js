@@ -9,8 +9,10 @@ class Slider {
   let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
 
   let interval = 15;
-  let times = generateNewTimes(timeBounds[0],timeBounds[1],interval);
-  console.log( times);
+  this.times = generateNewTimes(timeBounds[0],timeBounds[1],interval);
+  let times = this.times;
+
+  console.log(times);
   this.xScale = d3.scaleTime().range([0, width])
       .domain(timeBounds)
       .clamp(true);
@@ -240,40 +242,43 @@ class Slider {
     }*/
   }
 
-  changeData(){
+  changeData(data){
+
+
+
     let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
     let interval = 15;
     // check if time bounds changed?
     let times = generateNewTimes(timeBounds[0],timeBounds[1],interval);
-    console.log( times);
-
+    console.log( data,times);
+    //let newData = largestTriangleThreeBuckets(data,times.length);
+    //console.log(newData);
     //this.updateData(data);
     let xBandStarts = []
-    let dataNewYorkTimes = times.map(d => {
+    let dataNewYorkTimes = times.map((d,i) => {
       console.log(d);
       xBandStarts.push(this.xScale(d));
       console.log(this.xScale(d));
       return {
       timePoint: this.xScale(d),
-      value: 50 // change this value to be the averaged pm 25 pollution
+      value: data[i] // change this value to be the averaged pm 25 pollution
       }
     });
     console.log(dataNewYorkTimes);
 
-
+    this.yScale.domain([0,d3.max(data)])
     var bars = this.svg
       .selectAll('.sliderBars')
       .data(dataNewYorkTimes);
       console.log(bars);
     let yscale = this.yScale;
+    console.log()
     bars
-      .enter()
       //.merge(bars)
-      //.transition(500)
-      .attr('height', (d)=>{
-        console.log(d);
-        return yscale(d.value);
-      });
+      .transition(500)
+      .attr('y', d => yscale(d.value))
+      .attr('height', d => yscale(0) - yscale(d.value));
+
 
   }
 
@@ -363,3 +368,6 @@ class Slider {
 
   return index;
 }
+
+
+function  largestTriangleThreeBuckets(r,o){var a=r.length;if(a<=o||0===o)return r;var e,t,f,l,n=[],s=0,u=(a-2)/(o-2),v=0;n[s++]=r[v];for(var c=0;c<o-2;c++){for(var g=0,h=0,i=Math.floor((c+1)*u)+1,T=Math.floor((c+2)*u)+1,b=(T=T<a?T:a)-i;i<T;i++)g+=1*r[i][0],h+=1*r[i][1];g/=b,h/=b;var k=Math.floor((c+0)*u)+1,p=Math.floor((c+1)*u)+1,B=1*r[v][0],M=1*r[v][1];for(t=f=-1;k<p;k++)t<(f=.5*Math.abs((B-g)*(r[k][1]-M)-(B-r[k][0])*(h-M)))&&(t=f,e=r[k],l=k);n[s++]=e,v=l}return n[s++]=r[a-1],n};

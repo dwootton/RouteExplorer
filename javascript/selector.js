@@ -18,6 +18,7 @@ class Selector {
     this.sensorSource = "airU";//"airU"
     this.rendered = false;
     this.selectedSensors = [];
+    this.averagedPM25 = [];
 
     this.populateSensorList();
 
@@ -483,6 +484,7 @@ grabIndividualSensorData(selectedSensor){
       let organizedModelDataCollection = [];
       let parsedModelData = JSON.parse(values);
       console.log(parsedModelData)
+
       parsedModelData.shift();
       parsedModelData.forEach( (element) => {
         console.log(element);
@@ -494,8 +496,11 @@ grabIndividualSensorData(selectedSensor){
           time: new Date(date),
           data: element[date].pm25
         })
+        this.averagedPM25.push(element[date].pm25.reduce((p,c,_,a) => p + c/a.length,0))
 
       })
+      console.log(this.averagedPM25)
+      window.controller.slider.changeData(this.averagedPM25);
       console.log(organizedModelDataCollection);
 
       this.entireModelData = organizedModelDataCollection;
@@ -513,10 +518,14 @@ grabIndividualSensorData(selectedSensor){
       console.log(this.entireModelData)
       let timeStop = new Date();
       console.log(timeStop.getTime()-timeStart.getTime());
+      window.controller.slider.changeData(this.averagedPM25);
       /*for (time in allModelData) {
         this.entireModelData = allModelData[time].pm25;
       }
       this.updateModelView(); */
+
+      // After all done:
+
     })
   }
 
