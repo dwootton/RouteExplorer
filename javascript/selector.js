@@ -701,6 +701,7 @@ grabIndividualSensorData(selectedSensor){
       this.grabAllSensorData(window.controller.selectedDate);
     }
   }
+
   /**
    * [setSelectedDate description]
    * @param {[type]} selectedDate A datetime object
@@ -725,8 +726,8 @@ grabIndividualSensorData(selectedSensor){
    * [setSelectedDate description]
    * @param {[type]} selectedDate A datetime object
    * @param {[type]} caller       [description]
-   */
-  setSelectedDateBoth(selectedDate){
+
+  setSelectedDate(selectedDate){
     window.controller.selectedDate = selectedDate;
     window.controller.slider.slider.value(selectedDate);
     try{
@@ -735,7 +736,7 @@ grabIndividualSensorData(selectedSensor){
     catch(error){
       console.error(error);
     }
-  }
+  }*/
 }
 
 /**

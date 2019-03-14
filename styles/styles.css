@@ -381,7 +381,7 @@ a.article:hover {
 ----------------------------------------------------- */
 #map {
   margin:none;
-  height: 650px;
+  height: 500px;
   width: 1200px;
   display: inline-block;
 }
@@ -496,7 +496,14 @@ a.article:hover {
 ----------------------------------------------------- */
 #slider {
   height: 100px;
-  width: 1700px;
+  width: 1900px;
+  margin-left: 10px;
+}
+
+#value-new-york-times{
+  text-align: center;
+  margin-left: 550px;
+  margin-right: auto;
 }
 
 .ticks {
@@ -538,7 +545,7 @@ a.article:hover {
 ----------------------------------------------------- */
 .spike-selector
 {
-    height: 650px;
+    height: 500px;
     width: 300px;
     overflow: scroll;
     border: 1px solid lightgray;
@@ -599,13 +606,13 @@ a.article:hover {
 
 
 #timeChart {
-  height: 350px;
-  width: 1700px;
+  height: 280px;
+  width: 1355px;
 }
 
 #timeChartLegend {
   /*height: 35px;*/
-  width: 1700px;
+  width: 1355px;
 }
 
 .zoom {

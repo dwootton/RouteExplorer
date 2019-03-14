@@ -10,22 +10,48 @@
     height: 60px;
     float: left;
     margin: 1px;
+    position:relative;
+  }
+  tiles {
+    position:absolute;
+  }
+  body, html {
+    height: 100%;
+
+  }
+
+  .bg {
+    /* The image used */
+    background-image: url("backgroundmap.jpg");
+    /* Full height */
+    height: 100%;
+    width:100%;
+    position: absolute;
+
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
   }
   </style>
 </head>
-<body>
+<div class="bg"></div>
+<body class='tiles'>
+
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="http://d3js.org/d3.v5.js"></script>
 
   <script type="text/javascript">
-
-  let lightGreen = "rgba(219, 241, 215, 0.3)",
-      lightYellow = "rgba(240, 240, 215,0.5)",
-      mediumOrange = "rgba(245, 209, 161,0.7)",
+/*
+  let lightGreen = "rgba(219, 241, 215, 0.5)",
+      lightYellow = "rgba(240, 240, 215,0.6)",
+      mediumOrange = "rgba(245, 209, 161,0.8)",
       red = "rgba(212, 48, 48,0.9)",
       darkRed = "rgba(107, 5, 50,1.0)";
 
-      /* Option 1
+*/
+      /* Option 1  */
 
       let lightGreen = "rgba(219, 241, 215, 0.3)",
           lightYellow = "rgba(240, 240, 215,0.5)",
@@ -34,23 +60,52 @@
           darkRed = "rgba(107, 5, 50,1.0)";
 
 
-      */
 
-      /* Option 2
+
+      /* Option 2:
       let lightGreen = "rgba(219, 241, 215, 0.3)",
           lightYellow = "rgba(240, 240, 215,0.4)",
           mediumOrange = "rgba(245, 209, 161,0.45)",
           red = "rgba(212, 48, 48,0.6)",
-          darkRed = "rgba(107, 5, 50,0.8)";
+          darkRed = "rgba(107, 5, 50,0.8)";*/
 
-      */
+  /* Option 3:
+  let noGray = "rgba(255, 255, 255, 0.0)"
+      lightGray = "rgba(180, 190, 180, 0.4)",
+      mediumGray = "rgba(170, 170, 170, 0.75)"
+      fullGray = "rgba(155, 155, 155,0.9)",
+      redGray = "rgba(155, 100, 100,0.9)",
+      purpleGray = "rgba(10, 5, 10,1.0)";*/
+
+      /* Current Color
+  let currentColorRange = ['rgba(0,104,55,.2)', 'rgba(102,189,99,1)', 'rgba(217,239,139,1)', 'rgba(255,233,33,1)', 'rgba(254,224,139,1)', 'rgba(253,174,97,1)', 'rgba(244,109,67,1)', 'rgba(215,48,39,1)', 'rgba(165,0,38,1)']; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
+  let currentpm25Domain = [0,4,8,12, 35, 42, 49, 55, 150, 250];
+  let currentColors = [];
+  currentColorRange.map(function(element){
+    currentColors.push(d3.color(element));
+  }) */
+  let lightGreen = "rgba(219, 241, 215, 0.3)",
+      lightYellow = "rgba(240, 240, 215,0.5)",
+      mediumOrange = "rgba(245, 209, 161,0.7)",
+      red = "rgba(212, 48, 48,0.9)",
+      darkRed = "rgba(107, 5, 50,1.0)";
+
+  let currentColorRange = ['rgba(230,230,230,.1)', 'rgba(230,230,230,.5)', 'rgba(230,200,200,1)', 'rgba(253,174,97,1)', 'rgba(244,109,67,1)', 'rgba(215,48,39,1)']; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
+  let currentpm25Domain = [0,12, 35, 55, 150, 250];
+  let currentColors = [];
+  currentColorRange.map(function(element){
+    currentColors.push(d3.color(element));
+  })
+
   var body = d3.select("body"),
     length = 250,
     color = d3.scalePow()
-          .exponent(Math.E).domain([0,60,length]/*[1,12,35,55,150,length]*/)
+          .exponent(Math.E).domain(currentpm25Domain) /*currentpm25Domain*//*Option 3[1,12,35,55,155,length]]*/ /*Option 2 [0,60,length] */
       .interpolate(d3.interpolateHcl)
-      .range([d3.color("rgba(223,242,195,0.3)"),d3.color("rgba(194,194,186,0.7)"),d3.color("rgba(84,43,43,0.8)")])
-      //.range([d3.color(lightGreen),d3.color(lightYellow), d3.color(mediumOrange),d3.color(red),d3.color(darkRed)]);
+      //.range([d3.color("rgba(223,242,195,0.3)"),d3.color("rgba(194,194,186,0.7)"),d3.color("rgba(84,43,43,0.8)")])
+      //.range([d3.color(lightGreen),d3.color(lightYellow), d3.color(mediumOrange),d3.color(red),d3.color(darkRed)]); //Option 2
+      //.range([d3.color(noGray),d3.color(lightGray),d3.color(fullGray), d3.color(redGray),d3.color(purpleGray)]);Option 3
+      .range(currentColors)
 //rgb(249, 255, 247)
       /*const expScale = d3.scalePow()
             .exponent(Math.E)

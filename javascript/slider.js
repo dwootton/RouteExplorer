@@ -3,7 +3,7 @@ class Slider {
 
 
   var margin = { top: 10, right: 50, bottom: 50, left: 40 },//{ top: 10, right: 50, bottom: 50, left: 40 }
-    width = 1700 - margin.left - margin.right,
+    width = 1800 - margin.left - margin.right,
     height = 100;
 
   let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
@@ -267,7 +267,8 @@ class Slider {
       return; // as it would be outside of the slider
     }
     //set both timechart and slider
-    window.controller.selector.setSelectedDateBoth(new Date(window.controller.selectedDate.getTime()+offset));
+    window.controller.selector.setSelectedDate(new Date(window.controller.selectedDate.getTime()+offset),'timeChart');
+    window.controller.selector.setSelectedDate(new Date(window.controller.selectedDate.getTime()+offset),'slider');
   }
 
   changeDates(){

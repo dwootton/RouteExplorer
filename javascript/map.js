@@ -1,13 +1,37 @@
 class AQMap {
 
   constructor() {
-    this.colorRange = ['rgb(0,104,55,.2)', 'rgb(0,104,55,.5)', 'rgb(0,104,55)', 'rgb(26,152,80)', 'rgb(102,189,99)', 'rgb(166,217,106)', 'rgb(217,239,139)', 'rgb(255,255,191)', 'rgb(254,224,139)', 'rgb(253,174,97)', 'rgb(244,109,67)', 'rgb(215,48,39)', 'rgb(165,0,38)']; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
-    this.pm25Domain = [4, 8, 12, 20, 28, 35, 42, 49, 55, 150, 250, 350];
-
+    //OLD: this.colorRange = ['rgb(0,104,55,.2)', 'rgb(0,104,55,.5)', 'rgb(0,104,55)', 'rgb(26,152,80)', 'rgb(102,189,99)', 'rgb(166,217,106)', 'rgb(217,239,139)', 'rgb(255,255,191)', 'rgb(254,224,139)', 'rgb(253,174,97)', 'rgb(244,109,67)', 'rgb(215,48,39)', 'rgb(165,0,38)']; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
+    //OLD: this.pm25Domain = [4, 8, 12, 20, 28, 35, 42, 49, 55, 150, 250, 350];
+    //this.colorRange = ['rgba(0,104,55,.2)', 'rgba(254,237,222,1)', 'rgba(253,190,133,1)', 'rgba(253,141,60,1)', 'rgba(230,85,13,1)', 'rgba(166,54,3,1)', 'rgba(215,48,39,1)', 'rgba(165,0,38,1)']; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
+    //this.pm25Domain = [0,12, 35, 42, 55, 150, 250];
+    //this.colorRange = ['rgba(180,224,180,.1)', 'rgba(196, 186, 185,.5)', 'rgba(155,136,135,1)', 'rgba(116,89,88,1)', 'rgba(77,45,45,1)', 'rgba(215,48,39,1)']; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
+    //this.pm25Domain = [0,12, 35, 55, 150, 250];
+    this.colorRange = ['rgba(0,104,55,.2)', 'rgba(102,189,99,1)', 'rgba(255,239,139,1)', 'rgba(255,180,33,1)', 'rgba(253,174,97,1)', 'rgba(244,109,67,1)', 'rgba(215,48,39,1)', 'rgba(165,0,38,1)']; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
+    this.pm25Domain = [0,4,12, 35, 55, 85,150, 250, 350];
+  /*let lightGray = "rgba(240, 255, 240, 0.3)", //Option 1
+        lightGreen = "rgba(219, 241, 215, 0.6)",
+        lightYellow = "rgba(240, 240, 215,0.8)",
+        mediumOrange = "rgba(245, 209, 161,0.9)",
+        red = "rgba(212, 48, 48,0.9)",
+        darkRed = "rgba(107, 5, 50,1.0)";
+    /*this.colorRange = [d3.color(lightGray),d3.color(lightGreen),d3.color(lightYellow), d3.color(mediumOrange),d3.color(red),d3.color(darkRed)];
+      this.pm25Domain = [0,12, 35, 55, 150, 250];
+154	146	141
+      [rgba(237,	225,	216,.3),rgba(154,146,141,.5),rgba(120,125,122,.9),rgba(126,98,77,0.9),rgba(79,75,72,0.9),rgba(54,25,58,0.9)]
+79,75,72
+    this.colorRange = [d3.color(lightGreen),d3.color(mediumOrange),d3.color(red),d3.color(darkRed)];
+    this.pm25Domain = [0,50 ,120,200];*/
+    //this.colorRange = ["rgba(237,	225,	216,.1)","rgba(154,146,141,.2)","rgba(120,125,122,.6)","rgba(126,98,77,0.9)","rgba(93,64,52,0.9)","rgba(93, 31, 52,0.9)","rgba(54,25,58,0.9)"];
+    //this.pm25Domain = [0,12,33,55,105,155,250];
     window.controller.colorRange = this.colorRange;
     window.controller.pm25Domain = this.pm25Domain;
 
+    /* For Sequential:
     this.colorMap = d3.scaleThreshold()
+      .domain(this.pm25Domain)
+      .range(this.colorRange);*/
+    this.colorMap = d3.scaleLinear()
       .domain(this.pm25Domain)
       .range(this.colorRange);
 
@@ -208,14 +232,15 @@ class AQMap {
       .style("opacity", 0);
     this.sensorWidth = 11;
 
-    /* Create legend
+    /* Create legend*/
     let legendColorMap = d3.scaleThreshold()
       .domain(this.pm25Domain.reverse())
       .range(this.colorRange.reverse());
 
     let colorLegend = d3.legendColor()
       .labelFormat(d3.format(".0f"))
-      .labels(d3.legendHelpers.thresholdLabels)
+      .cells(window.controller.pm25Domain)
+      //.labels(d3.legendHelpers.thresholdLabels)
       .scale(this.colorMap)
       .shapePadding(2)
       .shapeWidth(50)
@@ -224,13 +249,13 @@ class AQMap {
       .ascending(true);
 
     let testLegend = d3.select('#pm25Legend')
-      .attr('width', 275)
-      .attr('height', 300)
-      //.attr('transform', 'translate(200,-200)')
+      .attr('width', 100)
+      .attr('height', 200)
       .append("g")
-      // .attr("transform", "translate(10, 10)")
       .call(colorLegend);
-      */
+
+    this.myMap.controls[google.maps.ControlPosition.TOP_RIGHT].push(document.getElementById('pm25Legend'));
+
     this.setUpSourceMenu();
 
 
@@ -252,8 +277,8 @@ class AQMap {
   }
 
   setUpSourceMenu(){
-    let mapLegend = document.getElementById('mapLegend');
-    this.myMap.controls[google.maps.ControlPosition.TOP_RIGHT].push(mapLegend);
+    //let mapLegend = document.getElementById('mapLegend');
+    //this.myMap.controls[google.maps.ControlPosition.TOP_RIGHT].push(mapLegend);
     let sensorSourceMenu = document.getElementById('radioButton');
     this.myMap.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(sensorSourceMenu);
     let div = document.createElement('div');
