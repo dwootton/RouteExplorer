@@ -406,12 +406,14 @@ grabIndividualSensorData(selectedSensor){
     console.log(sensorList)
     this.sensorList = sensorList;
     let promises = [];
+    let start = window.controller.startDate.toISOString().slice(0, -5) + "Z";
+    let stop = window.controller.endDate.toISOString().slice(0, -5) + "Z";
     for (let i = 0; i < this.sensorList.length; i++) {
       let sensorID = this.sensorList[i].id;
       let sensorLat = this.sensorList[i].lat;
       let sensorLong = this.sensorList[i].long;
       let source = this.getSensorSource(sensorID);
-      let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + sensorID + "&sensorSource="+source+"&start=" + window.controller.startDate.toISOString() + "&end=" + window.controller.endDate.toISOString() + "&show=pm25"
+      let url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + sensorID + "&sensorSource="+source+"&start=" + start + "&end=" + stop + "&show=pm25"
       console.log(url);
       promises[i] = fetch(url).then(function(response) {
         return response.text();

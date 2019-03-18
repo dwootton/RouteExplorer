@@ -184,9 +184,7 @@ class Slider {
 
 
   }
-  console.log("BeforeDraw")
-  //draw(new Date(new Date().getTime - 5*60*60*1000));
-  console.log("Finsihed slider")
+
     /*
     var svg = d3.select("#slider"),
         margin = {right: 50, left: 50},
@@ -344,8 +342,6 @@ class Slider {
         .call(
           d3
             .axisRight(y)
-            .tickValues([1e4])
-            .tickFormat(d3.format('($.2s'))
         )
         .call(g => g.select('.domain').remove());
 
