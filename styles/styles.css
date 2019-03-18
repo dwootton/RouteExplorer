@@ -381,8 +381,8 @@ a.article:hover {
 ----------------------------------------------------- */
 #map {
   margin:none;
-  height: 500px;
-  width: 1200px;
+  height: 425px;
+  width: 1070px;
   display: inline-block;
 }
 .gm-style-cc { display:none; }
@@ -545,7 +545,7 @@ a.article:hover {
 ----------------------------------------------------- */
 .spike-selector
 {
-    height: 500px;
+    height: 425px;
     width: 300px;
     overflow: scroll;
     border: 1px solid lightgray;
@@ -606,7 +606,7 @@ a.article:hover {
 
 
 #timeChart {
-  height: 280px;
+  height: 265px;
   width: 1355px;
 }
 

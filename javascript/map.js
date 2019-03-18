@@ -211,7 +211,7 @@ class AQMap {
     }]
 
     this.myMap = new google.maps.Map(document.getElementById('map'), {
-      zoom: 11,
+      zoom: 10.5,
       center: {
         lat: 40.69255337197885,
         lng: -111.86895401000976
