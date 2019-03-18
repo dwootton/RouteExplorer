@@ -38,14 +38,37 @@ class Selector {
         this.startDate = new Date(start.format());
         this.endDate = new Date(end.format());
 
-        document.getElementById("overlay").style.display = "block";
+        this.getAllData = true;
+        console.log(this.endDate.getTime()-this.startDate.getTime(), 4*24*60*60*1000)
+        if(this.endDate.getTime()-this.startDate.getTime() > 4*24*60*60*1000){
+          this.getAllData = false;
+          alert('Only parts of the data will be rendered. Select a smaller date range to avoid this.')
+          d3.selectAll('#slider').attr('display','none');
+          d3.selectAll('#value-new-york-times').style('display','none');
+          d3.selectAll('.spike-selector').style('display','none');
+          this.oldSlider = window.controller.slider;
+          window.controller.slider = null;
+        }
+
+        if(this.getAllData){
+          document.getElementById("overlay").style.display = "block";
+          d3.selectAll('#slider').attr('display','block');
+          d3.selectAll('#value-new-york-times').style('display','block');
+          d3.selectAll('.spike-selector').style('display','block');
+          if(this.oldSlider){
+            window.controller.slider = this.oldSlider;
+            window.controller.slider.changeDates();
+          }
+        }
+
 
         window.controller.startDate = new Date(start.format());
         window.controller.endDate = new Date(end.format());
 
         // select the middle timepoint as default render
         window.controller.selectedDate = new Date((this.startDate.getTime() + this.endDate.getTime()) / 2);
-        window.controller.slider.changeDates();
+
+
         /* Update the date display in the navBar
         document.getElementById("dateDisplay").textContent = "to";
         document.getElementById("startDate").textContent = formatDate(this.startDate)
@@ -56,7 +79,7 @@ class Selector {
         this.newTime = true;
         this.grabAllModelDataOld(window.controller.selectedDate);
         this.rendered = true;
-        //this.grabModelDataForEntireRange();
+
         console.log(d3.selectAll('.close'));
         while(!d3.select('.close').empty()){
           d3.select('.close').dispatch('click');
@@ -150,8 +173,11 @@ grabIndividualSensorData(selectedSensor){
   if (!selectedSensor.id) {
     return;
   }
-  if(!this.entireSensorData){
+  console.log(this.getAllData);
+  if(!this.getAllData){
+
     this.grabIndividualSensorDataOld(selectedSensor);
+    return;
   }
 
   let sensor = this.entireSensorData.find((element)=>{
@@ -208,21 +234,19 @@ grabIndividualSensorData(selectedSensor){
       var diff = Math.abs(d1.getTime() - d2.getTime());
       return diff / (1000 * 60 * 60 * 24);
     };
-    let url;
+    let changedSource = this.changeSource();
+    let url = "https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=" + id + "&sensorSource=" + changedSource + "&start=" +start + "&end=" +stop + "&function=mean&functionArg=pm25&timeInterval=5m"
+
+
     let timeInterval = numDaysBetween(this.startDate,this.endDate);
     this.generateModelData = true;
-    let changedSource = this.changeSource();
-    if(timeInterval > 2){ // if time difference is
-      console.log(timeInterval);
 
-      url = "https://air.eng.utah.edu/dbapi/api/processedDataFrom?id=" + id + "&sensorSource=" + changedSource + "&start=" +start + "&end=" +stop + "&function=mean&functionArg=pm25&timeInterval=5m"
 
-      if(timeInterval > 7){
-        this.generateModelData = false;
-      }
+
+    if(timeInterval > 7){
+      this.generateModelData = false;
     } else {
       this.generateModelData = true;
-      url = "https://www.air.eng.utah.edu/dbapi/api/rawDataFrom?id=" + id + "&sensorSource="+changedSource+"&start=" + start + "&end=" + stop + "&show=pm25";
     }
 
 
@@ -281,8 +305,10 @@ grabIndividualSensorData(selectedSensor){
 
 
   grabAllSensorData(time){
-    if(this.newTime){
+    if(this.newTime || !this.getAllData){
+      console.log(this.getAllData);
       this.grabAllSensorDataOld(time);
+      return;
     }
 
 
@@ -366,18 +392,22 @@ grabIndividualSensorData(selectedSensor){
 			this.allSensorsData = valuesFixedAttr;
 			this.updateSensorView();
       console.log(this.newTime);
-      if(this.newTime){
-        this.newTime = false;
+      if(this.newTime && this.getAllData){
+
         if(window.controller.spikeDetector){
           console.log(window.controller.spikeDetector);
           window.controller.spikeDetector.removeSVG();
           window.controller.spikeDetector = null;
         }
         console.log(valuesFixedAttr);
-        window.controller.spikeDetector = new SpikeDetector(valuesFixedAttr);
+
         console.log(valuesFixedAttr);
         this.gatherSensorDataForEntireTime(valuesFixedAttr);
+        window.controller.spikeDetector = new SpikeDetector(valuesFixedAttr);
+
+
       }
+      this.newTime = false;
 		});
   }
 
@@ -525,7 +555,6 @@ grabIndividualSensorData(selectedSensor){
       console.log(this.entireModelData)
       let timeStop = new Date();
       console.log(timeStop.getTime()-timeStart.getTime());
-      window.controller.slider.changeData(this.averagedPM25);
       document.getElementById("overlay").style.display = "none";
       /*for (time in allModelData) {
         this.entireModelData = allModelData[time].pm25;
@@ -539,8 +568,9 @@ grabIndividualSensorData(selectedSensor){
 
   grabAllModelData(time){
     let requestedTime = new Date(time).getTime();
-    if(typeof this.entireModelData == 'undefined'){
+    if(typeof this.entireModelData == 'undefined' || !this.getAllData){
       this.grabAllModelDataOld(time);
+      return;
     }
     let slice = this.entireModelData.find((estimate)=>{
       return new Date(estimate.time).getTime() > requestedTime;
@@ -710,6 +740,9 @@ grabIndividualSensorData(selectedSensor){
    * @param {[type]} caller       [description]
    */
   setSelectedDate(selectedDate,caller){
+    if(!this.getAllData){
+      return;
+    }
     console.log(selectedDate,caller);
     window.controller.selectedDate = selectedDate;
     if(caller == "timeChart"){

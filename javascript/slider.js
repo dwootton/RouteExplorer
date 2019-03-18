@@ -3,7 +3,7 @@ class Slider {
 
 
   var margin = { top: 10, right: 50, bottom: 50, left: 40 },//{ top: 10, right: 50, bottom: 50, left: 40 }
-    width = 1800 - margin.left - margin.right,
+    width = 1490 - margin.left - margin.right,
     height = 100;
 
   let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
@@ -471,6 +471,7 @@ class Slider {
   }
 
   changeData(data){
+    let margin = { top: 10, right: 50, bottom: 50, left: 40 };
     console.log(data);
     let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
     let interval = 15;
@@ -498,7 +499,7 @@ class Slider {
     this.svg.append("g")
       .attr("class", "yAxis")
       .call(yAxis)
-      .attr('transform', `translate(${this.margin.left-5},0)`)
+      .attr('transform', `translate(${margin.left-5},0)`)
     .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)

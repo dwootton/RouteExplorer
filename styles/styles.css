@@ -373,8 +373,8 @@ a.article:hover {
 .wrapper{
   margin-top: 1vh;
   margin-bottom: 1vh;
-  margin-left:  4vh;
-  margin-right: 4vh;
+  margin-left:  7vw;
+  margin-right: 7vw;
 }
 /* ---------------------------------------------------
     map Styles
@@ -496,8 +496,9 @@ a.article:hover {
 ----------------------------------------------------- */
 #slider {
   height: 100px;
-  width: 1900px;
+  width: 1365px;
   margin-left: 10px;
+  margin-right: 10px;
 }
 
 #value-new-york-times{

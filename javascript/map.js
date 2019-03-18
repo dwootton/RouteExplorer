@@ -43,7 +43,11 @@ class AQMap {
 
     window.onkeydown = (e) => {
       console.log(e);
+      if(window.controller.slider == null){
+        return;
+      }
       if(e.key == "ArrowLeft"){
+
         window.controller.slider.moveSlider(-5*60*1000);// move left by 5 minutes
         e.preventDefault();
       } else if(e.key == "ArrowRight"){
@@ -472,6 +476,7 @@ END MODE REMOVAL
             that.selectSensor(sensor);
             //d3.select(this).attr('transform','translate(-30px,-30px)')
             selector.grabIndividualSensorData(sensor);
+            //selector.grabIndividualModelData(sensor);
             //d3.select(this).attr("id", "selected");
 
             /*d3.select(this).selectAll('circle')

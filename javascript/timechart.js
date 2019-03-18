@@ -106,6 +106,7 @@ class timeChart {
 	}
 
 	updateSlider(date){
+		
 		window.controller.selector.setSelectedDate(date,'timeChart');
 	  this.selectedDate = date;
 	  console.log(this.xScale(this.selectedDate))
