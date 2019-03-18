@@ -66,7 +66,7 @@ class Slider {
     .range([height - margin.bottom, margin.top]);
   //let parseDate = d3.timeFormat("%Y-%m-%d")
   this.yScale =y;
-  var yAxis = g =>
+  /*var yAxis = g =>
     g
       .attr('transform', `translate(${width - margin.right},0)`)
       .call(
@@ -75,7 +75,7 @@ class Slider {
           .tickValues([1e4])
           .tickFormat(d3.format('($.2s'))
       )
-      .call(g => g.select('.domain').remove());
+      .call(g => g.select('.domain').remove());*/
 
   this.slider = d3
         .sliderBottom(xLinear)
@@ -103,7 +103,20 @@ class Slider {
     .attr('height', d => y(0) - y(d.value))
     .attr('width', xBand.bandwidth()); //
 
-  svg.append('g').call(yAxis);
+
+
+    let yAxis = d3.axisLeft(y).ticks(2);
+    svg.append("g")
+      .attr("class", "yAxis")
+      .call(yAxis)
+      .attr('transform', `translate(${margin.left-5},0)`)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("AVG PM 2.5");
+
   svg.append('g').call(slider);
   let that = this;
   var draw = selected => {
@@ -275,7 +288,7 @@ class Slider {
     var margin = { top: 10, right: 50, bottom: 50, left: 40 },//{ top: 10, right: 50, bottom: 50, left: 40 }
       width = 1500 - margin.left - margin.right,
       height = 100;
-
+    this.margin = margin;
     let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
 
     let interval = 15;
@@ -301,6 +314,7 @@ class Slider {
       .select('#slider')
       .attr('width', width)
       .attr('height', height);
+
     this.svg =svg;
     let padding = 0.1;
 
@@ -336,14 +350,15 @@ class Slider {
       .range([height - margin.bottom, margin.top]);
     //let parseDate = d3.timeFormat("%Y-%m-%d")
     this.yScale =y;
-    var yAxis = g =>
+
+    /*var yAxis = g =>
       g
         .attr('transform', `translate(${width - margin.right},0)`)
         .call(
           d3
             .axisRight(y)
         )
-        .call(g => g.select('.domain').remove());
+        .call(g => g.select('.domain').remove());*/
 
     this.slider = d3
           .sliderBottom(xLinear)
@@ -371,7 +386,19 @@ class Slider {
       .attr('height', d => y(0) - y(d.value))
       .attr('width', xBand.bandwidth()); //
 
-    svg.append('g').call(yAxis);
+
+    let yAxis = d3.axisLeft(y).ticks(2);
+    svg.append("g")
+      .attr("class", "yAxis")
+      .call(yAxis)
+      .attr('transform', `translate(${margin.left-5},0)`)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("AVG PM 2.5");
+
     svg.append('g').call(slider);
     let that = this;
     var draw = selected => {
@@ -444,7 +471,7 @@ class Slider {
   }
 
   changeData(data){
-
+    console.log(data);
     let timeBounds = [new Date(window.controller.selector.startDate), new Date(window.controller.selector.endDate )];
     let interval = 15;
     // check if time bounds changed?
@@ -466,6 +493,18 @@ class Slider {
     console.log(dataNewYorkTimes);
 
     this.yScale.domain([0,d3.max(data)])
+    let yAxis = d3.axisLeft(this.yScale).ticks(2);
+    d3.select('.yAxis').remove('*');
+    this.svg.append("g")
+      .attr("class", "yAxis")
+      .call(yAxis)
+      .attr('transform', `translate(${this.margin.left-5},0)`)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("AVG PM 2.5");
     var bars = this.svg
       .selectAll('.sliderBars')
       .data(dataNewYorkTimes);
