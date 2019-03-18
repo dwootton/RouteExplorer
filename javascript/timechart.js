@@ -106,7 +106,7 @@ class timeChart {
 	}
 
 	updateSlider(date){
-		
+
 		window.controller.selector.setSelectedDate(date,'timeChart');
 	  this.selectedDate = date;
 	  console.log(this.xScale(this.selectedDate))
@@ -193,6 +193,9 @@ class timeChart {
 		if(data == modelData){
 			modelData = jQuery.extend(true, {}, data).data;
 			//modelData.data;
+			this.sameData = true;
+		} else {
+			this.sameData = false;
 		}
 
 
@@ -361,15 +364,17 @@ class timeChart {
 	      .attr('stroke','gray')
 	      .attr('stroke-opacity',0.6)
 	      .attr("id","sensorPath"+this.sensorInfos[i].id);
+			if(!this.sameData){
+				let modelPaths = this.focus.append("path")
+		  	  .datum(this.modelDatas[i])
+		  	  .attr("class","modelLine")
+		  	  .attr("d", this.modelLineGenerator)
+		  	  .attr('stroke-width','2px')
+		  	  .attr('stroke','darkgrey')
+		  	  .attr('stroke-opacity',0.6)
+		  	  .attr("id","modelPath"+this.sensorInfos[i].id);
+			}
 
-	    let modelPaths = this.focus.append("path")
-	  	  .datum(this.modelDatas[i])
-	  	  .attr("class","modelLine")
-	  	  .attr("d", this.modelLineGenerator)
-	  	  .attr('stroke-width','2px')
-	  	  .attr('stroke','darkgrey')
-	  	  .attr('stroke-opacity',0.6)
-	  	  .attr("id","modelPath"+this.sensorInfos[i].id);
 
 	  	sensorPaths.on("mouseover",function(){
 	  		if(that.prevSelection){
@@ -446,6 +451,8 @@ class timeChart {
 	removePoint(index){
 		this.sensorDatas.splice(index, 1);
 		this.modelDatas.splice(index, 1);
+
+
 		this.sensorInfos.splice(index, 1);
 		console.log(this.maxReadings,this.maxModelEstimates,this.stopValues);
 		this.maxReadings.splice(index, 1);
