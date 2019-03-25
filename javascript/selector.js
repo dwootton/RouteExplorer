@@ -19,7 +19,6 @@ class Selector {
     this.rendered = false;
     this.selectedSensors = [];
     this.averagedPM25 = [];
-
     this.populateSensorList();
 
     $(()=> {
@@ -37,28 +36,43 @@ class Selector {
 
         this.startDate = new Date(start.format());
         this.endDate = new Date(end.format());
-
+        console.log("about to change dates");
+        window.controller.slider.changeDates();
         this.getAllData = true;
+        let that = this;
         console.log(this.endDate.getTime()-this.startDate.getTime(), 4*24*60*60*1000)
         if(this.endDate.getTime()-this.startDate.getTime() > 4*24*60*60*1000){
           this.getAllData = false;
           alert('Only parts of the data will be rendered. Select a smaller date range to avoid this.')
-          d3.selectAll('#slider').attr('display','none');
-          d3.selectAll('#value-new-york-times').style('display','none');
-          d3.selectAll('.spike-selector').style('display','none');
-          this.oldSlider = window.controller.slider;
-          window.controller.slider = null;
+          d3.select('#slider').transition(1000).attr("height","0");
+          d3.select('#spikeSVG').transition(1000).attr("width","0").on("end", hideElements);
+
+          function hideElements(){
+            d3.selectAll('#slider').attr('display','none');
+            d3.selectAll('#value-new-york-times').style('display','none');
+            d3.selectAll('.spike-selector').style('display','none');
+            that.oldSlider = window.controller.slider;
+            window.controller.slider = null;
+          }
+
         }
 
         if(this.getAllData){
           document.getElementById("overlay").style.display = "block";
-          d3.selectAll('#slider').attr('display','block');
-          d3.selectAll('#value-new-york-times').style('display','block');
-          d3.selectAll('.spike-selector').style('display','block');
-          if(this.oldSlider){
-            window.controller.slider = this.oldSlider;
-            window.controller.slider.changeDates();
+          showElements();
+          d3.select('#slider').transition(1000).attr("height","100");
+          d3.select('#spikeSVG').transition(1000).attr("width","425");
+
+          function showElements(){
+            d3.selectAll('#slider').attr('display','block');
+            d3.selectAll('#value-new-york-times').style('display','block');
+            d3.selectAll('.spike-selector').style('display','block');
+            if(that.oldSlider){
+              window.controller.slider = that.oldSlider;
+              window.controller.slider.changeDates();
+            }
           }
+
         }
 
 
@@ -80,7 +94,6 @@ class Selector {
         this.grabAllModelDataOld(window.controller.selectedDate);
         this.rendered = true;
 
-        console.log(d3.selectAll('.close'));
         while(!d3.select('.close').empty()){
           d3.select('.close').dispatch('click');
         }
@@ -145,7 +158,6 @@ class Selector {
         }
 
         this.sensorList = sensors;
-        console.log("INSIDE OF POPULATE!!!",this.sensorList)
       });
   }
 
@@ -158,7 +170,6 @@ class Selector {
     if(this.sensorSource == "airU" || this.sensorSource == "airu"){
       return "airu";
     } else if(this.sensorSource == "all" ) {
-      console.log(window.controller.selectedSensor);
       if(window.controller.selectedSensor.id[0]=="S"){ //if AirU sensor was selected
         return "airu"
       } else {
@@ -173,7 +184,6 @@ grabIndividualSensorData(selectedSensor){
   if (!selectedSensor.id) {
     return;
   }
-  console.log(this.getAllData);
   if(!this.getAllData){
 
     this.grabIndividualSensorDataOld(selectedSensor);
@@ -186,14 +196,12 @@ grabIndividualSensorData(selectedSensor){
   let id = sensor.id
   window.controller.selectedSensor = selectedSensor;
   if(this.selectedSensors.includes(id)){
-    console.log(id);
     window.controller.timeChartLegend.highlightSensorButton(id);
     //window.controller.timeChartLegend.dispatchEvent(id,'click');
     return;
   }
   this.selectedSensors.push(id);
   this.generateModelData = true;
-  console.log(sensor)
   this.individualSensorData = {
     data:sensor.pm25,
   }
@@ -222,7 +230,6 @@ grabIndividualSensorData(selectedSensor){
 
     window.controller.selectedSensor = selectedSensor;
     if(this.selectedSensors.includes(id)){
-      console.log(id);
       window.controller.timeChartLegend.highlightSensorButton(id);
       //window.controller.timeChartLegend.dispatchEvent(id,'click');
       return;
@@ -258,7 +265,6 @@ grabIndividualSensorData(selectedSensor){
     // /api/processedDataFrom?id=1010&sensorSource=airu&start=2017-10-01T00:00:00Z&end=2017-10-02T00:00:00Z&function=mean&functionArg=pm25&timeInterval=30m
     //let url = "air.eng.utah.edu/dbapi/api/rawDataFrom?id=S-A-085&sensorSource=airu&start=2018-03-01T00:00:00Z&end=2018-03-13T00:00:00Z&show=all"
     //let url = "air.eng.utah.edu/dbapi/api/rawDataFrom?id=S-A-069&sensorSource=airu&start=2019-01-18T12:00:00Z&end=2019-01-20T00:00:00Z&show=pm25
-    console.log(url);
     let req = fetch(url)
 
     /* Processes sensor data and the model data */
@@ -581,11 +587,17 @@ grabIndividualSensorData(selectedSensor){
   }
 
   grabAllModelContour(time){
-    let requestedTime = new Date(time).getTime();
+    console.log(time);
+    let requestedTime = new Date(time);
+    console.log(requestedTime.toISOString());
+    console.log(requestedTime.getTime());
+    requestedTime = requestedTime.getTime();
     if(typeof this.entireModelData == 'undefined'){
       this.grabAllModelDataOld(time);
     }
+
     let contour = this.contours.find((estimate)=>{
+      console.log(estimate);
       return new Date(estimate.time).getTime() > requestedTime;
     })
 
@@ -707,7 +719,6 @@ grabIndividualSensorData(selectedSensor){
     let options = {tolerance: .001, highQuality: true};
 
     let simpl = turf.simplify(geojson, options);
-    console.log(simpl, geojson);
 
     let stopDate = new Date();
     let stopStamp = stopDate.getTime()
@@ -720,15 +731,12 @@ grabIndividualSensorData(selectedSensor){
    */
   updateSensorView() {
     window.controller.allSensorsData = this.allSensorsData;
-    console.log(this.allSensorsData);
     this.dataMap.updateSensor(this.allSensorsData)
   }
 
   setSensorSource(source){
-    console.log(source);
     this.sensorSource = source;
     //this.populateSensorList();
-    console.log(this.rendered)
     if(this.rendered){
       this.grabAllSensorData(window.controller.selectedDate);
     }

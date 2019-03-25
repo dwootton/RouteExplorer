@@ -147,7 +147,7 @@ class interpolatedChart {
    * @return {[type]}        [description]
    */
   drawLineHeatMap() {
-    console.log(this.interpChartData)
+    //console.log(this.interpChartData)
     let heatMapSVG;
     d3.select('#lineMap').attr('height', 300).attr('width', 650);
 

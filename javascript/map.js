@@ -42,7 +42,6 @@ class AQMap {
     this.shiftKeyPressed = false;
 
     window.onkeydown = (e) => {
-      console.log(e);
       if(window.controller.slider == null){
         return;
       }
@@ -228,7 +227,6 @@ class AQMap {
 
     google.maps.event.addListener(this.myMap, 'idle', ()=>{
       this.loadedTiles = true;
-      console.log("Loaded Tiles:", this.loadedTiles);
     });
 
     this.toolTip = d3.select("body").append("div")
@@ -652,10 +650,8 @@ END MODE REMOVAL
     let startDate = new Date();
     let startStamp = startDate.getTime()
     let imported = this.myMap.data.addGeoJson(contour.contour)
-    console.log(imported);
     if(imported != null){
       this.loadedTiles = true;
-      console.log(imported);
     }
 
     this.myMap.data.setStyle(styleContour);
@@ -684,7 +680,6 @@ END MODE REMOVAL
         zIndex = feature.getProperty('value')*10+10;
         color = that.colorMap(feature.getProperty('value'));
         opacity = 0.6;
-        console.log(zIndex);
       }
        return {
               fillColor: color,
