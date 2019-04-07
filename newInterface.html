@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>CSS Template</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.2/d3.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3X5TPjGMtpRK1NnVeuDOCAwvZSKPT564"></script>
+<script type="text/javascript"
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3X5TPjGMtpRK1NnVeuDOCAwvZSKPT564&libraries=drawing">
+</script>
+<script src="epoly.js" type="text/javascript"> </script>
+<script src="interpolizer.js" type="text/javascript"> </script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+.transport {
+  position: relative;
+  margin: 10px;
+}
+.row-flex{
+  width:33%;
+}
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Style the header */
+header {
+  background-color: #666;
+  padding: 30px;
+  text-align: center;
+  font-size: 35px;
+  color: white;
+}
+
+/* Create two columns/boxes that floats next to each other */
+nav {
+  float: left;
+  width: 37vw;
+  height: 100vh;
+  background: whitesmoke;
+  padding: 20px;
+}
+
+/* Style the list inside the menu */
+nav ul {
+  list-style-type: none;
+  padding: 0;
+  position:absolute;
+}
+
+article {
+  float: left;
+  padding: 0;
+  width: 60vw;
+  height: 100vh;
+  background-color: #f1f1f1;
+}
+
+.addressHighlight{
+  float: left;
+  width:37vw;
+  height:300px;
+  background-color: #1F8BE7;
+  position: absolute;
+  margin:-20px
+
+}
+/* Clear floats after the columns */
+section:after {
+  content: "";
+  height:100vh;
+  display: table;
+  clear: both;
+}
+
+/* Style the footer */
+footer {
+  background-color: #777;
+  padding: 10px;
+  text-align: center;
+  color: white;
+}
+
+/* Responsive layout - makes the two columns/boxes stack on top of each other instead of next to each other, on small screens */
+@media (max-width: 300px) {
+  nav, article {
+    width: 100%;
+    height: auto;
+  }
+}
+.ms-TextField{
+  position:relative;
+  width:100%;
+}
+.ms-Button{
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+}
+#map{
+  height:100vh;
+}
+</style>
+<link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.4.0/css/fabric.min.css" />
+<link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.4.0/css/fabric.components.min.css" />
+<script
+src="https://code.jquery.com/jquery-3.3.1.min.js"
+integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+crossorigin="anonymous"></script>
+
+<script src="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.4.0/js/fabric.min.js"></script>
+<script src="controller.js"></script>
+<script src="map.js"></script>
+<script src="interpolationPathsChart.js"></script>
+
+
+</head>
+<body>
+
+
+
+<section>
+  <nav>
+
+    <rect class="addressHighlight">
+    </rect>
+    <div class="row">
+      <div class="ms-TextField">
+        <label class="ms-Label">Start Address</label>
+        <input class="ms-TextField-field" id="start" type="text" value="1701 student life way slc utah" placeholder="">
+      </div>
+    </div>
+    <div class="row">
+      <div class="ms-TextField">
+        <label class="ms-Label">Destination Address</label>
+        <input class="ms-TextField-field" id="destination" type="text" value="taylorsville salt lake city Utah" placeholder="">
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-4 Walk">
+          <div class="row col-4">
+            <img src="Walking.png" alt="Walking" class="transport">
+          </div>
+          <div class="row col-4">
+            <span class="transport">Walking</span>
+          </div>
+        </div>
+        <div class="col-4 Cycle">
+          <div class="row col-4">
+            <img src="Cycle.png" alt="Cylcing" class="transport">
+          </div>
+          <div class="row col-4">
+            <span class="transport">Cycling</span>
+          </div>
+        </div>
+        <div class="col-4 Drive">
+          <div class="row col-4">
+            <img src="Driving.png" alt="Driving" class="transport">
+          </div>
+          <div class="row col-4">
+            <span class="transport">Driving</span>
+          </div>
+        </div>
+    </div>
+    <div class="row">
+      <div class="col-12 text-center">
+        <button class="ms-Button ms-Button--primary queryButton">
+          <span class="ms-Button-label">Search Now</span>
+        </button>
+      </div>
+    </div>
+      <div class="row col-12 text-center">
+        <div class="col-4 line0">
+          <div id="lineMap0">
+  					<svg> </svg>
+  				</div>
+        </div>
+        <div class="col-4 line1">
+          <div id="lineMap1">
+  					<svg> </svg>
+  				</div>
+        </div>
+        <div class="col-4 line2">
+          <div id="lineMap2">
+  					<svg> </svg>
+  				</div>
+        </div>
+      </div>
+  </nav>
+
+  <article>
+    <div class="row">
+      <div class="col-12">
+        <div id="map"></div>
+      </div>
+    </div>
+  </article>
+
+</section>
+
+
+
+
+</body>
+<script>
+window.controller = new Controller();
+window.controller.transportMode = "WALKING";
+d3.select(".Drive").on('click',(d)=>{
+  window.controller.transportMode = 'DRIVING';
+})
+d3.select(".Walk").on('click',(d)=>{
+  window.controller.transportMode = 'WALKING';
+})
+d3.select(".Cycle").on('click',(d)=>{
+  window.controller.transportMode = 'BICYCLING';
+  d3.select(".Cycle").attr('opacity',0);
+
+})
+
+d3.select(".queryButton").on('click', (d)=>{
+  //check if
+  if(window.controller == null){
+    alert("Click on Transportation Type")
+  }
+  window.controller.search();
+})
+
+</script>
+
+</html>

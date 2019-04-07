@@ -1,0 +1,784 @@
+@font-face {
+  font-family: "SegoeUI";
+  src: url('https://anima-uploads.s3.amazonaws.com/projects/5c9ff533f6f8da0009ac2aed/releases/5c9ff536fddad7000a55751c/fonts/segoeui.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: "SegoeMDL2Assets";
+  src: url('https://anima-uploads.s3.amazonaws.com/projects/5c9ff533f6f8da0009ac2aed/releases/5c9ff536fddad7000a55751c/fonts/SegMDL2.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: "SegoeUI-Bold";
+  src: url('https://anima-uploads.s3.amazonaws.com/projects/5c9ff533f6f8da0009ac2aed/releases/5c9ff536fddad7000a55751c/fonts/segoeuib.ttf') format("truetype");
+}
+
+.artboard {
+  width: 100%;
+  min-width: 1322px;
+  height: 100vh;
+  min-height: 806px;
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: rgba(255, 255, 255, 1.0)
+}
+.submit{
+  color:white;
+  background-color:white;
+}
+
+a {
+  text-decoration: none
+}
+
+div {
+  -webkit-text-size-adjust: none
+}
+
+.anima-full-width-a {
+  width: 100%
+}
+
+.anima-full-height-a {
+  height: 100%
+}
+
+div {
+  -webkit-text-size-adjust: none
+}
+
+.artboard .sidebar {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 294px;
+  width: 816px;
+  position: relative;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .rectangle {
+  background-color: rgba(0, 120, 215, 1.0);
+  top: 0;
+  height: 275px;
+  box-sizing: border-box;
+  width: 384px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgba(150, 150, 150, 1.0);
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .submitbutton {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 255px;
+  height: 39px;
+  width: 184px;
+  position: absolute;
+  margin: 0;
+  left: 102px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .submitbutton .rectangle1 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 39px;
+  width: 184px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .submitbutton .submit {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 6px;
+  height: auto;
+  width: 164px;
+  position: absolute;
+  margin: 0;
+  left: 10px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0);
+  font-family: 'SegoeUI', Helvetica, Arial, serif;
+  font-size: 18.0px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  line-height: 24.0px
+}
+
+.artboard .sidebar .walking {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 166px;
+  height: 78px;
+  width: 94px;
+  position: absolute;
+  margin: 0;
+  left: 46px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .walking .walking1 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 60px;
+  height: auto;
+  width: 94px;
+  position: absolute;
+  margin: 0;
+  left: 1px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0);
+  font-family: 'SegoeUI', Helvetica, Arial, serif;
+  font-size: 14.0px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: left;
+  line-height: 19.0px
+}
+
+.artboard .sidebar .walking .oval {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 56px;
+  width: 56px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .walking .manwalkingdirectionsbutton {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 9px;
+  height: 39px;
+  width: 23px;
+  position: absolute;
+  margin: 0;
+  left: 17px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .walking .manwalkingdirectionsbutton .shape {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 39px;
+  width: 23px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 164px;
+  height: 81px;
+  width: 101px;
+  position: absolute;
+  margin: 0;
+  left: 164px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling .cycling1 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 62px;
+  height: auto;
+  width: 94px;
+  position: absolute;
+  margin: 0;
+  left: 8px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0);
+  font-family: 'SegoeUI', Helvetica, Arial, serif;
+  font-size: 14.0px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: left;
+  line-height: 19.0px
+}
+
+.artboard .sidebar .cycling .oval {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 2px;
+  height: 56px;
+  width: 56px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling .iconfinderbicycle172573 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 44px;
+  width: 44px;
+  position: absolute;
+  margin: 0;
+  left: 6px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling .iconfinderbicycle172573 .rectangle2 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 44px;
+  width: 44px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling .iconfinderbicycle172573 .rectangle1 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 44px;
+  width: 44px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling .iconfinderbicycle172573 .path {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 22px;
+  height: 14px;
+  width: 25px;
+  position: absolute;
+  margin: 0;
+  left: 8px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling .iconfinderbicycle172573 .path1 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 16px;
+  height: 20px;
+  width: 12px;
+  position: absolute;
+  margin: 0;
+  left: 24px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling .iconfinderbicycle172573 .path2 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 18px;
+  height: 18px;
+  width: 10px;
+  position: absolute;
+  margin: 0;
+  left: 12px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling .iconfinderbicycle172573 .path3 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 17px;
+  height: 3px;
+  width: 8px;
+  position: absolute;
+  margin: 0;
+  left: 10px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling .iconfinderbicycle172573 .oval2 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 26px;
+  height: 18px;
+  width: 18px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .cycling .iconfinderbicycle172573 .oval1 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 26px;
+  height: 18px;
+  width: 18px;
+  position: absolute;
+  margin: 0;
+  left: 26px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .driving {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 166px;
+  height: 78px;
+  width: 101px;
+  position: absolute;
+  margin: 0;
+  left: 282px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .driving .driving1 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 60px;
+  height: auto;
+  width: 94px;
+  position: absolute;
+  margin: 0;
+  left: 8px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0);
+  font-family: 'SegoeUI', Helvetica, Arial, serif;
+  font-size: 14.0px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: left;
+  line-height: 19.0px
+}
+
+.artboard .sidebar .driving .oval {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 56px;
+  width: 56px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .driving .iconfindericdirectionscar48px352315 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 1px;
+  height: 48px;
+  width: 48px;
+  position: absolute;
+  margin: 0;
+  left: 4px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .driving .iconfindericdirectionscar48px352315 .shape {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 10px;
+  height: 32px;
+  width: 36px;
+  position: absolute;
+  margin: 0;
+  left: 6px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .driving .iconfindericdirectionscar48px352315 .path {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 48px;
+  width: 48px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 112px;
+  height: 39px;
+  width: 357px;
+  position: absolute;
+  margin: 0;
+  left: 16px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit .rectangle1 {
+  background-color: rgba(255, 255, 255, 1.0);
+  top: 0;
+  height: 39px;
+  box-sizing: border-box;
+  width: 357px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgba(150, 150, 150, 1.0);
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit .textboxframe {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 39px;
+  width: 357px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit .textboxborder {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 39px;
+  width: 357px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit .searchicon {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 10px;
+  height: 20px;
+  width: 20px;
+  position: absolute;
+  margin: 0;
+  left: 328px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit .searchicon .footprint {
+  background-color: rgba(255, 255, 255, 0.4);
+  top: 0;
+  height: 20px;
+  width: 19px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit .searchicon .icon {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 4px;
+  height: auto;
+  width: auto;
+  position: absolute;
+  margin: 0;
+  left: 2px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0);
+  font-family: 'SegoeMDL2Assets', Helvetica, Arial, serif;
+  font-size: 12.0px;
+  color: rgba(0, 0, 0, 1.0);
+  text-align: left;
+  line-height: 12.0px
+}
+
+.artboard .sidebar .textedit .hinttext {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 10px;
+  height: auto;
+  width: auto;
+  position: absolute;
+  margin: 0;
+  left: 14px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0);
+  font-family: 'SegoeUI', Helvetica, Arial, serif;
+  font-size: 14.0px;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: left;
+  line-height: 20.0px
+}
+
+.artboard .sidebar .navviewassetspanetitle {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 9px;
+  height: 41px;
+  width: 800px;
+  position: absolute;
+  margin: 0;
+  left: 16px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .navviewassetspanetitle .footprint {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 1px;
+  height: 40px;
+  width: 800px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .navviewassetspanetitle .routeselector {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: auto;
+  width: 400px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0);
+  font-family: 'SegoeUI-Bold', Helvetica, Arial, serif;
+  font-size: 20.0px;
+  color: rgba(255, 255, 255, 1.0);
+  text-align: left;
+  line-height: 35.0px
+}
+
+.artboard .sidebar .textedit1 {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 60px;
+  height: 39px;
+  width: 357px;
+  position: absolute;
+  margin: 0;
+  left: 16px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit1 .rectangle1 {
+  background-color: rgba(255, 255, 255, 1.0);
+  top: 0;
+  height: 39px;
+  box-sizing: border-box;
+  width: 357px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgba(150, 150, 150, 1.0);
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit1 .textboxframe {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 39px;
+  width: 357px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit1 .textboxborder {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 0;
+  height: 39px;
+  width: 357px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit1 .searchicon {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 10px;
+  height: 20px;
+  width: 20px;
+  position: absolute;
+  margin: 0;
+  left: 328px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit1 .searchicon .footprint {
+  background-color: rgba(255, 255, 255, 0.4);
+  top: 0;
+  height: 20px;
+  width: 19px;
+  position: absolute;
+  margin: 0;
+  left: 0;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0)
+}
+
+.artboard .sidebar .textedit1 .searchicon .icon {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 4px;
+  height: auto;
+  width: auto;
+  position: absolute;
+  margin: 0;
+  left: 2px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0);
+  font-family: 'SegoeMDL2Assets', Helvetica, Arial, serif;
+  font-size: 12.0px;
+  color: rgba(0, 0, 0, 1.0);
+  text-align: left;
+  line-height: 12.0px
+}
+
+.artboard .sidebar .textedit1 .startlocation {
+  background-color: rgba(255, 255, 255, 0.0);
+  top: 10px;
+  height: auto;
+  width: auto;
+  position: absolute;
+  margin: 0;
+  left: 14px;
+  -ms-transform: rotate(0);
+  -webkit-transform: rotate(0);
+  transform: rotate(0);
+  font-family: 'SegoeUI', Helvetica, Arial, serif;
+  font-size: 14.0px;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: left;
+  line-height: 20.0px
+}
+
+.anima-animate-appear {
+  opacity: 0;
+  display: block;
+  -webkit-animation: anima-reveal .3s ease-in-out 1 normal forwards;
+  -moz-animation: anima-reveal .3s ease-in 1 normal forwards;
+  -o-animation: anima-reveal .3s ease-in-out 1 normal forwards;
+  animation: anima-reveal .3s ease-in-out 1 normal forwards
+}
+
+.anima-animate-disappear {
+  opacity: 1;
+  display: block;
+  -webkit-animation: anima-reveal .3s ease-in-out 1 reverse forwards;
+  -moz-animation: anima-reveal .3s ease-in 1 normal forwards;
+  -o-animation: anima-reveal .3s ease-in-out 1 reverse forwards;
+  animation: anima-reveal .3s ease-in-out 1 reverse forwards
+}
+
+.anima-animate-nodelay {
+  -webkit-animation-delay: 0;
+  -moz-animation-delay: 0;
+  -o-animation-delay: 0;
+  animation-delay: 0
+}
+
+@-webkit-keyframes anima-reveal {
+  0% {
+    opacity: 0
+  }
+
+  100% {
+    opacity: 1
+  }
+}
+
+@-moz-keyframes anima-reveal {
+  0% {
+    opacity: 0
+  }
+
+  100% {
+    opacity: 1
+  }
+}
+
+@-o-keyframes anima-reveal {
+  0% {
+    opacity: 0
+  }
+
+  100% {
+    opacity: 1
+  }
+}
+
+@keyframes anima-reveal {
+  0% {
+    opacity: 0
+  }
+
+  100% {
+    opacity: 1
+  }
+}
