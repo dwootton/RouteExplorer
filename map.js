@@ -53,6 +53,29 @@ class AQMap {
 
 
 	}
+	overlayDirections(){
+		var routes = this.currentResponse.routes;
+		var colors = ['red', 'green', 'blue', 'orange', 'yellow', 'black'];
+		let opacities = [0.6,0.3,0.3];
+		var directionsDisplays = [];
+
+		// Loop through each route
+		for (var i = 0; i < routes.length; i++) {
+			// plot each line on the google map
+			let directionsDisplay = new google.maps.DirectionsRenderer({
+				map: this.myMap,
+				directions: this.currentResponse,
+				routeIndex: i,
+				draggable: true,
+				polylineOptions: {
+					strokeColor: colors[i],
+					strokeWeight: 5,
+					strokeOpacity: opacities[i],
+					zIndex: 100000000000000000000000
+				}
+			});
+		}
+	}
 
 	plotDirections(start, end) {
 		window.controller.colorRange = this.colorRange;
@@ -69,7 +92,7 @@ class AQMap {
 	  this.directionsService.route(request, (response, status) => {
 
 	    if (status == google.maps.DirectionsStatus.OK) {
-
+				this.currentResponse = response;
 	      var routes = response.routes;
 	      var colors = ['red', 'green', 'blue', 'orange', 'yellow', 'black'];
 				let opacities = [0.6,0.3,0.3];
@@ -328,6 +351,7 @@ class AQMap {
     }*/
 
 	}
+
 	updateModel(modelData) {
     if(modelData.data){
       modelData = modelData.data;
@@ -464,6 +488,7 @@ class AQMap {
 
     // Select the just created highway labels and bring it to the front.
     d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index', 1000000).style('opacity', 0.5);
+		this.overlayDirections();
 
 
     // consult this for d3 on top of leaflet: http://www.sydneyurbanlab.com/Tutorial7/tutorial7.html

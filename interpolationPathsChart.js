@@ -35,7 +35,7 @@ class interpolatedChart {
 
 		//this.tempDataChecker();
     //let finalPts = mergeLatsAndLongs(myLatPts,myLngPts)
-		if(this.allGrids == null){
+		if(window.controller.allGrids == null){
 			console.log("Inside of all grids!")
 			let myVals = this.getModelGrids();
 			return;
@@ -116,14 +116,14 @@ class interpolatedChart {
 	}
 
 	getEstimates(){
-		if(this.allGrids== null){
+		if(window.controller.allGrids== null){
 			return;
 		}
 		let plottingData = [];
 		for(let i = 0; i < this.times.length; i++){
 			this.interpolationPoints.forEach((point)=>{
 				console.log(point);
-				let pm25Value = Interpolizer(point.lat(),point.lng(), this.allGrids[i]);
+				let pm25Value = Interpolizer(point.lat(),point.lng(), window.controller.allGrids[i]);
 				plottingData.push({
 					data:pm25Value.result,
 					lat: point.lat(),
@@ -388,6 +388,12 @@ class interpolatedChart {
           .duration(300)
           .style("opacity", 0);
       })
+			.on("click", (d)=>{
+				// set selected date
+				window.controller.selectedDate = d.time;
+				// update map view
+				window.controller.grabAllModelData(d.time);
+			})
 
     /*.on("mouseover", function(d) {
 	               changeMapNavLine(.2)
@@ -501,7 +507,7 @@ class interpolatedChart {
       }
       allGrids.push(myGrid);
     }
-    this.allGrids = allGrids;
+    window.controller.allGrids = allGrids;
     console.log(allGrids);
 
 		let dataToPlot = this.getEstimates();
