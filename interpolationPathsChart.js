@@ -8,7 +8,8 @@ class interpolatedChart {
       .style("opacity", 0)
       .style("position", "absolute");
     this.numInterpChart = number;
-    this.width = 115;
+		let bbSelection = d3.select('.line0')
+    this.width = bbSelection.node().getBoundingClientRect().width;
     this.height = 350;
   }
 
@@ -30,19 +31,112 @@ class interpolatedChart {
 
 
     //console.log(lats,longs);
-    let myFullPts = this.interpolateArray(polyline);
-    /*let myLatPts = interpolateArray(lats,17);
-    console.log(myLatPts)
-    let myLngPts = interpolateArray(longs,17);
-    console.log(myLngPts)
+    this.interpolationPoints  = this.interpolateArray(polyline);
 
-
-    */
-    console.log(myFullPts);
+		//this.tempDataChecker();
     //let finalPts = mergeLatsAndLongs(myLatPts,myLngPts)
-    let myVals = this.getModelEst(myFullPts);
+		if(this.allGrids == null){
+			console.log("Inside of all grids!")
+			let myVals = this.getModelGrids();
+			return;
+		}
 
+		let estimates = this.getEstimates();
+		console.log(estimates);
+		this.drawLineHeatMap(estimates);
   }
+	async tempDataChecker(){
+
+		let points = this.interpolationPoints;
+
+
+		//console.log(this.times);
+		let promises = [];
+		let promiseCounter = 0;
+		console.log(points);
+		for (let timeCounter = 0; timeCounter < this.times.length; timeCounter++){
+			let start= this.times[timeCounter].start.toISOString().slice(0,-5)+"Z";
+			let stop = this.times[timeCounter].stop.toISOString().slice(0,-5)+"Z";
+			console.log(points);
+			for (let i = 0; i< points.length; i++){
+				let point = points[i];
+
+
+				let url = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+point.lat()+"&location_lng="+point.lng()+"&start="+start + "&end=" + stop;
+
+				console.log(url)
+				promises[promiseCounter] = fetch(url).then(function(response){
+				         return response.text();
+				}).catch((err)=>{
+					//console.log(err);
+				});
+				promiseCounter++;
+				//let req = this.getDataFromDB(url)
+				//req.then((modelData)=> {
+				//	that.modelVals.push(modelData[0].pm25);
+				//})
+				//promises.push(req);
+
+			}
+
+		}
+
+
+		Promise.all(promises.map(p => p.catch(() => undefined)))
+
+		let allData = Promise.all(promises).then(values =>{
+			let parsedVals = [];
+			console.log(values);
+
+			for(let i = 0; i< values.length; i++){
+				if(values[i]){
+					parsedVals.push(JSON.parse(values[i])[0].pm25)
+				}
+			}
+			let finalVals = []
+			let loggerCounter = 0;
+			for(let timeCounter = 0; timeCounter < this.times.length; timeCounter++){
+				for(let pointCounter = 0; pointCounter < points.length; pointCounter++){
+					finalVals[loggerCounter] = {
+						data:parsedVals[loggerCounter],
+						time:this.times[timeCounter].start,
+						lat: points[pointCounter].lat,
+						lng:points[pointCounter].lng
+					}
+					loggerCounter++;
+				}
+			}
+			console.log(finalVals);
+			this.finalData = finalVals;
+			//console.log(finalVals)
+			this.drawLineHeatMap(finalVals)
+		    return finalVals;
+		});
+		return allData;
+	}
+
+	getEstimates(){
+		if(this.allGrids== null){
+			return;
+		}
+		let plottingData = [];
+		for(let i = 0; i < this.times.length; i++){
+			this.interpolationPoints.forEach((point)=>{
+				console.log(point);
+				let pm25Value = Interpolizer(point.lat(),point.lng(), this.allGrids[i]);
+				plottingData.push({
+					data:pm25Value.result,
+					lat: point.lat(),
+					lng: point.lng(),
+					time:this.times[i].start
+				})
+				console.log(plottingData)
+			})
+		}
+		console.log(plottingData);
+		this.drawLineHeatMap(plottingData);
+
+	}
 
   interpolateArray(polyline) {
     //var path =
@@ -261,12 +355,13 @@ class interpolatedChart {
     rects.enter().append('rect')
       .attr('width', rectWidth)
       .attr('height', rectHeight)
-      .attr('x', function(d) {
-        return xScale(d.time);
+      .attr('x', function(d,i) {
+        return yScale(i % (myData.length / that.times.length));
       })
       .attr('y', function(d, i) {
         //console.log(i,myData.length);
-        return yScale(i % (myData.length / that.times.length));
+        return xScale(d.time);
+
       })
       .attr('fill', function(d) {
         return colorScale(d.data);
@@ -280,9 +375,8 @@ class interpolatedChart {
         this.div.html(formatDate(d.time) + "</br>" + d.data.toFixed(2))
           .style("top", d3.event.pageY - 200 + "px")
           .style("left", d3.event.pageX - 30 + "px");
-        console.log(d.lat(), d.lng());
         //window.controller.shapeDrawer.changeLineOpacity(0.3);
-        window.controller.Map.changeHighlightMarker(d.lat(), d.lng())
+        window.controller.Map.changeHighlightMarker(d.lat, d.lng);
         //let currentCoordinate = navCoordinates[d.point]
         //d3.select('#highlighter')
         //	.transition().duration(100).attr('cx',currentCoordinate[0]).attr('cy',currentCoordinate[1]);
@@ -293,11 +387,6 @@ class interpolatedChart {
         this.div.transition()
           .duration(300)
           .style("opacity", 0);
-        //window.controller.shapeDrawer.changeLineOpacity(0.9);
-        //window.controller.shapeDrawer.changeHighlightMarker(0, 0)
-
-
-        //d3.select('#highlighter').transition().duration(1000).attr('cx',-10).attr('cy',-10);
       })
 
     /*.on("mouseover", function(d) {
@@ -380,44 +469,45 @@ class interpolatedChart {
     }
     console.log(latList);
     console.log(lngList);
-		let allGrids = [];
-		for(let i = 0; i < gridObjects.length; i++){
-			let pollutionArr;
-	    for (let time in gridObject[1]) {
-	      pollutionArr = gridObject[1][time].pm25;
-	    }
+    let allGrids = [];
+    for (let i = 0; i < gridObjects.length; i++) {
+			gridObject = gridObjects[i];
+      let pollutionArr;
+      for (let time in gridObject[1]) {
+        pollutionArr = gridObject[1][time].pm25;
+      }
 
-	    let value = -1; // by default
-	    let myGrid = new Array(37).fill(0).map(() => new Array(50).fill(0));
-	    // fill in first row
-	    let fillCounter = 0;
-	    for (let i = 0; i < 50; i++) {
-	      myGrid[0][i] = lngList[fillCounter];
-	      fillCounter++;
-	    }
+      let value = -1; // by default
+      let myGrid = new Array(37).fill(0).map(() => new Array(50).fill(0));
+      // fill in first row
+      let fillCounter = 0;
+      for (let i = 0; i < 50; i++) {
+        myGrid[0][i] = lngList[fillCounter];
+        fillCounter++;
+      }
 
-	    // fill in first col
-	    fillCounter = 0;
-	    for (let i = 0; i < 37; i++) {
-	      myGrid[i][0] = latList[fillCounter];
-	      fillCounter++;
-	    }
+      // fill in first col
+      fillCounter = 0;
+      for (let i = 0; i < 37; i++) {
+        myGrid[i][0] = latList[fillCounter];
+        fillCounter++;
+      }
 
-	    for (let row = 1; row < latList.length; row++) {
-	      for (let col = 1; col < lngList.length; col++) {
-	        let pollutionIndex = (row - 1) * 36 + col;
-	        myGrid[row][col] = pollutionArr[pollutionIndex];
-	      }
-	    }
-			allGrids.append(myGrid);
-		}
+      for (let row = 1; row < latList.length; row++) {
+        for (let col = 1; col < lngList.length; col++) {
+          let pollutionIndex = (row - 1) * 36 + col;
+          myGrid[row][col] = pollutionArr[pollutionIndex];
+        }
+      }
+      allGrids.push(myGrid);
+    }
     this.allGrids = allGrids;
     console.log(allGrids);
-    //Perform the calculations
-    var calcM = Interpolizer(40.7649, -111.8421, this.allGrids[0]);
 
-    //Output the results
-    console.log(calcM);
+		let dataToPlot = this.getEstimates();
+    //Perform the calculations
+  	console.log(dataToPlot);
+
 
 
 
@@ -431,189 +521,139 @@ class interpolatedChart {
     //reshape
 
   }
-  async getModelEst(points) {
+
+  async getModelGrids() {
     // change these dates to dates from the selector
     //let firstDateStart = new Date("2018-12-11T06:00:00Z")
     //let lastDateStart = new Date("2018-12-19T06:00:00Z")
-    let start = new Date(this.times[0].start).toISOString().slice(0, -5) + "Z";
-    let end = new Date(this.times[0].stop).toISOString().slice(0, -5) + "Z";
-
-
-    let gridURL = "https://air.eng.utah.edu/dbapi/api/getGridEstimates?start=" + start + "&end=" + end;
-    console.log(gridURL)
-    let gridPromise = fetch(gridURL).then(function(response) {
-      return response.text();
-    }).catch((err) => {
-      //console.log(err);
-    });
-
-    gridPromise.then(values => {
-      console.log(values);
-      console.log();
-      this.parseGrid(JSON.parse(values))
-    })
 
 
 
-    /*
+    //console.log(this.times);
+    let promises = [];
+    let promiseCounter = 0;
+    for (let timeCounter = 0; timeCounter < this.times.length; timeCounter++) {
+      let start = this.times[timeCounter].start.toISOString().slice(0, -5) + "Z";
+      let stop = this.times[timeCounter].stop.toISOString().slice(0, -5) + "Z";
+
+      let gridURL = "https://air.eng.utah.edu/dbapi/api/getGridEstimates?start=" + start + "&end=" + stop;
+			console.log(gridURL);
+      promises[promiseCounter] = fetch(gridURL).then(function(response) {
+        return response.text();
+      }).catch((err) => {
+        //console.log(err);
+      });
+      promiseCounter++;
+    }
 
 
+    Promise.all(promises.map(p => p.catch(() => undefined)))
 
-		//console.log(this.times);
-		let promises = [];
-		let promiseCounter = 0;
-		console.log(points);
-		for (let timeCounter = 0; timeCounter < this.times.length; timeCounter++){
-			let start= this.times[timeCounter].start.toISOString().slice(0,-5)+"Z";
-			let stop = this.times[timeCounter].stop.toISOString().slice(0,-5)+"Z";
-			console.log(points);
-			for (let i = 0; i< points.length; i++){
-				let point = points[i];
+    let allData = await Promise.all(promises).then(values => {
+        let parsedVals = [];
+        console.log(values);
 
+        for (let i = 0; i < values.length; i++) {
+          if (values[i]) {
+            parsedVals.push(JSON.parse(values[i]))
+          }
+        }
+        console.log(parsedVals);
+        this.parseGrid(parsedVals);
 
-				let url = "https://air.eng.utah.edu/dbapi/api/getEstimatesForLocation?location_lat="+point.lat()+"&location_lng="+point.lng()+"&start="+start + "&end=" + stop;
-
-				console.log(url)
-				promises[promiseCounter] = fetch(url).then(function(response){
-				         return response.text();
-				}).catch((err)=>{
-					//console.log(err);
-				});
-				promiseCounter++;
-				//let req = this.getDataFromDB(url)
-				//req.then((modelData)=> {
-				//	that.modelVals.push(modelData[0].pm25);
-				//})
-				//promises.push(req);
-
-			}
-
-		}
-
-
-		Promise.all(promises.map(p => p.catch(() => undefined)))
-
-		let allData = await Promise.all(promises).then(values =>{
-			let parsedVals = [];
-			console.log(values);
-
-			for(let i = 0; i< values.length; i++){
-				if(values[i]){
-					parsedVals.push(JSON.parse(values[i])[0].pm25)
-				}
-			}
-			let finalVals = []
-			let loggerCounter = 0;
-			for(let timeCounter = 0; timeCounter < this.times.length; timeCounter++){
-				for(let pointCounter = 0; pointCounter < points.length; pointCounter++){
-					finalVals[loggerCounter] = {
-						data:parsedVals[loggerCounter],
-						time:this.times[timeCounter].start,
-						lat: points[pointCounter].lat,
-						lng:points[pointCounter].lng
-					}
-					loggerCounter++;
-				}
-			}
-			console.log(finalVals);
-			this.finalData = finalVals;
-			//console.log(finalVals)
-			this.drawLineHeatMap(finalVals)
-		    return finalVals;
-		});
-		return allData;
-	}*/
-  }
-}
-
-function appendLabels(svg) {
-  let height = this.height;
-  let width = this.width;
-  let margin = {
-
-    top: 5,
-    left: 10
-  }
-  svg.append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("y", -45)
-    .attr("x", 0 - ((height - margin.top) / 2))
-    .attr("dy", "1em")
-    .style("text-anchor", "middle")
-    .text("Distance along path");
-
-  // Add X Label
-  svg.append("text")
-    .attr("y", -35)
-    .attr("x", ((width + margin.left) / 2))
-    .attr("dy", "1em")
-    .style("text-anchor", "middle")
-    .text("Date");
-}
-
-
-
-function mergeLatsAndLongs(lats, longs) {
-  if (lats.length != longs.length) {
-    console.log("ERROR: Lats != Longs")
-    return;
-  }
-  let coordinates = [];
-  for (let i = 0; i < lats.length; i++) {
-    coordinates.push({
-      lat: lats[i],
-      lng: longs[i]
-    })
-  }
-  return coordinates;
-}
-
-function generateTimes(firstDateStart, lastDateStart) { // Currently generates 1 time point per day
-  firstDateStart = new Date(firstDateStart);
-  lastDateStart = new Date(lastDateStart);
-  let firstDateStop = new Date(new Date(firstDateStart).setMinutes(firstDateStart.getMinutes() + 5));
-  let LastDateStop = new Date(new Date(lastDateStart).setMinutes(lastDateStart.getMinutes() + 5));
-  console.log(firstDateStart, firstDateStop)
-  let arr = []
-  for (let dt = firstDateStart; dt <= lastDateStart; dt.setHours(dt.getHours() + 3)) {
-    arr.push(new Date(dt));
+        //this.drawLineHeatMap(finalVals)
+      })
+    }
   }
 
-  let starts = arr;
-  arr = []
+  function appendLabels(svg) {
+    let height = this.height;
+    let width = this.width;
+    let margin = {
 
-  for (let dt = firstDateStop; dt <= LastDateStop; dt.setHours(dt.getHours() + 3)) {
-    arr.push(new Date(dt));
+      top: 5,
+      left: 10
+    }
+    svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -45)
+      .attr("x", 0 - ((height - margin.top) / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Distance along path");
+
+    // Add X Label
+    svg.append("text")
+      .attr("y", -35)
+      .attr("x", ((width + margin.left) / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Date");
   }
-  let stops = arr;
-  let times = [];
-  for (let i = 0; i < stops.length; i++) {
-    times.push({
-      start: starts[i],
-      stop: stops[i]
-    })
+
+
+
+  function mergeLatsAndLongs(lats, longs) {
+    if (lats.length != longs.length) {
+      console.log("ERROR: Lats != Longs")
+      return;
+    }
+    let coordinates = [];
+    for (let i = 0; i < lats.length; i++) {
+      coordinates.push({
+        lat: lats[i],
+        lng: longs[i]
+      })
+    }
+    return coordinates;
   }
-  console.log(times);
 
-  return times;
-}
+  function generateTimes(firstDateStart, lastDateStart) { // Currently generates 1 time point per day
+    firstDateStart = new Date(firstDateStart);
+    lastDateStart = new Date(lastDateStart);
+    let firstDateStop = new Date(new Date(firstDateStart).setMinutes(firstDateStart.getMinutes() + 5));
+    let LastDateStop = new Date(new Date(lastDateStart).setMinutes(lastDateStart.getMinutes() + 5));
+    console.log(firstDateStart, firstDateStop)
+    let arr = []
+    for (let dt = firstDateStart; dt <= lastDateStart; dt.setHours(dt.getHours() + 3)) {
+      arr.push(new Date(dt));
+    }
 
-function interpolateArray(data, fitCount) {
+    let starts = arr;
+    arr = []
 
-  var linearInterpolate = function(before, after, atPoint) {
-    return before + (after - before) * atPoint;
+    for (let dt = firstDateStop; dt <= LastDateStop; dt.setHours(dt.getHours() + 3)) {
+      arr.push(new Date(dt));
+    }
+    let stops = arr;
+    let times = [];
+    for (let i = 0; i < stops.length; i++) {
+      times.push({
+        start: starts[i],
+        stop: stops[i]
+      })
+    }
+    console.log(times);
+
+    return times;
+  }
+
+  function interpolateArray(data, fitCount) {
+
+    var linearInterpolate = function(before, after, atPoint) {
+      return before + (after - before) * atPoint;
+    };
+
+    var newData = new Array();
+    var springFactor = new Number((data.length - 1) / (fitCount - 1));
+    newData[0] = data[0]; // for new allocation
+    for (var i = 1; i < fitCount - 1; i++) {
+      var tmp = i * springFactor;
+      var before = new Number(Math.floor(tmp)).toFixed();
+      var after = new Number(Math.ceil(tmp)).toFixed();
+      var atPoint = tmp - before;
+      newData[i] = linearInterpolate(data[before], data[after], atPoint);
+    }
+    newData[fitCount - 1] = data[data.length - 1]; // for new allocation
+    return newData;
   };
-
-  var newData = new Array();
-  var springFactor = new Number((data.length - 1) / (fitCount - 1));
-  newData[0] = data[0]; // for new allocation
-  for (var i = 1; i < fitCount - 1; i++) {
-    var tmp = i * springFactor;
-    var before = new Number(Math.floor(tmp)).toFixed();
-    var after = new Number(Math.ceil(tmp)).toFixed();
-    var atPoint = tmp - before;
-    newData[i] = linearInterpolate(data[before], data[after], atPoint);
-  }
-  newData[fitCount - 1] = data[data.length - 1]; // for new allocation
-  return newData;
-};

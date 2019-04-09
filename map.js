@@ -49,7 +49,7 @@ class AQMap {
 			display.setMap(this.myMap);
 		})
 
-		this.interpChart = [new interpolatedChart(0),new interpolatedChart(1),new interpolatedChart(2)];
+		this.interpChart = [new interpolatedChart(0)]//,new interpolatedChart(1),new interpolatedChart(2)];
 
 
 	}
@@ -72,6 +72,7 @@ class AQMap {
 
 	      var routes = response.routes;
 	      var colors = ['red', 'green', 'blue', 'orange', 'yellow', 'black'];
+				let opacities = [0.6,0.3,0.3];
 	      var directionsDisplays = [];
 
 	      // Reset the start and end variables to the actual coordinates
@@ -80,7 +81,7 @@ class AQMap {
 
 	      // Loop through each route
 	      for (var i = 0; i < routes.length; i++) {
-
+					// plot each line on the google map
 	        let directionsDisplay = new google.maps.DirectionsRenderer({
 	          map: this.myMap,
 	          directions: response,
@@ -89,8 +90,8 @@ class AQMap {
 	          polylineOptions: {
 
 	            strokeColor: colors[i],
-	            strokeWeight: 4,
-	            strokeOpacity: .3
+	            strokeWeight: 5,
+	            strokeOpacity: opacities[i],
 	          }
 	        });
 
@@ -104,7 +105,11 @@ class AQMap {
 	          strokeWeight: 2
         	});
 					console.log(newLine);
-					this.interpChart[i].update(newLine);
+
+					if(i == 0){
+						this.interpChart[i].update(newLine);
+					}
+
 
 	        // Push the current renderer to an array
 	        directionsDisplays.push(directionsDisplay);
@@ -115,14 +120,16 @@ class AQMap {
 	          return function() {
 							console.log("In Direction Change")
 	            var directions = directionsDisplay.getDirections();
+							console.log(directions);
 	            var new_start = directions.routes[0].legs[0].start_location;
 	            var new_end = directions.routes[0].legs[0].end_location;
-							let newPolylineCoords = google.maps.geometry.encoding.decodePath(directions.routes[i].overview_polyline);
-							console.log(newPolylineCoords);
+							//let newPolylineCoords = google.maps.geometry.encoding.decodePath(directions.routes[i].overview_polyline);
+							//console.log(newPolylineCoords);
+							console.log(directions.routes);
 							let changedLine = new google.maps.Polyline({
-			          path: newPolylineCoords,
-			          geodesic: true,
+			          path: directions.routes[0].overview_path
 		        	});
+							console.log(changedLine)
 							that.interpChart[i].update(changedLine);
 	            if ((new_start.toString() !== start.toString()) || (new_end.toString() !== end.toString())) {
 
@@ -321,5 +328,146 @@ class AQMap {
     }*/
 
 	}
+	updateModel(modelData) {
+    if(modelData.data){
+      modelData = modelData.data;
+    }
+
+    this.modelData = modelData;
+
+    //modelData = [8.964339902535034,15.595682501404061,16.57042698744204,18.19133816333678,11.611668095213714,11.565647168212108,9.916192521114132,6.541899730217069,7.052352588683608,7.501035178307062,12.019836906924501,16.98977615367748,14.43903630464879,18.41282496331842,11.333456684937138,9.348287548592062,14.489214074824726,6.790941527231953,7.815439492232705,8.135989384967434,13.852967147718985,17.47881501875145,17.602093468948997,18.830038387876115,16.222298703405457,11.069596451529595,12.860585717982625,5.843669206401813,6.430187999002033,8.673146088261356,14.552478042333625,17.200599865924136,21.489357944171832,20.283229563364984,22.151296051663245,12.974239563914061,10.456259349792571,9.093369517827368,8.655585226894358,9.608234030728035,14.663427790183809,15.271610089467535,19.424004390003876,19.44191061494021,20.92421296747697,15.638916349765802,9.75426986279476,12.976609675996558,11.121457884910457,10.471115502102577,14.966634341087122,15.06459586204938,19.77206699673942,16.27432872978454,21.08491498089317,18.887858898521586,11.711520640410228,10.284399004801326,10.85591700328193,10.676961765465006,15.418880386593878,17.324992752382588,20.867054510813166,13.975326921604745,20.773387078287815,21.984749565253274,15.453787202465993,15.829766955056902,13.49466080205513,10.41240450475944,15.238003806561725,15.702425998754974,19.789690539119942,17.16813636153775,23.63605745112857,24.109886934715696,21.57548452672802,20.333157196989834,16.441317860506214,13.19475038159874,14.422132334192963,13.80178996562388,14.180767016665985,18.971809169026482,24.201107603378983,25.317954340201148,25.655463931357115,22.65905392044519,19.313157803743675,17.18003245141215,12.696038236906523,13.763938609390353,12.647917754996156,19.517848958461776,24.30889143498016,25.726582171786102,26.038806451222484,24.10279485433458,21.681735071371676,20.208294359971237];
+
+    // MODEL CODE:
+    let startDate = new Date();
+    let startStamp = startDate.getTime()
+    let polygons = d3.contours()
+      .size([36, 49])
+      .thresholds(d3.range(0, d3.max(modelData), 1))
+      (modelData);
+
+
+    var geojson = {
+      type: 'FeatureCollection',
+      features: []
+    };
+
+    for (let polygon of polygons) {
+      if (polygon.coordinates.length === 0) continue;
+      let coords = convertCoords(polygon.coordinates);
+
+      geojson.features.push({
+        type: 'Feature',
+        properties: {
+          value: polygon.value
+        },
+        geometry: {
+          type: polygon.type,
+          coordinates: coords
+        }
+      })
+    }
+
+    function convertCoords(coords) {
+      // NOTE: Work through flipping coordiantes
+      var maxLng = -111.713403000000;
+      var minLng = -112.001349000000;
+      var minLat = 40.810475;
+      var maxLat = 40.59885;
+
+      var result = [];
+      for (let poly of coords) {
+        var newPoly = [];
+        for (let ring of poly) {
+          if (ring.length < 4) continue;
+          var newRing = [];
+          for (let p of ring) {
+            newRing.push([
+              minLng + (maxLng - minLng) * (p[0] / 36),
+              maxLat - (maxLat - minLat) * (p[1] / 49)
+            ]);
+          }
+          newPoly.push(newRing);
+        }
+        result.push(newPoly);
+      }
+      return result;
+    }
+
+    if (this.lastData) {
+      this.myMap.data.forEach((feature) => {
+        this.myMap.data.remove(feature);
+      })
+    }
+
+    this.lastData = geojson;
+    let that = this;
+    this.myMap.data.addGeoJson(geojson)
+    this.myMap.data.setStyle(function(feature) {
+      var color = 'gray';
+
+      if (feature.getProperty('value')) {
+        color = that.colorMap(feature.getProperty('value'));
+      }
+      return /** @type {!google.maps.Data.StyleOptions} */ ({
+        fillColor: color,
+        strokeWeight: 0,
+        fillOpacity: 0.6,
+        zIndex: 10
+      });
+    });
+
+    let stopDate = new Date();
+    let stopStamp = stopDate.getTime()
+
+    console.log("d3 contour time: ", (stopStamp - startStamp))
+
+    let labelsMapType = new google.maps.StyledMapType([{
+      // Hide all map features by default
+      stylers: [{
+        visibility: 'off'
+      }]
+    }, {
+      featureType: 'road.highway',
+      stylers: [{
+        visibility: 'on'
+      }]
+    }, {
+      featureType: 'road.arterial',
+      stylers: [{
+        visibility: 'on',
+        color: '#444444'
+      }]
+    }, {
+      featureType: 'administrative',
+      stylers: [{
+        visibility: 'on'
+      }]
+    }, {
+      "featureType": "road",
+      "elementType": "labels",
+      "stylers": [{
+        "visibility": "off"
+      }]
+    }, {
+      "elementType": "geometry",
+      "stylers": [{
+        "color": "#f5f5f5"
+      }]
+    }], {
+      name: 'Labels',
+      id: "MyLabels"
+    });
+
+    // Add to the map's overlay collection
+    this.myMap.overlayMapTypes.clear();
+    let labelsMap = this.myMap.overlayMapTypes.push(labelsMapType);
+
+    // Select the just created highway labels and bring it to the front.
+    d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index', 1000000).style('opacity', 0.5);
+
+
+    // consult this for d3 on top of leaflet: http://www.sydneyurbanlab.com/Tutorial7/tutorial7.html
+    // working with SVGS and leaflet: https://stackoverflow.com/questions/50787719/make-svgs-on-top-of-leaflet-map-not-respond-to-pan-events
+  }
 
 }
