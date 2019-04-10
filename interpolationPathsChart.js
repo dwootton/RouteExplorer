@@ -92,7 +92,7 @@ class interpolatedChart {
 
 			for(let i = 0; i< values.length; i++){
 				if(values[i]){
-					parsedVals.push(JSON.parse(values[i])[0].pm25)
+					parsedVals.push(JSON.parse(values[i])[0].variability)
 				}
 			}
 			let finalVals = []
@@ -173,11 +173,63 @@ class interpolatedChart {
 
 	}
 
+  getAllPathEstimatesAtTime(index, polylines){
+    let polyLinePaths = [];
+    for(let i = 0; i < polylines.length; i++){
+      let polyline = polylines[i];
+      let points = this.interpolateArray(polyline);
+      polyLinePaths.push(points);
+    }
+    // calculate distance % along path
+    let percentThroughPath = [];
+    for(let i = 1; i <= polyLinePaths[0].length; i++){
+      let percent = (1.0*i/polyLinePaths[0].length);
+      percentThroughPath.push(percent)
+    }
+    let allPathPMValues = [];
+    for(let i = 0; i < polyLinePaths.length; i++){
+      let pathPMValues =[];
+      polyLinePaths[i].forEach((point)=>{
+        let pm25Value = Interpolizer(point.lat(),point.lng(), window.controller.allGrids[index]);
+        pathPMValues.push(pm25Value.result);
+      })
+      allPathPMValues.push(pathPMValues);
+    }
+
+    let tableData = [];
+    for(let i = 0; i < percentThroughPath.length; i++){
+      if(polylines.length == 3){
+        tableData.push({
+          distance: percentThroughPath[i],
+          Path1PM25:allPathPMValues[0][i],
+          Path2PM25:allPathPMValues[1][i],
+          Path3PM25:allPathPMValues[2][i],
+        })
+      } else if(polylines.length == 2){
+        tableData.push({
+          distance: percentThroughPath[i],
+          Path1PM25:allPathPMValues[0][i],
+          Path2PM25:allPathPMValues[1][i],
+        })
+      } else {
+        tableData.push({
+          distance: percentThroughPath[i],
+          Path1PM25:allPathPMValues[0][i],
+        })
+      }
+      console.log(tableData);
+    }
+    return tableData;
+
+
+  }
+
+
   interpolateArray(polyline) {
     //var path =
     let totalDistance = polyline.Distance(); //google.maps.geometry.spherical.computeLength(path.getArray());
-
-    let numIterations = totalDistance / this.pointSeparationDistances;
+    //set num Iterations to constant;
+    let numIterations = 15;//totalDistance / this.pointSeparationDistances;
     //let traveledDistance = 0;
     console.log(totalDistance);
     console.log(numIterations);
@@ -602,6 +654,8 @@ class interpolatedChart {
 		let dataToPlot = this.getEstimates();
     //Perform the calculations
   	console.log(dataToPlot);
+    console.log("DRAW CHART!")
+    window.controller.drawChart();
 
 
 

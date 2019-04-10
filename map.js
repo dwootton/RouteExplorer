@@ -7,9 +7,10 @@ class AQMap {
 		//this.height = this.svg.attr("height")
 		this.colorRange = ['rgba(0,104,55,.2)', 'rgba(102,189,99,1)', 'rgba(255,239,139,1)', 'rgba(255,180,33,1)', 'rgba(253,174,97,1)', 'rgba(244,109,67,1)', 'rgba(215,48,39,1)', 'rgba(165,0,38,1)']; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
     this.pm25Domain = [0,4,12, 35, 55, 85,150, 250, 350];
+
 		this.colorMap = d3.scaleLinear()
 		    .domain(this.pm25Domain)
-		    .range(this.colorRange);
+		    .range(this.colorRange);//this.colorRange
 		//window.controller.colorMap = this.colorMap;
 
 		this.lastData = null;
@@ -51,11 +52,39 @@ class AQMap {
 
 		this.interpChart = [new interpolatedChart(0)]//,new interpolatedChart(1),new interpolatedChart(2)];
 
+	}
 
+	getPolyLinePaths(){
+		if(this.currentResponse == null){
+			return;
+		}
+		var routes = this.currentResponse.routes;
+		var colors = ['red', 'green', 'blue', 'orange', 'yellow', 'black'];
+		// Loop through each route
+		let polylines = []
+		for (let i = 0; i < routes.length; i++) {
+			// plot each line on the google map
+
+
+			let polylinecoords = google.maps.geometry.encoding.decodePath(this.currentResponse.routes[i].overview_polyline);
+			console.log(polylinecoords);
+			let newLine = new google.maps.Polyline({
+				path: polylinecoords,
+				geodesic: true,
+				strokeColor: '#FF0000',
+				strokeOpacity: 1.0,
+				strokeWeight: 2
+			});
+			polylines.push(newLine);
+			console.log(newLine);
+		}
+		return polylines;
 	}
 
 
 	plotDirections(start, end) {
+		window.controller.interpChart = this.interpChart[0];
+
 		window.controller.colorRange = this.colorRange;
 		window.controller.pm25Domain = this.pm25Domain;
 	  let method = 'WALKING';

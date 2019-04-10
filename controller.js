@@ -15,6 +15,51 @@ class Controller {
 
     //finish laoding
   }
+
+  prepareData(){
+    let polylines = window.controller.Map.getPolyLinePaths();
+    let data = window.controller.interpChart.getAllPathEstimatesAtTime(0,polylines);
+    console.log(data);
+    return data;
+  }
+
+  drawChart(){
+    let data = this.prepareData();
+
+    // TODO: assuming 3 lines
+    data.forEach(function (d) {
+        d.distance = +d.distance;
+        d.Path1PM25 = +d.Path1PM25;
+        d.Path2PM25 = +d.Path2PM25;
+        d.Path3PM25 = +d.Path3PM25;
+    });
+
+    let path1 =['Path 1'],
+        path2 =['Path 2'],
+        path3 =['Path 3'];
+
+    for(let i = 0; i < data.length; i++){
+      path1.push(data[i].Path1PM25);
+      path2.push(data[i].Path2PM25);
+      path3.push(data[i].Path3PM25);
+    }
+    let chartWidth = document.getElementById('chart').clientWidth;
+    var chart = c3.generate({
+        bindto: '#chart',
+        data: {
+          columns: [
+            path1, path2, path3
+          ]
+        },
+        color: {
+          pattern: ['#ff0000','#00ff00','#0000ff']
+        },
+        size: {
+          height: 300,
+          width: chartWidth
+        },
+    });
+  }
   constructQuery(){
     let baseURL = "https://maps.googleapis.com/maps/api/directions/json?";
     let origin = "origin=" + document.getElementById("start").value.replace(/ /g,"+");
