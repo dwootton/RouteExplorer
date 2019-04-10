@@ -2,6 +2,8 @@ class Controller {
   constructor() {
     this.Map = new AQMap();
     console.log("new controller");
+    this.width = 245;
+		this.height = 180;
   }
   search(){
 
@@ -46,9 +48,14 @@ class Controller {
    * @param  {[type]}  time [description]
    * @return {Promise}      [description]
    */
-  async grabAllModelData(time) {
+  async grabAllModelData(timeIndex) {
 
-    /* Sets up time interval to grab model data from */
+    console.log(window.controller.pollutionArrays);
+    this.allModelData = window.controller.pollutionArrays[timeIndex];
+    console.log(this.allModelData)
+    this.updateModelView();
+    //let time = window.controller.times[timeIndex];
+    /* Sets up time interval to grab model data from
     let start = time.toISOString().slice(0, -5) + "Z";
     let closestStartDate = new Date(time);
     closestStartDate.setMinutes(time.getMinutes() + 5);
@@ -56,11 +63,11 @@ class Controller {
 
     let url = "https://air.eng.utah.edu/dbapi/api/getGridEstimates?start=" + start + "&end=" + stop;
 
-    /* Obtains model grid estimates and re-render map view */
+    /* Obtains model grid estimates and re-render map view
     let modelReq = fetch(url).then( (response)=> {
       return response.text();
     }).then( (values) => {
-      /* If there is a more recent selection */
+      /* If there is a more recent selection
 
       if(window.controller.selectedDate != time){
         console.log("MORE RECENT!!!")
@@ -73,6 +80,8 @@ class Controller {
       }
       this.updateModelView();
     })
+    */
+   window.controller.times
   }
 
   /**

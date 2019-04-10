@@ -1,7 +1,7 @@
 class interpolatedChart {
   constructor(number) {
     console.log("Created!! Interp!!")
-    this.pointSeparationDistances = 500; // grab point ever km
+    this.pointSeparationDistances = 1000; // grab point ever km
 
     this.div = d3.select("body").append("div")
       .attr("class", "HMtooltip")
@@ -19,9 +19,11 @@ class interpolatedChart {
 
   update(polyline) {
     console.log(polyline);
-    window.controller.startDate = new Date("2019-3-10 06:00:00");
-    window.controller.endDate = new Date("2019-3-11 06:00:00");
+    window.controller.startDate = new Date("2019-1-8 18:00:00");
+    window.controller.endDate = new Date("2019-1-9 10:00:00");
     this.times = generateTimes(window.controller.startDate, window.controller.endDate);
+		window.controller.times = this.times;
+		console.log(this.times, window.controller.startDate, window.controller.endDate);
     console.log("Inside interpChart!")
     //let lats = points.map(x => x.lat);
     //let longs = points.map(x => x.lng);
@@ -115,7 +117,40 @@ class interpolatedChart {
 		return allData;
 	}
 
+	makeFinerGrid(){
+
+		var maxLng = -111.7134030;
+		var minLng = -112.001349;
+		var maxLat = 40.810476;
+		var minLat = 40.598850;
+
+
+
+		let longs = makeArr(minLng,maxLng,245);
+		let lats = makeArr(minLat,maxLat,180);
+		let pollutionArrays = [];
+		console.log(longs,lats);
+		for(let timeIndex = 0; timeIndex < this.times.length; timeIndex++){
+			let pollutionArr = [];
+			for(let latIndex = 0; latIndex < lats.length; latIndex++){
+				for(let lngIndex = 0; lngIndex < longs.length; lngIndex++){
+					let lat = lats[latIndex]; //small to large
+					let lng = longs[lngIndex];
+					let pm25Value = Interpolizer(lat,lng, window.controller.allGrids[timeIndex]);
+					pollutionArr.push(pm25Value.result);
+				}
+			}
+			console.log(pollutionArr);
+			pollutionArrays.push(pollutionArr);
+		}
+		console.log(pollutionArrays);
+		window.controller.pollutionArrays = pollutionArrays;
+		this.pollutionArrays = pollutionArrays;
+		return //pollutionArr;
+	}
+
 	getEstimates(){
+		console.log(window.controller.allGrids);
 		if(window.controller.allGrids== null){
 			return;
 		}
@@ -209,8 +244,8 @@ class interpolatedChart {
       bottom: 10,
       left: 25
     };
-    let rectHeight = 7.5;
-    let rectWidth = 7.5;
+    let rectHeight = 15;
+    let rectWidth = 15;
     let svg = d3.select('#lineMap' + this.numInterpChart.toString()).select('svg')
       .attr('width', width)
       .attr('height', height)
@@ -247,12 +282,18 @@ class interpolatedChart {
       .domain(domain)
       .range([0, xExtent]).nice();
 
-    let colorRange = window.controller.colorRange; //['rgb(0,104,55,.2)','rgb(0,104,55,.5)','rgb(0,104,55)', 'rgb(26,152,80)', 'rgb(102,189,99)', 'rgb(166,217,106)', 'rgb(217,239,139)', 'rgb(255,255,191)', 'rgb(254,224,139)', 'rgb(253,174,97)', 'rgb(244,109,67)', 'rgb(215,48,39)', 'rgb(165,0,38)']
+    /*let colorRange = window.controller.colorRange; //['rgb(0,104,55,.2)','rgb(0,104,55,.5)','rgb(0,104,55)', 'rgb(26,152,80)', 'rgb(102,189,99)', 'rgb(166,217,106)', 'rgb(217,239,139)', 'rgb(255,255,191)', 'rgb(254,224,139)', 'rgb(253,174,97)', 'rgb(244,109,67)', 'rgb(215,48,39)', 'rgb(165,0,38)']
     ; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
     let pm25Domain = window.controller.pm25Domain; //[4, 8, 12, 20, 28, 35,42,49,55,150,250,350];
     let colorScale = d3.scaleLinear()
       .domain(pm25Domain)
-      .range(colorRange);
+      .range(colorRange);*/
+		this.colorRange = ['rgba(0,104,55,.2)', 'rgba(102,189,99,1)', 'rgba(255,239,139,1)', 'rgba(255,180,33,1)', 'rgba(253,174,97,1)', 'rgba(244,109,67,1)', 'rgba(215,48,39,1)', 'rgba(165,0,38,1)']; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
+	  this.pm25Domain = [0,4,12, 35, 55, 85,150, 250, 350];
+		let colorScale = d3.scaleLinear()
+			    .domain(this.pm25Domain)
+			    .range(this.colorRange);
+		//let colorScale = window.controller.colorMap;
     // Append x axis
     let x_axis = d3.axisBottom(xScale)
       .tickFormat((d) => {
@@ -388,11 +429,22 @@ class interpolatedChart {
           .duration(300)
           .style("opacity", 0);
       })
-			.on("click", (d)=>{
+			.on("click", (d,i)=>{
 				// set selected date
 				window.controller.selectedDate = d.time;
 				// update map view
-				window.controller.grabAllModelData(d.time);
+				let index = 0;
+				for(let index = 0; index < this.times.length; index++){
+					let time = this.times[index];
+					console.log(time);
+					console.log(time.start.toISOString(),d.time.toISOString())
+					if(time.start.toISOString() == d.time.toISOString()){
+						window.controller.grabAllModelData(index);
+					}
+				}
+
+				//console.log(i % (myData.length / this.interpolationPoints.length));
+				//window.controller.grabAllModelData(i % (myData.length / this.interpolationPoints.length));
 			})
 
     /*.on("mouseover", function(d) {
@@ -469,19 +521,26 @@ class interpolatedChart {
       latList.push(gridObject[0][i].lat);
     }
 
+
     let lngList = [-1];
     for (let i = 0; i < Object.keys(gridObject[0]).length; i = i + 36) {
       lngList.push(gridObject[0][i].lng);
     }
+		//lngList.push(-1);
+		//lngList = lngList.reverse();
+		//latList = latList.reverse();
     console.log(latList);
     console.log(lngList);
     let allGrids = [];
+		let allPollutionArrs = [];
     for (let i = 0; i < gridObjects.length; i++) {
 			gridObject = gridObjects[i];
       let pollutionArr;
       for (let time in gridObject[1]) {
         pollutionArr = gridObject[1][time].pm25;
       }
+			// add to pollution arrays (used for rendering);
+			allPollutionArrs.push(pollutionArr);
 
       let value = -1; // by default
       let myGrid = new Array(37).fill(0).map(() => new Array(50).fill(0));
@@ -499,15 +558,45 @@ class interpolatedChart {
         fillCounter++;
       }
 
-      for (let row = 1; row < latList.length; row++) {
+			let counter = latList.length-1;
+      for (let row = 1; row < latList.length ; row++) {
         for (let col = 1; col < lngList.length; col++) {
-          let pollutionIndex = (row - 1) * 36 + col;
-          myGrid[row][col] = pollutionArr[pollutionIndex];
+          //let pollutionIndex = (row-1) * 36 + (col-1);
+					/* Pollution Array is stored like this
+					[3][7][11]
+					[2][6][10]
+					[1][5][9]
+					[0][4][8]
+
+					 */
+					let pollutionIndex = (col-1)*36 + (row-1);
+					/*if(row > parseInt(latList.length/2)){
+						if(col > parseInt(lngList.length/2)){
+							val = 100;
+						} else {
+							val = 30
+						}
+					} else {
+						if(col > parseInt(lngList.length/2)){
+							val = 10;
+						} else {
+							val = 2;
+						}
+					}*/
+
+          myGrid[counter][col] = pollutionArr[pollutionIndex];
         }
+				counter--;
       }
       allGrids.push(myGrid);
     }
     window.controller.allGrids = allGrids;
+		console.log(allGrids);
+		console.log("Start Make Finer");
+		this.makeFinerGrid();
+		console.log("End Make Finer");
+
+		//window.controller.pollutionArrays = allPollutionArrs;
     console.log(allGrids);
 
 		let dataToPlot = this.getEstimates();
@@ -562,6 +651,7 @@ class interpolatedChart {
         for (let i = 0; i < values.length; i++) {
           if (values[i]) {
             parsedVals.push(JSON.parse(values[i]))
+						console.log(JSON.parse(values[i]));
           }
         }
         console.log(parsedVals);
@@ -618,17 +708,17 @@ class interpolatedChart {
     firstDateStart = new Date(firstDateStart);
     lastDateStart = new Date(lastDateStart);
     let firstDateStop = new Date(new Date(firstDateStart).setMinutes(firstDateStart.getMinutes() + 5));
-    let LastDateStop = new Date(new Date(lastDateStart).setMinutes(lastDateStart.getMinutes() + 5));
-    console.log(firstDateStart, firstDateStop)
+    let lastDateStop = new Date(new Date(lastDateStart).setMinutes(lastDateStart.getMinutes() + 5));
+    console.log(firstDateStart, lastDateStart)
     let arr = []
-    for (let dt = firstDateStart; dt <= lastDateStart; dt.setHours(dt.getHours() + 3)) {
+    for (let dt = firstDateStart; dt <= lastDateStart; dt.setHours(dt.getHours() + 1)) {
       arr.push(new Date(dt));
     }
 
     let starts = arr;
     arr = []
 
-    for (let dt = firstDateStop; dt <= LastDateStop; dt.setHours(dt.getHours() + 3)) {
+    for (let dt = firstDateStop; dt <= lastDateStop; dt.setHours(dt.getHours() + 1)) {
       arr.push(new Date(dt));
     }
     let stops = arr;
@@ -663,3 +753,13 @@ class interpolatedChart {
     newData[fitCount - 1] = data[data.length - 1]; // for new allocation
     return newData;
   };
+
+	function makeArr(startValue, stopValue, cardinality) {
+	  var arr = [];
+	  var currValue = startValue;
+	  var step = (stopValue - startValue) / (cardinality - 1);
+	  for (var i = 0; i < cardinality; i++) {
+	    arr.push(currValue + (step * i));
+	  }
+	  return arr;
+	}
