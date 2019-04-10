@@ -175,8 +175,8 @@ crossorigin="anonymous"></script>
     </div>
     <div class="row">
       <div class="col-12 text-center">
-        <button class="ms-Button ms-Button--primary queryButton">
-          <span class="ms-Button-label">Search Now</span>
+        <button class="ms-Button ms-Button--primary queryButton " data-target="#collapseTravelOptions" data-toggle="collapse" href="#collapseTravelOptions" role="button" aria-expanded="false" aria-controls="collapseTravelOptions">
+        Search Now
         </button>
       </div>
     </div>
@@ -236,11 +236,28 @@ d3.select(".Cycle").on('click',(d)=>{
 
 d3.select(".queryButton").on('click', (d)=>{
   //check if
-  if(window.controller == null){
-    alert("Click on Transportation Type")
-  }
-  window.controller.search();
-  d3.select('#collapseTravelOptions').classed('.collapse',true);
+  if(!d3.select('#collapseTravelOptions').classed('collapse')){
+      d3.select('#collapseTravelOptions').classed('collapse',true);
+
+      d3.select('.addressHighlight')
+        .transition(200)
+        .style('height',"180px")
+      d3.select('.queryButton')
+        .text('Expand Search');
+        if(window.controller == null){
+          alert("Click on Transportation Type")
+        }
+        window.controller.search();
+  } else {
+      d3.select('#collapseTravelOptions').classed('collapse',false);
+      d3.select('.addressHighlight')
+        .transition(200)
+        .style('height',"300px")
+
+      d3.select('.queryButton')
+        .text('Search Now')
+    }
+
 })
 
 </script>
