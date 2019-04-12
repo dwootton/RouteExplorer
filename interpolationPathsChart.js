@@ -11,6 +11,7 @@ class interpolatedChart {
 		let bbSelection = d3.select('.line0')
     this.width = bbSelection.node().getBoundingClientRect().width;
     this.height = 350;
+    this.highlightAll = true;
   }
 
   setSelector(selector) {
@@ -19,10 +20,11 @@ class interpolatedChart {
 
   update(polyline) {
     console.log(polyline);
-    window.controller.startDate = new Date("2019-1-8 18:00:00");
-    window.controller.endDate = new Date("2019-1-9 10:00:00");
+    window.controller.startDate = new Date("2019-3-8 18:00:00");
+    window.controller.endDate = new Date("2019-3-9 10:00:00");
     this.times = generateTimes(window.controller.startDate, window.controller.endDate);
 		window.controller.times = this.times;
+    window.controller.selectedTime = this.times[0].start;
 		console.log(this.times, window.controller.startDate, window.controller.endDate);
     console.log("Inside interpChart!")
     //let lats = points.map(x => x.lat);
@@ -180,6 +182,7 @@ class interpolatedChart {
       let points = this.interpolateArray(polyline);
       polyLinePaths.push(points);
     }
+    window.controller.polyLinePaths = polyLinePaths;
     // calculate distance % along path
     let percentThroughPath = [];
     for(let i = 1; i <= polyLinePaths[0].length; i++){
@@ -229,7 +232,7 @@ class interpolatedChart {
     //var path =
     let totalDistance = polyline.Distance(); //google.maps.geometry.spherical.computeLength(path.getArray());
     //set num Iterations to constant;
-    let numIterations = 15;//totalDistance / this.pointSeparationDistances;
+    let numIterations = 25;//totalDistance / this.pointSeparationDistances;
     //let traveledDistance = 0;
     console.log(totalDistance);
     console.log(numIterations);
@@ -279,6 +282,29 @@ class interpolatedChart {
     //console.log(google.maps.geometry.spherical.computeLength(path))
   }
 
+  updateTOSMHighLight(){
+    let svg = d3.select('#lineMap' + this.numInterpChart.toString()).select('svg').selectAll('g');
+    let rects = svg.selectAll("rect");
+    let colorScale = d3.scaleLinear()
+			    .domain(this.pm25Domain)
+			    .range(this.colorRange);
+    rects
+      .transition()
+        .duration(400)
+        .attr('fill', (d,i) => {
+          let color = d3.rgb(colorScale(d.data));
+          if(d.time.toISOString() == window.controller.selectedTime.toISOString() || this.highlightAll){ //index is valid
+            return color;
+          }//index is valid
+          return color.darker(0.5);
+        })
+        .attr('opacity', (d,i)=>{
+          if(d.time.toISOString() == window.controller.selectedTime.toISOString() || this.highlightAll){ //index is valid
+            return 1.0;
+          }
+          return 0.6;
+        })
+  }
 
   drawLineHeatMap(myData) {
     console.log(myData);
@@ -294,10 +320,10 @@ class interpolatedChart {
       top: 30,
       right: 0,
       bottom: 10,
-      left: 25
+      left: 75
     };
-    let rectHeight = 15;
-    let rectWidth = 15;
+    let rectHeight = 10;
+    let rectWidth = 10;
     let svg = d3.select('#lineMap' + this.numInterpChart.toString()).select('svg')
       .attr('width', width)
       .attr('height', height)
@@ -456,9 +482,6 @@ class interpolatedChart {
         return xScale(d.time);
 
       })
-      .attr('fill', function(d) {
-        return colorScale(d.data);
-      })
       .on("mouseover", (d) => {
         console.log(d);
         //this.mapPath.changeMapNavLine(.2)
@@ -491,13 +514,29 @@ class interpolatedChart {
 					console.log(time);
 					console.log(time.start.toISOString(),d.time.toISOString())
 					if(time.start.toISOString() == d.time.toISOString()){
-						window.controller.grabAllModelData(index);
+						window.controller.selectTime(index);
 					}
 				}
 
 				//console.log(i % (myData.length / this.interpolationPoints.length));
 				//window.controller.grabAllModelData(i % (myData.length / this.interpolationPoints.length));
 			})
+      .transition()
+        .duration(0)
+        .attr('fill', function(d,i) {
+          let color = d3.rgb(colorScale(d.data));
+          console.log(d.time, window.controller.selectedTime)
+          if(d.time.toISOString() == window.controller.selectedTime.toISOString()){ //index is valid
+            return color;
+          }//index is valid
+          return color.darker(0.5);
+        })
+        .attr('opacity',function(d,i){
+          if(d.time.toISOString() == window.controller.selectedTime.toISOString()){ //index is valid
+            return 1.0;
+          }
+          return 0.6;
+        })
 
     /*.on("mouseover", function(d) {
 	               changeMapNavLine(.2)
@@ -655,7 +694,6 @@ class interpolatedChart {
     //Perform the calculations
   	console.log(dataToPlot);
     console.log("DRAW CHART!")
-    window.controller.drawChart();
 
 
 

@@ -16,15 +16,32 @@ class Controller {
     //finish laoding
   }
 
-  prepareData(){
-    let polylines = window.controller.Map.getPolyLinePaths();
-    let data = window.controller.interpChart.getAllPathEstimatesAtTime(0,polylines);
+  selectTime(timeIndex){
+    this.selectedTime = this.times[timeIndex].start;
+    this.grabAllModelData(timeIndex);
+    this.drawChart(timeIndex);
+    this.interpChart.updateTOSMHighLight();
+
+    // render new chart
+    // render new map
+    // highlight row on TOSM
+
+  }
+
+  selectDistance(paths){
+    // for each path, render a
+  }
+
+
+  prepareData(index){
+    let polylines = this.Map.getPolyLinePaths();
+    let data = this.interpChart.getAllPathEstimatesAtTime(index,polylines);
     console.log(data);
     return data;
   }
 
-  drawChart(){
-    let data = this.prepareData();
+  drawChart(index){
+    let data = this.prepareData(index);
 
     // TODO: assuming 3 lines
     data.forEach(function (d) {
@@ -36,28 +53,56 @@ class Controller {
 
     let path1 =['Path 1'],
         path2 =['Path 2'],
-        path3 =['Path 3'];
+        path3 =['Path 3'],
+        distances =['x'];
 
     for(let i = 0; i < data.length; i++){
+      distances.push(data[i].distance)
       path1.push(data[i].Path1PM25);
       path2.push(data[i].Path2PM25);
       path3.push(data[i].Path3PM25);
     }
-    let chartWidth = document.getElementById('chart').clientWidth;
+    console.log(distances);
+    let chartWidth = document.getElementById('chart-wrapper').clientWidth;
+    console.log(chartWidth);
+    chartWidth = parseInt(chartWidth);
+    console.log(chartWidth);
+    chartWidth= chartWidth -66+12;
+    // 66 - 12 ()
+    console.log(chartWidth)
     var chart = c3.generate({
         bindto: '#chart',
         data: {
+           x: 'x',
           columns: [
-            path1, path2, path3
-          ]
+            distances,path1, path2, path3
+          ],
+          onclick: function (d, element) { console.log(d); console.log(element);}
         },
         color: {
-          pattern: ['#ff0000','#00ff00','#0000ff']
+          pattern: ['#8e0000','#000000','#00008e']
         },
         size: {
-          height: 300,
+          height: 260,
           width: chartWidth
         },
+        padding:{
+          left: 48,
+          bottom:14,
+          right:60
+        },
+
+        axis: {
+          x: {
+            max: 1,
+            min: 0,
+            tick: {
+              values: distances,
+              format: function (x) { return Math.round(100*x); }
+            }
+          }
+        }
+
     });
   }
   constructQuery(){

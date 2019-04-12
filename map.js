@@ -2,6 +2,7 @@ class AQMap {
 
 	constructor(){
 		console.log("map created!")
+		this.showHeatMap = true;
 		//this.svg = d3.select("svg")//.append('g')
 		//this.width = this.svg.attr("width")
 		//this.height = this.svg.attr("height")
@@ -51,6 +52,7 @@ class AQMap {
 		})
 
 		this.interpChart = [new interpolatedChart(0)]//,new interpolatedChart(1),new interpolatedChart(2)];
+		this.myMap.controls[google.maps.ControlPosition.LEFT_CENTER].push(document.getElementById('HeatMapToggle'));
 
 	}
 
@@ -101,7 +103,7 @@ class AQMap {
 	    if (status == google.maps.DirectionsStatus.OK) {
 				this.currentResponse = response;
 	      var routes = response.routes;
-	      var colors = ['red', 'green', 'blue', 'orange', 'yellow', 'black'];
+	      var colors = ['red', 'black', 'white', 'orange', 'yellow'];
 				let opacities = [0.6,0.3,0.3];
 	      var directionsDisplays = [];
 
@@ -151,6 +153,7 @@ class AQMap {
 
 	          return function() {
 							console.log("In Direction Change")
+
 	            var directions = directionsDisplay.getDirections();
 							console.log(directions);
 	            var new_start = directions.routes[0].legs[0].start_location;
@@ -360,8 +363,29 @@ class AQMap {
     }*/
 
 	}
+	refreshHeatMap(){
+		// if the heat map has been previously displayed
+		if(this.showHeatMap == false){
+			// remove the heatmap
+			if(this.myMap.data){
+				this.myMap.data.forEach((feature) => {
+		        this.myMap.data.remove(feature);
+		    })
+			}
+	  } else {
+			if(this.modelData){
+				this.updateModel(this.modelData);
+			}
+
+		}
+	}
 
 	updateModel(modelData) {
+		if(this.showHeatMap == false){
+			this.modelData = modelData;
+			return;
+		}
+
     if(modelData.data){
       modelData = modelData.data;
     }

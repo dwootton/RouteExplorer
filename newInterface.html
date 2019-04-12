@@ -14,8 +14,17 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3X5TPjGMtpRK1NnVeuDOCAwv
 <script src="interpolizer.js" type="text/javascript"> </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.0/c3.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.0/c3.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
 
 <style>
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+#chart .c3-chart-line {
+  stroke-width: 5px;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -198,13 +207,14 @@ crossorigin="anonymous"></script>
   				</div>
         </div> -->
       </div>
-      <div class="row col-12">
+      <div class="row col-12" id ="chart-wrapper">
         <div id="chart"></div>
 
       </div>
   </nav>
 
   <article>
+    <button type="submit" id = "HeatMapToggle"><img src="HeatmapLayer.png" alt="Submit"></button>
     <div class="row">
       <div class="col-12">
         <div id="map"></div>
@@ -232,7 +242,11 @@ d3.select(".Cycle").on('click',(d)=>{
   d3.select(".Cycle").attr('opacity',0);
 
 })
-
+d3.select('#HeatMapToggle').on('click',(d)=>{
+  // turn off heatmap toggle
+  window.controller.Map.showHeatMap = !window.controller.Map.showHeatMap;
+  window.controller.Map.refreshHeatMap();
+})
 
 d3.select(".queryButton").on('click', (d)=>{
   //check if
@@ -256,6 +270,7 @@ d3.select(".queryButton").on('click', (d)=>{
 
       d3.select('.queryButton')
         .text('Search Now')
+
     }
 
 })
