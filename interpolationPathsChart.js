@@ -11,7 +11,15 @@ class interpolatedChart {
 		let bbSelection = d3.select('.line0')
     this.width = bbSelection.node().getBoundingClientRect().width;
     this.height = 350;
-    this.highlightAll = true;
+    this.highlightAll = false;
+  }
+
+  toggleHighlight(){
+    // toggle highlight All
+    this.highlightAll = !this.highlightAll;
+    //update TOSM View
+    this.updateTOSMHighLight();
+
   }
 
   setSelector(selector) {
@@ -19,11 +27,14 @@ class interpolatedChart {
   }
 
   update(polyline) {
+
     console.log(polyline);
     window.controller.startDate = new Date("2019-3-8 18:00:00");
     window.controller.endDate = new Date("2019-3-9 10:00:00");
     this.times = generateTimes(window.controller.startDate, window.controller.endDate);
 		window.controller.times = this.times;
+    window.controller.slider = new Slider();
+
     window.controller.selectedTime = this.times[0].start;
 		console.log(this.times, window.controller.startDate, window.controller.endDate);
     console.log("Inside interpChart!")
@@ -119,6 +130,7 @@ class interpolatedChart {
 		return allData;
 	}
 
+
 	makeFinerGrid(){
 
 		var maxLng = -111.7134030;
@@ -172,6 +184,9 @@ class interpolatedChart {
 		}
 		console.log(plottingData);
 		this.drawLineHeatMap(plottingData);
+    window.controller.selectTime(0);
+    //window.controller.slider
+
 
 	}
 
@@ -693,7 +708,6 @@ class interpolatedChart {
 		let dataToPlot = this.getEstimates();
     //Perform the calculations
   	console.log(dataToPlot);
-    console.log("DRAW CHART!")
 
 
 

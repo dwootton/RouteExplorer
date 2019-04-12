@@ -103,8 +103,8 @@ class AQMap {
 	    if (status == google.maps.DirectionsStatus.OK) {
 				this.currentResponse = response;
 	      var routes = response.routes;
-	      var colors = ['red', 'black', 'white', 'orange', 'yellow'];
-				let opacities = [0.6,0.3,0.3];
+	      var colors = ['blue', 'black', 'black'];
+				let opacities = [1.0,1.0,1.0];
 	      var directionsDisplays = [];
 
 	      // Reset the start and end variables to the actual coordinates
@@ -521,7 +521,7 @@ class AQMap {
     let labelsMap = this.myMap.overlayMapTypes.push(labelsMapType);
 
     // Select the just created highway labels and bring it to the front.
-    d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index', 1000000).style('opacity', 0.5);
+    d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index', 1000000).style('opacity', 0.4);
 
 
     // consult this for d3 on top of leaflet: http://www.sydneyurbanlab.com/Tutorial7/tutorial7.html
