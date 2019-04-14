@@ -10,7 +10,7 @@ class interpolatedChart {
     this.numInterpChart = number;
 		let bbSelection = d3.select('.line0')
     this.width = bbSelection.node().getBoundingClientRect().width;
-    this.height = 350;
+    this.height = 200;
     this.highlightAll = false;
   }
 
@@ -169,7 +169,9 @@ class interpolatedChart {
 			return;
 		}
 		let plottingData = [];
+    let averagePMs = [];
 		for(let i = 0; i < this.times.length; i++){
+      let pmSum = 0;
 			this.interpolationPoints.forEach((point)=>{
 				console.log(point);
 				let pm25Value = Interpolizer(point.lat(),point.lng(), window.controller.allGrids[i]);
@@ -179,11 +181,17 @@ class interpolatedChart {
 					lng: point.lng(),
 					time:this.times[i].start
 				})
+        pmSum+=pm25Value.result;
 				console.log(plottingData)
 			})
+      let pmAVG = pmSum/this.interpolationPoints.length;
+      averagePMs.push(pmAVG);
 		}
+    console.log(averagePMs);
+    window.controller.slider.changeData(averagePMs);
 		console.log(plottingData);
 		this.drawLineHeatMap(plottingData);
+
     window.controller.selectTime(0);
     //window.controller.slider
 
@@ -332,10 +340,10 @@ class interpolatedChart {
     let width = this.width;
     let height = this.height;
     let margin = {
-      top: 30,
+      top: 2,
       right: 0,
-      bottom: 10,
-      left: 75
+      bottom: 0,
+      left: 0
     };
     let rectHeight = 10;
     let rectWidth = 10;
@@ -347,6 +355,10 @@ class interpolatedChart {
     console.log(svg);
     console.log(d3.select('#lineMap' + this.numInterpChart.toString()))
     heatMapSVG = svg;
+
+    svg.on('mouseleave',function(d){
+        d3.selectAll('.highlightOverlay').remove();
+     })
     /*
     let pathGroup = d3.select('#lineMap').select('svg').append('g')
         .attr("transform", "translate(" + margin.left/2 + "," + margin.top + ")");
@@ -553,63 +565,6 @@ class interpolatedChart {
           return 0.6;
         })
 
-    /*.on("mouseover", function(d) {
-	               changeMapNavLine(.2)
-	               div.transition()
-	                 .duration(600)
-	                 .style("opacity", .7);
-	               div.html(monthNames[d.date.getMonth()] +"</br>"+ d.date.getFullYear() + "</br>" + d.data.toFixed(2))
-	                 .style("top", d3.event.pageY - 70 + "px")
-	                 .style("left", d3.event.pageX - 30 + "px");
-	                 let currentCoordinate = navCoordinates[d.point]
-
-	                d3.select('#highlighter')
-	                .transition().duration(100).attr('cx',currentCoordinate[0]).attr('cy',currentCoordinate[1]);
-	                })
-	             .on("mouseout", function(d) {
-	                changeMapNavLine(0.9)
-	               div.transition()
-	                 .duration(300)
-	                 .style("opacity", 0);
-	               d3.select('#highlighter').transition().duration(1000).attr('cx',-10).attr('cy',-10);
-	               })
-
-	             .on("click", function(d){
-	                let monthsSinceStart = d.date.getMonth() + d.date.getYear()*12;
-	                let startDate = new Date(1990,0);
-	                monthsSinceStart -= startDate.getMonth() + startDate.getYear()*12;
-	                window.render(monthsSinceStart)
-	             })
-	*/
-    /*
-	    rects
-	        .attr('width', rectWidth)
-	        .attr('height', rectHeight)
-	        .attr('x', function(d,i){
-	            return xScale(d.time);
-	        })
-	        .attr('y', function(d,i){
-	        	console.log(i%myData.length)
-	            return yScale(i%myData.length);
-	        })
-	        .attr('fill', function(d){
-	            return colorScale(d.data);
-	        })
-		*/
-
-    // Append Axis
-    //let x_axis = d3.axisBottom(xScale).ticks((query.length/15+1));
-
-    /*
-    let xAxis = d3.svg.axis()
-        .scale(xScale)
-        .tickFormat(function (d) {
-            return d;
-        })
-        .orient("top");
-
-    */
-
     appendLabels(svg);
 
     //Set up Append Rects
@@ -701,6 +656,9 @@ class interpolatedChart {
 		console.log("Start Make Finer");
 		this.makeFinerGrid();
 		console.log("End Make Finer");
+    console.log(this.pollutionArrays)
+    window.controller.Map.calculateContour(this.pollutionArrays);
+
 
 		//window.controller.pollutionArrays = allPollutionArrs;
     console.log(allGrids);

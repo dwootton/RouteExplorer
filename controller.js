@@ -17,11 +17,14 @@ class Controller {
   }
 
   selectTime(timeIndex){
+    if(timeIndex == this.currentlySelectedIndex){
+      return;
+    }
     this.selectedTime = this.times[timeIndex].start;
-    this.grabAllModelData(timeIndex);
+    this.updateModelView(timeIndex);
     this.drawChart(timeIndex);
     this.interpChart.updateTOSMHighLight();
-
+    this.currentlySelectedIndex = timeIndex;
     // render new chart
     // render new map
     // highlight row on TOSM
@@ -139,11 +142,9 @@ class Controller {
    * @return {Promise}      [description]
    */
   async grabAllModelData(timeIndex) {
-
     console.log(window.controller.pollutionArrays);
-    this.allModelData = window.controller.pollutionArrays[timeIndex];
-    console.log(this.allModelData)
-    this.updateModelView();
+    //this.allModelData = window.controller.pollutionArrays[timeIndex];
+    this.updateModelView(timeIndex);
     //let time = window.controller.times[timeIndex];
     /* Sets up time interval to grab model data from
     let start = time.toISOString().slice(0, -5) + "Z";
@@ -177,8 +178,8 @@ class Controller {
   /**
    * Updates model heatmap
    */
-  updateModelView() {
-    this.Map.updateModel(this.allModelData);
+  async updateModelView(timeIndex) {
+    this.Map.updateModel(timeIndex);
 
   }
 }

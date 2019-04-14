@@ -1,14 +1,14 @@
 class Slider{
   constructor(){
-    let margin = { top: 10, right: 5, bottom: 10, left: 30 };
+    let margin = { top: 10, right: 40, bottom: 10, left: 30 };
 
-    let height = 300;
-    let width = 100;
+    let height = 200;
+    let width = 80;
     let times = [];
     window.controller.times.forEach(time=>{
       times.push(time.start);
     })
-
+    this.times = times;
     console.log(width);
 
     let timeBounds = [new Date(times[0]),new Date(times[times.length-1])];
@@ -66,7 +66,7 @@ class Slider{
     .scaleLinear()
     .domain([0, 45])
     .nice()
-    .range([width - margin.left, margin.right]);
+    .range([ width - margin.right-10, margin.left]);
   //let parseDate = d3.timeFormat("%Y-%m-%d")
   this.xScale =x;
   /*var yAxis = g =>
@@ -81,14 +81,14 @@ class Slider{
       .call(g => g.select('.domain').remove());*/
 
   this.slider = d3
-        .sliderLeft(yLinear)
+        .sliderRight(yLinear)
         .ticks(6)
         .default(9)
         .on('onchange', value => draw(value))
         .displayFormat(d3.timeFormat("%m-%d \n %H:%M %p"));
   console.log(this.slider)
   var slider = g =>
-    g.attr('transform', `translate(${width-margin.right},0`).call(this.slider);
+    g.attr('transform', `translate(${width-margin.right},0)`).call(this.slider);
     var bars = svg
       .append('g')
       .selectAll('rect')
@@ -107,9 +107,9 @@ class Slider{
 
       let xAxis = d3.axisTop(x).ticks(2);
       svg.append("g")
-        .attr("class", "yAxis")
+        .attr("class", "xAxis")
         .call(xAxis)
-        .attr('transform', `translate(${margin.left-5},0)`)
+        .attr('transform', `translate(${width-margin.right},0)`)
       .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
@@ -123,10 +123,9 @@ class Slider{
 
     var draw = selected => {
       let yPosition = this.yScale(new Date(selected));
-      console.log(xPosition);
       let closestBarLocation = indexOfClosest(yBandVals,yPosition);
 
-      console.log(selected);
+      console.log(closestBarLocation);
       barsEnter
         .merge(bars)
         .attr('fill', (d,i) => {
@@ -138,12 +137,18 @@ class Slider{
             }
           }
           return '#e0e0e0'*/
-          return (i === closestBarLocation ? '#bad80a' : '#e0e0e0')
+          console.log(d);
+          if(i == closestBarLocation){
+            return window.controller.Map.colorMap(d.value);
+          }
+          return '#e0e0e0';
         });
+
 
       if(isNaN(selected.getTime())){
         selected = timeBounds[0];
       }
+
       let selectedDate = this.times[closestBarLocation];
       console.log(selectedDate);
       let m = selectedDate;
@@ -173,10 +178,11 @@ class Slider{
    * @return {[type]}      [none]
    */
   changeData(data){
-    let margin = { top: 10, right: 50, bottom: 50, left: 40 };
+    let margin = { top: 10, right: 40, bottom: 50, left: 40 };
 
-    let height = 300;
-    let width = d3.select('#timeSlider').attr('width');
+    let height = 200;
+    let width = 80;
+
     let times = [];
     window.controller.times.forEach(time=>{
       times.push(time.start);
@@ -200,30 +206,32 @@ class Slider{
       }
     });
 
-    this.xScale.domain([0,d3.max(data)])
-    let xAxis = d3.axisTop(this.xScale).ticks(2);
-
+    this.xScale.domain([d3.max(data),0])
+    let xAxis = d3.axisBottom(this.xScale).ticks(2);
 
     d3.select('.xAxis').remove('*');
     this.svg.append("g")
       .attr("class", "xAxis")
       .call(xAxis)
-      .attr('transform', `translate(${margin.top+5},0)`)
+      .attr('transform', `translate(${width-margin.right},5)`)//
     .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
       .text("AVG PM 2.5");
+
     var bars = this.svg
       .selectAll('.sliderBars')
       .data(dataNewYorkTimes);
+
     let xscale = this.xScale;
+    console.log(this.xScale(0),this.xScale(10));
     bars
       //.merge(bars)
       .transition(500)
-      .attr('y', d => this.xScale(d.value))
-      .attr('width', d => this.xScale(0) - this.xScale(d.value));
+      .attr('x', d => this.xScale(d.value))
+      .attr('width', d =>  this.xScale(0)-this.xScale(d.value));
 
 
   }

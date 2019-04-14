@@ -52,8 +52,8 @@ class AQMap {
 		})
 
 		this.interpChart = [new interpolatedChart(0)]//,new interpolatedChart(1),new interpolatedChart(2)];
-		this.myMap.controls[google.maps.ControlPosition.LEFT_CENTER].push(document.getElementById('HeatMapToggle'));
-
+		this.myMap.controls[google.maps.ControlPosition.LEFT_TOP].push(document.getElementById('HeatMapToggle'));
+		this.contours = [];
 	}
 
 	getPolyLinePaths(){
@@ -103,8 +103,8 @@ class AQMap {
 	    if (status == google.maps.DirectionsStatus.OK) {
 				this.currentResponse = response;
 	      var routes = response.routes;
-	      var colors = ['blue', 'black', 'black'];
-				let opacities = [1.0,1.0,1.0];
+	      var colors = ['black', 'black', 'black'];
+				let opacities = [1.0,0.6,0.6];
 	      var directionsDisplays = [];
 
 	      // Reset the start and end variables to the actual coordinates
@@ -196,13 +196,19 @@ class AQMap {
 		this.highlightLocation = dataPoint
 
 		console.log(dataPoint);
-		this.highlightOverlay = new google.maps.OverlayView();
+		this.highlightOverlay = new google.maps.OverlayView();//overlayMouseTarget
+
 		let that = this;
 
 		this.highlightOverlay.onAdd = function() {
-			d3.select(this.getPanes().overlayMouseTarget).selectAll(".highlightOverlay").remove();
+			let boundLocation = d3.select(this.getPanes().markerLayer).selectAll('div').selectAll('svg').data();
+			console.log(boundLocation,that.highlightLocation);
+			if(that.highlightLocation && that.highlightLocation == boundLocation){
+				return;
+			}
+			d3.select(this.getPanes().markerLayer).selectAll(".highlightOverlay").remove();
 			//get previous points;
-		    let layer = d3.select(this.getPanes().overlayMouseTarget).append("div") // floatPane as I want sensors to be on top
+		    let layer = d3.select(this.getPanes().markerLayer).append("div") // floatPane as I want sensors to be on top
 		        .attr("class", "highlightOverlay");
 
 		    that.highlightOverlay.draw = function() {
@@ -217,24 +223,24 @@ class AQMap {
 		          	return "white";
 		          })
 		          .attr("opacity", "0.5")
-
+					console.log("End Test");
 		      let newMarkers = marker
 		        .enter().append("svg")
 		          .each(transform)
 		          .attr("class", "highlighter")
-							.style('position','relative');
+							.style('position','absolute');
 
 		      marker.exit().remove();
 
 		      // Add a circle. May be unused?
 		      newMarkers.append("circle")
-		          .attr("r", 10)
-		          .attr('stroke','gold')
-		          .attr('stroke-width',3)
-		          .attr('fill-opacity',0.2)
+		          .attr("r", 4.5)
+		          .attr('stroke','black')
+		          .attr('stroke-width',2.5)
+		          .attr('fill-opacity',1.0)
 		          .attr("cx", padding)
 		          .attr("cy", padding)
-		          .attr("fill", "black");
+		          .attr("fill", "white");
 
 
 
@@ -380,85 +386,23 @@ class AQMap {
 		}
 	}
 
-	updateModel(modelData) {
+	updateModel(index){
 		if(this.showHeatMap == false){
-			this.modelData = modelData;
 			return;
 		}
-
-    if(modelData.data){
-      modelData = modelData.data;
-    }
-
-    this.modelData = modelData;
-		console.log(modelData);
-    //modelData = [8.964339902535034,15.595682501404061,16.57042698744204,18.19133816333678,11.611668095213714,11.565647168212108,9.916192521114132,6.541899730217069,7.052352588683608,7.501035178307062,12.019836906924501,16.98977615367748,14.43903630464879,18.41282496331842,11.333456684937138,9.348287548592062,14.489214074824726,6.790941527231953,7.815439492232705,8.135989384967434,13.852967147718985,17.47881501875145,17.602093468948997,18.830038387876115,16.222298703405457,11.069596451529595,12.860585717982625,5.843669206401813,6.430187999002033,8.673146088261356,14.552478042333625,17.200599865924136,21.489357944171832,20.283229563364984,22.151296051663245,12.974239563914061,10.456259349792571,9.093369517827368,8.655585226894358,9.608234030728035,14.663427790183809,15.271610089467535,19.424004390003876,19.44191061494021,20.92421296747697,15.638916349765802,9.75426986279476,12.976609675996558,11.121457884910457,10.471115502102577,14.966634341087122,15.06459586204938,19.77206699673942,16.27432872978454,21.08491498089317,18.887858898521586,11.711520640410228,10.284399004801326,10.85591700328193,10.676961765465006,15.418880386593878,17.324992752382588,20.867054510813166,13.975326921604745,20.773387078287815,21.984749565253274,15.453787202465993,15.829766955056902,13.49466080205513,10.41240450475944,15.238003806561725,15.702425998754974,19.789690539119942,17.16813636153775,23.63605745112857,24.109886934715696,21.57548452672802,20.333157196989834,16.441317860506214,13.19475038159874,14.422132334192963,13.80178996562388,14.180767016665985,18.971809169026482,24.201107603378983,25.317954340201148,25.655463931357115,22.65905392044519,19.313157803743675,17.18003245141215,12.696038236906523,13.763938609390353,12.647917754996156,19.517848958461776,24.30889143498016,25.726582171786102,26.038806451222484,24.10279485433458,21.681735071371676,20.208294359971237];
-
-    // MODEL CODE:
-    let startDate = new Date();
+		let that = this;
+		let startDate = new Date();
     let startStamp = startDate.getTime()
-    let polygons = d3.contours()
-      .size([245, 180]) //[36,49]
-      .thresholds(d3.range(0, d3.max(modelData), 1))
-      (modelData);
+		if (this.loadedContour) {
+			this.myMap.data.forEach((feature) => {
+				this.myMap.data.remove(feature);
+			})
+		}
 
+		this.loadedContour = this.contours[index];
+		let geojson = this.contours[index];
 
-    var geojson = {
-      type: 'FeatureCollection',
-      features: []
-    };
-
-    for (let polygon of polygons) {
-      if (polygon.coordinates.length === 0) continue;
-      let coords = convertCoords(polygon.coordinates);
-
-      geojson.features.push({
-        type: 'Feature',
-        properties: {
-          value: polygon.value
-        },
-        geometry: {
-          type: polygon.type,
-          coordinates: coords
-        }
-      })
-    }
-
-    function convertCoords(coords) {
-      // NOTE: Work through flipping coordiantes
-      var maxLng = -111.7134030;
-      var minLng = -112.001349; // coordinates flipped
-      var minLat = 40.810476;
-      var maxLat = 40.598850;
-
-      var result = [];
-      for (let poly of coords) {
-        var newPoly = [];
-        for (let ring of poly) {
-          if (ring.length < 4) continue;
-          var newRing = [];
-          for (let p of ring) {
-            newRing.push([
-              minLng + (maxLng - minLng) * (p[0] / 245), //36
-              maxLat - (maxLat - minLat) * (p[1] / 180) // 49
-            ]);
-          }
-          newPoly.push(newRing);
-        }
-        result.push(newPoly);
-      }
-      return result;
-    }
-
-    if (this.lastData) {
-      this.myMap.data.forEach((feature) => {
-        this.myMap.data.remove(feature);
-      })
-    }
-
-    this.lastData = geojson;
-    let that = this;
-    this.myMap.data.addGeoJson(geojson)
+		this.myMap.data.addGeoJson(geojson)
     this.myMap.data.setStyle(function(feature) {
       var color = 'gray';
 			let zValue;
@@ -522,6 +466,84 @@ class AQMap {
 
     // Select the just created highway labels and bring it to the front.
     d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index', 1000000).style('opacity', 0.4);
+	}
+
+	async calculateContour(entireModelData) {
+		/*if(this.showHeatMap == false){
+			this.modelData = modelData;
+			return;
+		}
+
+    if(modelData.data){
+      modelData = modelData.data;
+    }*/
+
+    //modelData = [8.964339902535034,15.595682501404061,16.57042698744204,18.19133816333678,11.611668095213714,11.565647168212108,9.916192521114132,6.541899730217069,7.052352588683608,7.501035178307062,12.019836906924501,16.98977615367748,14.43903630464879,18.41282496331842,11.333456684937138,9.348287548592062,14.489214074824726,6.790941527231953,7.815439492232705,8.135989384967434,13.852967147718985,17.47881501875145,17.602093468948997,18.830038387876115,16.222298703405457,11.069596451529595,12.860585717982625,5.843669206401813,6.430187999002033,8.673146088261356,14.552478042333625,17.200599865924136,21.489357944171832,20.283229563364984,22.151296051663245,12.974239563914061,10.456259349792571,9.093369517827368,8.655585226894358,9.608234030728035,14.663427790183809,15.271610089467535,19.424004390003876,19.44191061494021,20.92421296747697,15.638916349765802,9.75426986279476,12.976609675996558,11.121457884910457,10.471115502102577,14.966634341087122,15.06459586204938,19.77206699673942,16.27432872978454,21.08491498089317,18.887858898521586,11.711520640410228,10.284399004801326,10.85591700328193,10.676961765465006,15.418880386593878,17.324992752382588,20.867054510813166,13.975326921604745,20.773387078287815,21.984749565253274,15.453787202465993,15.829766955056902,13.49466080205513,10.41240450475944,15.238003806561725,15.702425998754974,19.789690539119942,17.16813636153775,23.63605745112857,24.109886934715696,21.57548452672802,20.333157196989834,16.441317860506214,13.19475038159874,14.422132334192963,13.80178996562388,14.180767016665985,18.971809169026482,24.201107603378983,25.317954340201148,25.655463931357115,22.65905392044519,19.313157803743675,17.18003245141215,12.696038236906523,13.763938609390353,12.647917754996156,19.517848958461776,24.30889143498016,25.726582171786102,26.038806451222484,24.10279485433458,21.681735071371676,20.208294359971237];
+
+    // MODEL CODE:
+		for(let i = 0; i < entireModelData.length; i++){
+			let modelData = entireModelData[i];
+			let startDate = new Date();
+	    let startStamp = startDate.getTime()
+	    let polygons = d3.contours()
+	      .size([245, 180]) //[36,49]
+	      .thresholds(d3.range(0, d3.max(modelData), 1))
+	      (modelData);
+
+
+	    var geojson = {
+	      type: 'FeatureCollection',
+	      features: []
+	    };
+
+	    for (let polygon of polygons) {
+	      if (polygon.coordinates.length === 0) continue;
+	      let coords = convertCoords(polygon.coordinates);
+
+	      geojson.features.push({
+	        type: 'Feature',
+	        properties: {
+	          value: polygon.value
+	        },
+	        geometry: {
+	          type: polygon.type,
+	          coordinates: coords
+	        }
+	      })
+	    }
+
+	    function convertCoords(coords) {
+	      // NOTE: Work through flipping coordiantes
+	      var maxLng = -111.7134030;
+	      var minLng = -112.001349; // coordinates flipped
+	      var minLat = 40.810476;
+	      var maxLat = 40.598850;
+
+	      var result = [];
+	      for (let poly of coords) {
+	        var newPoly = [];
+	        for (let ring of poly) {
+	          if (ring.length < 4) continue;
+	          var newRing = [];
+	          for (let p of ring) {
+	            newRing.push([
+	              minLng + (maxLng - minLng) * (p[0] / 245), //36
+	              maxLat - (maxLat - minLat) * (p[1] / 180) // 49
+	            ]);
+	          }
+	          newPoly.push(newRing);
+	        }
+	        result.push(newPoly);
+	      }
+	      return result;
+	    }
+
+
+
+	    //this.lastData = geojson;
+			this.contours.push(geojson);
+		}
+
 
 
     // consult this for d3 on top of leaflet: http://www.sydneyurbanlab.com/Tutorial7/tutorial7.html
