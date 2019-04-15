@@ -9,7 +9,7 @@ class interpolatedChart {
       .style("position", "absolute");
     this.numInterpChart = number;
 		let bbSelection = d3.select('.line0')
-    this.width = bbSelection.node().getBoundingClientRect().width;
+    this.width = bbSelection.node().getBoundingClientRect().width+30;
     this.height = 200;
     this.highlightAll = false;
   }
@@ -30,7 +30,7 @@ class interpolatedChart {
 
     console.log(polyline);
     window.controller.startDate = new Date("2019-3-8 18:00:00");
-    window.controller.endDate = new Date("2019-3-9 10:00:00");
+    window.controller.endDate = new Date("2019-3-9 5:00:00");
     this.times = generateTimes(window.controller.startDate, window.controller.endDate);
 		window.controller.times = this.times;
     window.controller.slider = new Slider();
@@ -340,13 +340,13 @@ class interpolatedChart {
     let width = this.width;
     let height = this.height;
     let margin = {
-      top: 2,
+      top: 10,
       right: 0,
-      bottom: 0,
+      bottom: 25,
       left: 0
     };
-    let rectHeight = 10;
-    let rectWidth = 10;
+
+
     let svg = d3.select('#lineMap' + this.numInterpChart.toString()).select('svg')
       .attr('width', width)
       .attr('height', height)
@@ -377,15 +377,8 @@ class interpolatedChart {
         */
     let scaledPointDistances;
 
-
-
-
-    let domain = [this.times[0].start, this.times[this.times.length - 1].start]
     //console.log(domain);
-    let xExtent = this.times.length * rectWidth;
-    let xScale = d3.scaleTime()
-      .domain(domain)
-      .range([0, xExtent]).nice();
+
 
     /*let colorRange = window.controller.colorRange; //['rgb(0,104,55,.2)','rgb(0,104,55,.5)','rgb(0,104,55)', 'rgb(26,152,80)', 'rgb(102,189,99)', 'rgb(166,217,106)', 'rgb(217,239,139)', 'rgb(255,255,191)', 'rgb(254,224,139)', 'rgb(253,174,97)', 'rgb(244,109,67)', 'rgb(215,48,39)', 'rgb(165,0,38)']
     ; //['#a50026','#d73027','#f46d43','#fdae61','#fee08b','#ffffbf','#d9ef8b','#a6d96a','#66bd63','#1a9850','#006837'];
@@ -399,35 +392,9 @@ class interpolatedChart {
 			    .domain(this.pm25Domain)
 			    .range(this.colorRange);
 		//let colorScale = window.controller.colorMap;
-    // Append x axis
-    let x_axis = d3.axisBottom(xScale)
-      .tickFormat((d) => {
-        return formatDate(d); //dataset[d].keyword;
-      });
-    heatMapSVG.append("g")
-      .call(x_axis)
-      .selectAll("text")
-      .attr("y", -10)
-      .attr("x", 0)
-      .attr("dy", ".35em");
 
     // remove unneeded ticks
-    var ticks = d3.selectAll(".tick text");
 
-    ticks.attr("class", function(d, i) {
-      if (i % 10 != 0) d3.select(this).remove();
-    });
-
-    function formatDate(date) {
-      var hours = date.getHours();
-      var minutes = date.getMinutes();
-      var ampm = hours >= 12 ? 'pm' : 'am';
-      hours = hours % 12;
-      hours = hours ? hours : 12; // the hour '0' should be '12'
-      minutes = minutes < 10 ? '0' + minutes : minutes;
-      var strTime = hours + ':' + minutes + ' ' + ampm;
-      return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear() + "  " + strTime;
-    }
     /*
 	    let pathGroups = pathGroup.selectAll('circle')
 	        .data(scaledPointDistances);
@@ -484,10 +451,32 @@ class interpolatedChart {
 	            .range([0, xScaleWidth]).nice();
 	*/
 
-    let yScale = function(point) {
-      return (point + 1) * rectHeight;
-    }
 
+
+
+
+
+    let yBandStarts = []
+    let dataNewYorkTimes = window.controller.times.map(d => {
+      yBandStarts.push((d.start));
+    });
+    console.log(yBandStarts);
+
+    let padding = 0.01;
+    console.log(svg);
+    let yBand = d3
+      .scaleBand()
+      .domain(yBandStarts)
+      .range([0, height - margin.bottom-margin.top])
+      .padding(padding);
+      this.yBand =yBand;
+
+      let rectHeight = yBand.bandwidth;
+      let rectWidth = 10;
+      console.log(rectHeight,rectWidth)
+      let xScale = function(point) {
+        return (point + 1) * (rectWidth);
+      }
     //Set up Color Scale
 
     let rects = svg.selectAll("rect")
@@ -498,15 +487,17 @@ class interpolatedChart {
     //   let monthNames = ["Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
 
     let that = this;
+    console.log(yBand(that.times[0]))
     rects.enter().append('rect')
       .attr('width', rectWidth)
       .attr('height', rectHeight)
       .attr('x', function(d,i) {
-        return yScale(i % (myData.length / that.times.length));
+        return xScale(i % (myData.length / that.times.length));
       })
       .attr('y', function(d, i) {
         //console.log(i,myData.length);
-        return xScale(d.time);
+        console.log(yBand(d.time),d.time)
+        return yBand(d.time);
 
       })
       .on("mouseover", (d) => {
@@ -515,7 +506,7 @@ class interpolatedChart {
         this.div.transition()
           .duration(600)
           .style("opacity", .7);
-        this.div.html(formatDate(d.time) + "</br>" + d.data.toFixed(2))
+        this.div.html(d.data.toFixed(2))
           .style("top", d3.event.pageY - 200 + "px")
           .style("left", d3.event.pageX - 30 + "px");
         //window.controller.shapeDrawer.changeLineOpacity(0.3);
@@ -565,7 +556,7 @@ class interpolatedChart {
           return 0.6;
         })
 
-    appendLabels(svg);
+    //appendLabels(svg);
 
     //Set up Append Rects
     if (d3.event) {
@@ -730,7 +721,6 @@ class interpolatedChart {
     let height = this.height;
     let width = this.width;
     let margin = {
-
       top: 5,
       left: 10
     }

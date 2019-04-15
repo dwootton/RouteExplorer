@@ -1,9 +1,9 @@
 class Slider{
   constructor(){
-    let margin = { top: 10, right: 40, bottom: 10, left: 30 };
+    let margin = { top: 10, right: 60, bottom: 20, left: 5 };
 
-    let height = 200;
-    let width = 80;
+    let height = 195;
+    let width = 110;
     let times = [];
     window.controller.times.forEach(time=>{
       times.push(time.start);
@@ -12,7 +12,7 @@ class Slider{
     console.log(width);
 
     let timeBounds = [new Date(times[0]),new Date(times[times.length-1])];
-    this.yScale = d3.scaleTime().range([0, height])
+    this.yScale = d3.scaleTime().range([margin.top, height - margin.bottom])
       .domain(timeBounds)
       .clamp(true);
   console.log(timeBounds);
@@ -29,6 +29,7 @@ class Slider{
     }
   });
   console.log(yBandStarts);
+  window.controller.yBandStarts = yBandStarts;
 
   let svg = d3
     .select('#slider')
@@ -56,7 +57,7 @@ class Slider{
 
   let yBandVals = []
   times.map(d => {
-    yBandVals.push(yLinear(d));
+    yBandVals.push(yLinear(d)+(yBand.bandwidth() / 2));
   });
   console.log(yBandVals);
 
@@ -66,9 +67,10 @@ class Slider{
     .scaleLinear()
     .domain([0, 45])
     .nice()
-    .range([ width - margin.right-10, margin.left]);
+    .range([width - margin.right-10, margin.left]);
   //let parseDate = d3.timeFormat("%Y-%m-%d")
   this.xScale =x;
+  console.log(this.xScale(0),this.xScale(45))
   /*var yAxis = g =>
     g
       .attr('transform', `translate(${width - margin.right},0)`)
@@ -85,7 +87,7 @@ class Slider{
         .ticks(6)
         .default(9)
         .on('onchange', value => draw(value))
-        .displayFormat(d3.timeFormat("%m-%d \n %H:%M %p"));
+        .displayFormat(d3.timeFormat("%H: %p"));
   console.log(this.slider)
   var slider = g =>
     g.attr('transform', `translate(${width-margin.right},0)`).call(this.slider);
@@ -102,14 +104,14 @@ class Slider{
       .attr('x', d => x(d.value))
       .attr('height', yBand.bandwidth())
       .attr('width', d => x(0) - x(d.value)); //
-
+    console.log(x(0), x(15))
 
 
       let xAxis = d3.axisTop(x).ticks(2);
       svg.append("g")
         .attr("class", "xAxis")
         .call(xAxis)
-        .attr('transform', `translate(${width-margin.right},0)`)
+        .attr('transform', `translate(${0},0)`)
       .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
@@ -164,7 +166,8 @@ class Slider{
         dateString
         //d3.format(parseDate)(dataNewYorkTimes[3].value)
       );
-      d3.select('.parameter').property("value", dateString);
+      let smallDataString =  ("0" + m.getUTCHours()).slice(-2) + ":" + ("0" + m.getUTCMinutes()).slice(-2)
+      d3.select('.parameter').property("value", smallDataString);
 
       window.controller.selectTime(closestBarLocation);
 
@@ -178,10 +181,11 @@ class Slider{
    * @return {[type]}      [none]
    */
   changeData(data){
-    let margin = { top: 10, right: 40, bottom: 50, left: 40 };
+    console.log(data);
+    let margin = { top: 10, right: 60, bottom: 20, left: 5 };
 
-    let height = 200;
-    let width = 80;
+    let height = 195;
+    let width = 110;
 
     let times = [];
     window.controller.times.forEach(time=>{
@@ -191,7 +195,7 @@ class Slider{
     console.log(width);
 
     let timeBounds = [times[0],times[times.length-1]];
-    this.yScale = d3.scaleTime().range([0, height])
+    this.yScale = d3.scaleTime().range([margin.top, height - margin.bottom])
       .domain(timeBounds)
       .clamp(true);
 
@@ -206,14 +210,14 @@ class Slider{
       }
     });
 
-    this.xScale.domain([d3.max(data),0])
+    this.xScale.domain([0,d3.max(data)])
     let xAxis = d3.axisBottom(this.xScale).ticks(2);
 
     d3.select('.xAxis').remove('*');
     this.svg.append("g")
       .attr("class", "xAxis")
       .call(xAxis)
-      .attr('transform', `translate(${width-margin.right},5)`)//
+      .attr('transform', `translate(${0},3)`)//
     .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
@@ -245,7 +249,7 @@ function indexOfClosest(nums, target) {
   nums.forEach((num, i) => {
     let dist = Math.abs(target - num);
 
-    if (dist < closest) {
+    if (dist <= closest) {
       index = i;
       closest = dist;
     }

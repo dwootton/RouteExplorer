@@ -19,6 +19,10 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3X5TPjGMtpRK1NnVeuDOCAwv
 <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
 
 <style>
+.padding-0{
+    padding-right:0;
+    padding-left:0;
+}
 #HeatMapToggle {
   padding: 5px;
   margin-left: 10px;
@@ -26,6 +30,7 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3X5TPjGMtpRK1NnVeuDOCAwv
 }
 body {
   font-family: 'Montserrat', sans-serif;
+  font-size:.75em;
 }
 #chart .c3-chart-line {
   stroke-width: 5px;
@@ -53,6 +58,9 @@ header {
   font-size: 35px;
   color: white;
 }
+p{
+  margin-bottom:0;
+}
 
 /* Create two columns/boxes that floats next to each other */
 nav {
@@ -61,6 +69,9 @@ nav {
   height: 100vh;
   background: whitesmoke;
   padding: 20px;
+  box-shadow: 5px 0px 10px #aaaaaa;
+  z-index:1000;
+  position: relative;
 }
 
 /* Style the list inside the menu */
@@ -199,28 +210,24 @@ crossorigin="anonymous"></script>
     </div>
       <div class="row col-12">
         <div class="col-3">
-          <div class="mdc-switch">
-            <div class="mdc-switch__track"></div>
-            <div class="mdc-switch__thumb-underlay">
-              <div class="mdc-switch__thumb">
-                  <input type="checkbox" id="basic-switch" class="mdc-switch__native-control" role="switch">
-              </div>
-            </div>
+          <div class="row col-12 text-center">
+            <p id="value-new-york-times"></p>
+
           </div>
-          <label for="basic-switch">highlight-off/on</label>
         </div>
 
-        <div class="col-9"></div>
+        <div class="col-9">
+          Add Path Example
+        </div>
       </div>
       <div class="row col-12 text-center">
-        <div class="col-3" id = 'timeSlider'>
+        <div class="col-3 padding-0" id = 'timeSlider'>
           <g id='sliderGroup'>
     				<svg id="slider"> </svg>
-    		    <p id="value-new-york-times"></p>
     		    <div class="col-sm"><div id="slider-new-york-times"></div></div>
     			</g>
         </div>
-        <div class="col-9 line0">
+        <div class="col-9 line0 padding-0">
           <div id="lineMap0">
   					<svg> </svg>
   				</div>
@@ -237,8 +244,11 @@ crossorigin="anonymous"></script>
   				</div>
         </div> -->
       </div>
-      <div class="row col-12" id ="chart-wrapper">
-        <div id="chart"></div>
+
+      <div class="row col-12 padding-0" id ="chart-wrapper">
+        <div class="col-2"> </div>
+        <div class="col-9"><div id="chart"></div></div>
+        <div class="col-1"> </div>
 
       </div>
   </nav>

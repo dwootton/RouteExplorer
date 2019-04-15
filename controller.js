@@ -70,7 +70,7 @@ class Controller {
     console.log(chartWidth);
     chartWidth = parseInt(chartWidth);
     console.log(chartWidth);
-    chartWidth= chartWidth -66+12;
+    chartWidth= chartWidth -80+12;
     // 66 - 12 ()
     console.log(chartWidth)
     var chart = c3.generate({
@@ -86,7 +86,7 @@ class Controller {
           pattern: ['#8e0000','#000000','#00008e']
         },
         size: {
-          height: 260,
+          height: 200,
           width: chartWidth
         },
         padding:{
@@ -101,7 +101,10 @@ class Controller {
             min: 0,
             tick: {
               values: distances,
-              format: function (x) { return Math.round(100*x); }
+              format: function (x) { return Math.round(100*x); },
+              culling: {
+                    max: 6 // the number of tick texts will be adjusted to less than this value
+                }
             }
           }
         }
