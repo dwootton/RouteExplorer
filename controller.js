@@ -90,13 +90,40 @@ class Controller {
           width: chartWidth
         },
         padding:{
-          left: 48,
+          left: 45,
           bottom:14,
-          right:60
+          right:70
         },
 
         axis: {
+          y: {
+            label: {
+                text: 'PM 2.5 Concentration',
+                position: 'outer-center'
+                // inner-right : default
+                // inner-center
+                // inner-left
+                // outer-right
+                // outer-center
+                // outer-left
+            },
+            tick: {
+                format: function (d) {
+                    return (parseInt(d) == d) ? d : Math.round(d * 100) / 100;
+                }
+            }
+          },
           x: {
+            label: {
+                text: 'Distance Along Path (%)',
+                position: 'outer-center'
+                // inner-right : default
+                // inner-center
+                // inner-left
+                // outer-right
+                // outer-center
+                // outer-left
+            },
             max: 1,
             min: 0,
             tick: {
@@ -104,7 +131,7 @@ class Controller {
               format: function (x) { return Math.round(100*x); },
               culling: {
                     max: 6 // the number of tick texts will be adjusted to less than this value
-                }
+              }
             }
           }
         }

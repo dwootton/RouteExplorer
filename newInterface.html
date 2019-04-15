@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.2/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.13.0/d3-legend.js"></script>
+
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3X5TPjGMtpRK1NnVeuDOCAwvZSKPT564"></script>
 <script type="text/javascript"
 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3X5TPjGMtpRK1NnVeuDOCAwvZSKPT564&libraries=drawing">
@@ -209,15 +211,17 @@ crossorigin="anonymous"></script>
       </div>
     </div>
       <div class="row col-12">
-        <div class="col-3">
+        <div class="col-3 padding-0">
           <div class="row col-12 text-center">
             <p id="value-new-york-times"></p>
 
           </div>
         </div>
 
-        <div class="col-9">
-          Add Path Example
+        <div class="col-9 padding-0">
+          <div id="pathLegend">
+            <svg> </svg>
+          </div>
         </div>
       </div>
       <div class="row col-12 text-center">
@@ -264,7 +268,7 @@ crossorigin="anonymous"></script>
 
 </section>
 
-
+<div id="pm25Legend"><svg > </svg> </div>
 
 
 </body>

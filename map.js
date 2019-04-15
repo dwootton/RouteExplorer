@@ -25,19 +25,22 @@ class AQMap {
 		var poly1 = new google.maps.Polyline({
 	    strokeColor: '#f00',
 	    strokeOpacity: 1,
-	    fillOpacity: 0
+	    fillOpacity: 0,
+			zindex:1000000000055
 
 		});
 		var poly2 = new google.maps.Polyline({
 	    strokeColor: '#0f0',
 	    strokeOpacity: 1,
-	    fillOpacity: 0
+	    fillOpacity: 0,
+			zindex:1000000001
 
 		});
 		var poly3 = new google.maps.Polyline({
 	    strokeColor: '#00f',
 	    strokeOpacity: 1,
-	    fillOpacity: 0
+	    fillOpacity: 0,
+			zindex:1000000000
 
 		});
 
@@ -54,6 +57,35 @@ class AQMap {
 		this.interpChart = [new interpolatedChart(0)]//,new interpolatedChart(1),new interpolatedChart(2)];
 		this.myMap.controls[google.maps.ControlPosition.LEFT_TOP].push(document.getElementById('HeatMapToggle'));
 		this.contours = [];
+
+		/* Create legend*/
+    let legendColorMap = d3.scaleThreshold()
+      .domain(this.pm25Domain.reverse())
+      .range(this.colorRange.reverse());
+
+    let colorLegend = d3.legendColor()
+      .labelFormat(d3.format(".0f"))
+      .cells(this.pm25Domain)
+      //.labels(d3.legendHelpers.thresholdLabels)
+      .scale(this.colorMap)
+      .shapePadding(2)
+      .shapeWidth(50)
+      .shapeHeight(20)
+      .labelOffset(5)
+      .ascending(true);
+			d3.select('#pm25Legend').select('svg').append("rect")
+		    .attr("width", "100%")
+		    .attr("height", "100%")
+		    .attr("fill", "white")
+				.attr('opacity',0.3);
+    let testLegend = d3.select('#pm25Legend').select('svg')
+      .attr('width', 100)
+      .attr('height', 210)
+      .append("g")
+			.attr('transform','translate(10, 10)')
+      .call(colorLegend);
+
+    this.myMap.controls[google.maps.ControlPosition.LEFT_CENTER].push(document.getElementById('pm25Legend'));
 	}
 
 	getPolyLinePaths(){
@@ -110,6 +142,12 @@ class AQMap {
 	      // Reset the start and end variables to the actual coordinates
 	      start = response.routes[0].legs[0].start_location;
 	      end = response.routes[0].legs[0].end_location;
+				let startIconPath = 'StartIcon.svg';
+
+				let icon = {
+		        url: 'start-icon.svg'
+		    }
+
 
 	      // Loop through each route
 	      for (var i = 0; i < routes.length; i++) {
@@ -127,6 +165,7 @@ class AQMap {
 							zIndex: 10000000000000000000000000000000000
 
 	          }
+
 	        });
 
 					let polylinecoords = google.maps.geometry.encoding.decodePath(response.routes[i].overview_polyline);
@@ -136,7 +175,7 @@ class AQMap {
 	          geodesic: true,
 	          strokeColor: '#FF0000',
 	          strokeOpacity: 1.0,
-	          strokeWeight: 2
+	          strokeWeight: 3
         	});
 					console.log(newLine);
 
@@ -379,6 +418,7 @@ class AQMap {
 		    })
 			}
 	  } else {
+			console.log(this.modelData);
 			if(this.modelData){
 				this.updateModel(this.modelData);
 			}
@@ -465,7 +505,7 @@ class AQMap {
     let labelsMap = this.myMap.overlayMapTypes.push(labelsMapType);
 
     // Select the just created highway labels and bring it to the front.
-    d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index', 1000000).style('opacity', 0.4);
+    d3.select("#map > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)").style('z-index', 1000).style('opacity', 0.3);
 	}
 
 	async calculateContour(entireModelData) {
