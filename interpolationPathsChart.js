@@ -62,9 +62,29 @@ class interpolatedChart {
       .attr('font-size',16)
       .attr('fill','white')
       .text("B")
+    // Add legend highligh, hide it
+    this.legendSVG.append('circle').classed('legendHighlight',true)
+      .attr('fill','white')
+      .attr('r',5)
+      .attr('stroke','black')
+      .attr('stroke-width',2.5)
+      .attr('cy',10).attr('cx',-10);
 
 
 
+
+  }
+  hideLegendHighlight(){
+    this.legendSVG.selectAll('.legendHighlight').transition().duration(400).attr('opacity',0);
+
+  }
+  changeLegendHighlight(xPosition){
+    this.legendSVG.selectAll('.legendHighlight').attr('opacity',1);
+    console.log(xPosition)
+    this.legendSVG.selectAll('.legendHighlight')
+      .transition()
+      .duration(50)
+      .attr('cx',xPosition);
   }
 
   toggleHighlight() {
@@ -409,8 +429,9 @@ class interpolatedChart {
     console.log(d3.select('#lineMap' + this.numInterpChart.toString()))
     heatMapSVG = svg;
 
-    svg.on('mouseleave', function(d) {
+    svg.on('mouseleave', (d)=> {
       d3.selectAll('.highlightOverlay').remove();
+      this.hideLegendHighlight();
     })
     /*
     let pathGroup = d3.select('#lineMap').select('svg').append('g')
@@ -553,7 +574,7 @@ class interpolatedChart {
         return yBand(d.time);
 
       })
-      .on("mouseover", (d) => {
+      .on("mouseover", (d,i) => {
         console.log(d);
         //this.mapPath.changeMapNavLine(.2)
         this.div.transition()
@@ -564,6 +585,9 @@ class interpolatedChart {
           .style("left", d3.event.pageX - 30 + "px");
         //window.controller.shapeDrawer.changeLineOpacity(0.3);
         window.controller.Map.changeHighlightMarker(d.lat, d.lng);
+        let newLegendMarker =  xScale(i % (myData.length / this.times.length));
+
+        this.changeLegendHighlight(newLegendMarker);
         //let currentCoordinate = navCoordinates[d.point]
         //d3.select('#highlighter')
         //	.transition().duration(100).attr('cx',currentCoordinate[0]).attr('cy',currentCoordinate[1]);
